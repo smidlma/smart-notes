@@ -14,7 +14,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.smidlma.smart-notes"
+      "bundleIdentifier": "com.smidlma.smart-notes",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.429669438336-366j34rmpabcgpqbbqjce2mkrp46fcfi"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +31,15 @@
         "backgroundColor": "#ffffff"
       }
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.429669438336-366j34rmpabcgpqbbqjce2mkrp46fcfi"
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }
