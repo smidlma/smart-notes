@@ -12,6 +12,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const loading = useBoolean(false);
   const authenticated = useBoolean(false);
 
+  // const registerOrVerify = async (email: string) => {
+  //   // if user does not exist, register
+  // };
+
   const signInGoogle = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -47,7 +51,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signOut = async () => {
     try {
       await GoogleSignin.signOut();
-      // setState({ user: null }); // Remember to remove the user from your app's state as well
+      authenticated.onFalse();
     } catch (error) {
       console.error(error);
     }

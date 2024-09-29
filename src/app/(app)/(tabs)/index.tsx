@@ -1,7 +1,10 @@
+import { useAuthContext } from '@/auth';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Image, StyleSheet, View, Text } from 'react-native';
+import { Image, StyleSheet, View, Text, Button } from 'react-native';
 
 export default function HomeScreen() {
+  const { signOut } = useAuthContext();
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -14,6 +17,7 @@ export default function HomeScreen() {
     >
       <View style={styles.titleContainer}>
         <Text>Welcome!</Text>
+        <Button title="Sign out" onPress={signOut} />
       </View>
     </ParallaxScrollView>
   );
@@ -21,7 +25,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flexDirection: 'row',
+    // flexDirection: 'colk',
     alignItems: 'center',
     gap: 8,
   },
