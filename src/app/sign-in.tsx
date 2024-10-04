@@ -1,27 +1,32 @@
 import { useAuthContext } from '@/auth';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { useAppTheme } from '@/theme/theme-context';
+
 import { router } from 'expo-router';
-import { Image, Text, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignIn() {
   const { signInGoogle } = useAuthContext();
+  const { toggleTheme } = useAppTheme();
+  const { theme } = useAppTheme();
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={<Image source={require('@/../assets/images/partial-react-logo.png')} />}
-    >
-      <View>
-        <Text style={{ color: '#fff' }}>Welcome!</Text>
+    <SafeAreaView style={{ flex: 1, alignItems: 'center', gap: 32 }}>
+      <Text variant="headlineLarge">Sign In</Text>
+      <Button mode="outlined" onPress={toggleTheme}>
+        Change theme
+      </Button>
 
-        <GoogleSigninButton
-          onPress={async () => {
-            await signInGoogle();
-            router.replace('/(tabs)');
-          }}
-        />
-      </View>
-    </ParallaxScrollView>
+      <Button
+        buttonColor={theme.colors.primary}
+        onPress={async () => {
+          await signInGoogle();
+          router.replace('/(tabs)');
+        }}
+        mode="contained"
+      >
+        Sign with Google
+      </Button>
+    </SafeAreaView>
   );
 }

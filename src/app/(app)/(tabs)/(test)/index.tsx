@@ -1,6 +1,8 @@
 import { useAuthContext } from '@/auth';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Image, StyleSheet, View, Text, Button } from 'react-native';
+import { Link } from 'expo-router';
+import { Image, StyleSheet, View, Button } from 'react-native';
+import { Text } from 'react-native-paper';
 
 export default function HomeScreen() {
   const { signOut } = useAuthContext();
@@ -16,8 +18,11 @@ export default function HomeScreen() {
       }
     >
       <View style={styles.titleContainer}>
-        <Text>Welcome!</Text>
+        <Text variant="headlineLarge">Welcome!</Text>
         <Button title="Sign out" onPress={signOut} />
+        <Link href="/modal">
+          <Text>Open Modal</Text>
+        </Link>
       </View>
     </ParallaxScrollView>
   );
