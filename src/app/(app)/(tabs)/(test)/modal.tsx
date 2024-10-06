@@ -1,10 +1,10 @@
+import { ModalWrapper } from '@/components/modal-wrapper/modal-wrapper';
 import { VoiceRecorderScreen } from '@/screens/voice-recorder/voice-recorder-screen';
-import { View } from 'react-native';
 
 export default function Modal() {
   return (
-    <View>
+    <ModalWrapper>
       <VoiceRecorderScreen />
-    </View>
+    </ModalWrapper>
   );
 }

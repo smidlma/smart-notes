@@ -7,12 +7,11 @@ import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import * as SystemUI from 'expo-system-ui';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-SystemUI.setBackgroundColorAsync('transparent');
+// SystemUI.setBackgroundColorAsync('transparent');
 
 GoogleSignin.configure({
   iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
@@ -34,10 +33,12 @@ export default function RootLayout() {
   }
 
   return (
+    // <SafeAreaView style={{ flex: 1 }}>
     <AuthProvider>
       <ThemeProvider>
         <Slot />
       </ThemeProvider>
     </AuthProvider>
+    // </SafeAreaView>
   );
 }

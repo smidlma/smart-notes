@@ -2,7 +2,6 @@ import { PropsWithChildren, useCallback, useMemo } from 'react';
 import { AuthContext } from './auth-context';
 import { useBoolean } from '@/hooks';
 import { isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
-import { AppleAuthenticationScope, signInAsync } from 'expo-apple-authentication';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const loading = useBoolean(false);
@@ -40,24 +39,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   }, [authenticated]);
 
-  const signInApple = useCallback(async () => {
-    try {
-      const credential = await signInAsync({
-        requestedScopes: [AppleAuthenticationScope.FULL_NAME, AppleAuthenticationScope.EMAIL],
-      });
-      // signed in
-      console.log(credential);
-    } catch (e: any) {
-      console.log(e);
-
-      if (e.code === 'ERR_REQUEST_CANCELED') {
-        // handle that the user canceled the sign-in flow
-      } else {
-        // handle other errors
-      }
-    }
-  }, []);
-
   const signOut = useCallback(async () => {
     try {
       // await GoogleSignin.signOut();
@@ -74,9 +55,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       signInGoogle: signInGoogle,
       signOut,
       user: null,
-      signInApple: signInApple,
     }),
-    [authenticated.value, loading.value, signInApple, signInGoogle, signOut]
+    [authenticated.value, loading.value, signInGoogle, signOut]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

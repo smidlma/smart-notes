@@ -1,15 +1,42 @@
-import { useVoiceRecorder } from '@/components/voice-recorder/hooks/use-voice-recorder';
-import { View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { VoiceRecorderHeader } from './components/voice-recorder-header';
+import { useAppTheme } from '@/theme/theme-context';
+import { VoiceRecorderControls } from './components/voice-recorder-controls';
+import { useAudioRecorder } from '@/hooks/audio/use-audio-recorder';
 
 export const VoiceRecorderScreen = () => {
-  const { startRecording, stopRecording } = useVoiceRecorder();
+  const { theme } = useAppTheme();
+  const { finishRecording, startOrResumeRecording, pauseRecording, status } = useAudioRecorder({});
 
   return (
-    <View>
-      <Text>Record your voice</Text>
-      <Button onPress={startRecording}>Start recording</Button>
-      <Button onPress={stopRecording}>Stop recording</Button>
+    <View style={{ ...styles.container }}>
+      <VoiceRecorderHeader />
+      <View
+        style={{
+          ...styles.preview,
+          backgroundColor: theme.colors.backdrop,
+          width: '100%',
+        }}
+      />
+      <VoiceRecorderControls
+        isRecording={status?.isRecording}
+        onRecordStart={startOrResumeRecording}
+        onRecordStop={finishRecording}
+        onPause={pauseRecording}
+        duration={status?.durationMillis}
+        isDoneRecording={status?.isDoneRecording}
+      />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    gap: 24,
+    height: '100%',
+  },
+  preview: {
+    height: 300,
+  },
+});
