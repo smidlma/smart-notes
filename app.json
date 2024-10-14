@@ -17,7 +17,7 @@
         "usesNonExemptEncryption": false
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.smidlma.smartnotes",
+      "bundleIdentifier": "com.smidlma.smartnotes-v1",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
