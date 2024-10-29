@@ -1,5 +1,5 @@
-import { Advanced } from '@/components/editor/rich-editor';
+import { MultiEditor } from '@/screens/note-editor/multi-editor';
 
 export default function TabTwoScreen() {
-  return <Advanced />;
+  return <MultiEditor />;
 }

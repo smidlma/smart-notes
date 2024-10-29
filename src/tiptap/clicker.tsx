@@ -29,6 +29,7 @@ export const Component = (props: any) => {
           border: '1px solid red',
           borderRadius: 6,
           fontSize: 16,
+          userSelect: 'none',
         }}
         onClick={increase}
       >{`Clicked: ${props.node.attrs.count}`}</button>

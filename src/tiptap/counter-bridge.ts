@@ -1,39 +1,64 @@
 import { BridgeExtension } from '@10play/tentap-editor';
-import CharacterCount from '@tiptap/extension-character-count';
-import { router } from 'expo-router';
+import ReactComponent from './extension';
 
-type CounterEditorState = {
-  wordCount: number;
-  characterCount: number;
+type CounterEditorState = {};
+
+type CounterEditorInstance = {
+  setReact: (title: string) => void;
 };
-
-type CounterEditorInstance = {};
 
 declare module '@10play/tentap-editor' {
   interface BridgeState extends CounterEditorState {}
   interface EditorBridge extends CounterEditorInstance {}
 }
 
+export enum AudioEditorActionType {
+  SetAudio = 'set-audio',
+}
+
+type AudioMessage = {
+  type: AudioEditorActionType.SetAudio;
+  payload: string;
+};
+
 export const CounterBridge = new BridgeExtension<
   CounterEditorState,
   CounterEditorInstance,
-  unknown
+  AudioMessage
 >({
-  tiptapExtension: CharacterCount.configure({
-    limit: 240,
-  }),
+  tiptapExtension: ReactComponent.configure({}),
+  onBridgeMessage: (editor, message) => {
+    console.log('REACT', message);
+    if (message.type === AudioEditorActionType.SetAudio) {
+      editor
+        .chain()
+        .insertContentAt(editor.state.selection.head, { type: 'reactComponent' })
+        .focus()
+        .run();
+    }
+
+    return false;
+  },
   onEditorMessage(message: any, _editorBridge) {
     if (message.type === 'increase') {
-      router.back();
       console.log('message', message);
     }
 
     return true;
   },
-  extendEditorState: (editor) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     return {
-      wordCount: editor.storage.characterCount.characters(),
-      characterCount: editor.storage.characterCount.words(),
+      setReact: (title) => {
+        console.log('title sending', title);
+
+        sendBridgeMessage({
+          type: AudioEditorActionType.SetAudio,
+          payload: title,
+        });
+      },
     };
+  },
+  extendEditorState: () => {
+    return {};
   },
 });

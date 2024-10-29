@@ -3,7 +3,7 @@ import { Recording, RecordingStatus } from 'expo-av/build/Audio';
 import { useState } from 'react';
 
 type Props = {
-  onFinished?: (uri: string | null | undefined) => void;
+  onFinished?: (uri: string) => void;
 };
 
 export const useAudioRecorder = ({ onFinished }: Props) => {
@@ -58,7 +58,7 @@ export const useAudioRecorder = ({ onFinished }: Props) => {
     const uri = recording?.getURI();
     setUri(uri);
 
-    onFinished?.(uri);
+    onFinished?.(uri ?? '');
   };
 
   // const [sound, setSound] = useState<Sound>();
