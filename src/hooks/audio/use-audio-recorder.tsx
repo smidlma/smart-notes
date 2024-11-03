@@ -61,35 +61,6 @@ export const useAudioRecorder = ({ onFinished }: Props) => {
     onFinished?.(uri ?? '');
   };
 
-  // const [sound, setSound] = useState<Sound>();
-
-  // async function playSound() {
-  //   console.log('Loading Sound');
-  //   const file =
-  //     'file:///var/mobile/Containers/Data/Application/20DC67FB-C7E4-41BE-98EF-64054FDF7834/Library/Caches/AV/recording-5735E822-F291-4F97-B34F-621C1DCF8BE0.m4a';
-  //   const { sound } = await Audio.Sound.createAsync({
-  //     uri: file,
-  //   });
-  //   setSound(sound);
-
-  //   console.log('Playing Sound');
-
-  //   try {
-  //     await sound.playAsync();
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   return sound
-  //     ? () => {
-  //         console.log('Unloading Sound');
-  //         sound.unloadAsync();
-  //       }
-  //     : undefined;
-  // }, [sound]);
-
   return {
     startOrResumeRecording,
     finishRecording,
