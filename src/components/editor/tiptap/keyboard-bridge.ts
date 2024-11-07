@@ -1,11 +1,8 @@
 import { BridgeExtension } from '@10play/tentap-editor';
-import ReactComponent from './extension';
 
 type CounterEditorState = {};
 
-type CounterEditorInstance = {
-  setReact: (title: string) => void;
-};
+type CounterEditorInstance = {};
 
 declare module '@10play/tentap-editor' {
   interface BridgeState extends CounterEditorState {}
@@ -26,7 +23,6 @@ export const CounterBridge = new BridgeExtension<
   CounterEditorInstance,
   AudioMessage
 >({
-  tiptapExtension: ReactComponent.configure({}),
   onBridgeMessage: (editor, message) => {
     console.log('REACT', message);
     if (message.type === AudioEditorActionType.SetAudio) {
@@ -46,18 +42,7 @@ export const CounterBridge = new BridgeExtension<
 
     return true;
   },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      setReact: (title) => {
-        console.log('title sending', title);
 
-        sendBridgeMessage({
-          type: AudioEditorActionType.SetAudio,
-          payload: title,
-        });
-      },
-    };
-  },
   extendEditorState: () => {
     return {};
   },

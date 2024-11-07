@@ -15,6 +15,7 @@ export const Component = (props: any) => {
         payload: { count: props.node.attrs.count + 1 },
       })
     );
+
     props.updateAttributes({
       count: props.node.attrs.count + 1,
     });

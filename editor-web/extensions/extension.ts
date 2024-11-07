@@ -1,6 +1,5 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import { Component } from './clicker';
 
 export default Node.create({
   name: 'reactComponent',

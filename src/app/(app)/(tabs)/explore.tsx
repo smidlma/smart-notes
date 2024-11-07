@@ -1,5 +1,5 @@
-import { MultiEditor } from '@/screens/note-editor/multi-editor';
+import { Editor } from '@/components/editor';
 
 export default function TabTwoScreen() {
-  return <MultiEditor />;
+  return <Editor />;
 }
