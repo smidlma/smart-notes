@@ -10,7 +10,7 @@ const SignInScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, gap: 32 }}>
-      <Text>{t('app_name')}</Text>
+      <Text className="text-white">{t('app_name')}</Text>
 
       <Button
         title="asd"

@@ -1,7 +1,7 @@
 import { PropsWithChildren, useCallback, useMemo } from 'react';
 import { AuthContext } from './auth-context';
-import { useBoolean } from '@/hooks';
 import { isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import { useBoolean } from '@/hooks';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const loading = useBoolean(false);
