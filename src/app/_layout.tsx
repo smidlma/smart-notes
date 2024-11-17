@@ -1,5 +1,5 @@
+import '@/global.css';
 import { AuthProvider } from '@/auth/auth-provider';
-import { ThemeProvider } from '@/theme/theme-provider';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
@@ -10,8 +10,10 @@ import '@/locales/i18n';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-// SystemUI.setBackgroundColorAsync('transparent');
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
 
 GoogleSignin.configure({
   iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
@@ -35,9 +37,9 @@ export default function RootLayout() {
   return (
     // <SafeAreaView style={{ flex: 1 }}>
     <AuthProvider>
-      <ThemeProvider>
-        <Slot />
-      </ThemeProvider>
+      {/* <ThemeProvider> */}
+      <Slot />
+      {/* </ThemeProvider> */}
     </AuthProvider>
     // </SafeAreaView>
   );

@@ -7,7 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "smart-notes",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "config": {
         "usesNonExemptEncryption": false
@@ -15,7 +19,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.smidlma.smartnotes-v1",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
@@ -31,32 +34,24 @@
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
       "expo-router",
       [
-        "expo-splash-screen",
+        "@react-native-google-signin/google-signin",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "iosUrlScheme": "com.googleusercontent.apps.429669438336-366j34rmpabcgpqbbqjce2mkrp46fcfi"
         }
       ],
       [
-        "expo-audio",
+        "expo-av",
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
       [
-        "@react-native-google-signin/google-signin",
+        "expo-secure-store",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.429669438336-366j34rmpabcgpqbbqjce2mkrp46fcfi"
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ],
       "expo-localization"

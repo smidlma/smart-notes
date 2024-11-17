@@ -1,4 +1,3 @@
-import { useAppTheme } from '@/theme/theme-context';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
@@ -6,13 +5,9 @@ type Props = {
 };
 
 export const DismissSymbol = ({ width = 70 }: Props) => {
-  const { theme } = useAppTheme();
-
   return (
     <View style={{ ...styles.container }}>
-      <View
-        style={{ ...styles.symbol, width, backgroundColor: theme.colors.surfaceVariant }}
-      ></View>
+      <View style={{ ...styles.symbol, width, backgroundColor: 'grey' }}></View>
     </View>
   );
 };
