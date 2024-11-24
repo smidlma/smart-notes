@@ -1,6 +1,7 @@
 import { useAuthContext } from '@/auth';
+import { Text } from '@/components/ui/text';
 import { Link } from 'expo-router';
-import { StyleSheet, View, Button, ScrollView, Text } from 'react-native';
+import { StyleSheet, View, Button, ScrollView } from 'react-native';
 
 export default function HomeScreen() {
   const { signOut } = useAuthContext();
@@ -12,6 +13,9 @@ export default function HomeScreen() {
         <Button title="Sign out" onPress={signOut} />
         <Link href="/modal">
           <Text>Open Modal</Text>
+        </Link>
+        <Link href={'/profile'}>
+          <Text>Go to Profile</Text>
         </Link>
       </View>
     </ScrollView>

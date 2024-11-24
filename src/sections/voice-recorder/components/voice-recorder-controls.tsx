@@ -1,5 +1,7 @@
-import { Button, View } from 'react-native';
+import { View } from 'react-native';
 import { VoiceRecorderButton } from './voice-recorder-button';
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
 
 type Props = {
   onRecordStart: () => void;
@@ -37,7 +39,9 @@ export const VoiceRecorderControls = ({
               ? 'Pause'
               : 'Continue'}
         </Button> */}
-        <Button title="Done" onPress={onRecordStop} disabled={isNewRecording || isRecording} />
+        <Button variant="ghost" onPress={onRecordStop} disabled={isNewRecording || isRecording}>
+          <Text>Done</Text>
+        </Button>
       </View>
     </View>
   );

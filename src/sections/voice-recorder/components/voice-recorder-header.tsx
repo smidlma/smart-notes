@@ -1,6 +1,13 @@
-import { Text, View } from 'react-native';
+import { H3, H4 } from '@/components/ui/typography';
+import { View } from 'react-native';
+import { formatRelative } from 'date-fns';
 
-export const VoiceRecorderHeader = () => {
+type Props = {
+  title?: string;
+  date?: Date;
+};
+
+export const VoiceRecorderHeader = ({ title = 'New recording', date = new Date() }: Props) => {
   return (
     <View
       style={{
@@ -11,8 +18,8 @@ export const VoiceRecorderHeader = () => {
     >
       <View style={{ width: 40 }} />
       <View style={{ gap: 4, alignItems: 'center', flexGrow: 1 }}>
-        <Text>New Recording</Text>
-        <Text>Today, 13:37</Text>
+        <H3>{title}</H3>
+        <H4 className="font-normal">{formatRelative(date, new Date())}</H4>
       </View>
       <View
         style={{

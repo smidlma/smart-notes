@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 import '@/locales/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
-import SplashScreen from 'expo-splash-screen';
+import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { NAV_THEME } from '@/lib/constants';
@@ -24,11 +24,6 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
   fonts: DarkTheme.fonts,
 };
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -56,6 +51,7 @@ export default function RootLayout() {
       if (!theme) {
         AsyncStorage.setItem('theme', colorScheme);
         setIsColorSchemeLoaded(true);
+
         return;
       }
       const colorTheme = theme === 'dark' ? 'dark' : 'light';
@@ -63,6 +59,7 @@ export default function RootLayout() {
         setColorScheme(colorTheme);
 
         setIsColorSchemeLoaded(true);
+
         return;
       }
       setIsColorSchemeLoaded(true);

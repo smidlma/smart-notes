@@ -1,24 +1,31 @@
 import { useAuthContext } from '@/auth';
-import { useLocales } from '@/locales';
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { H1 } from '@/components/ui/typography';
+import { useColorScheme } from '@/lib/useColorScheme';
 import { router } from 'expo-router';
-import { Button, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 const SignInScreen = () => {
   const { signInGoogle } = useAuthContext();
-  const { t } = useLocales();
+  const { toggleColorScheme } = useColorScheme();
 
   return (
     <SafeAreaView style={{ flex: 1, gap: 32 }}>
-      <Text className="text-white">{t('app_name')}</Text>
-
+      <H1>Dashboard</H1>
       <Button
-        title="asd"
+        className="w-1/2 self-center"
         onPress={async () => {
           await signInGoogle();
           router.replace('/(app)/(home)');
         }}
-      />
+      >
+        <Text>Click me</Text>
+      </Button>
+
+      <Button className="w-1/2 self-center" onPress={toggleColorScheme}>
+        <Text>Toggle color scheme</Text>
+      </Button>
     </SafeAreaView>
   );
 };
