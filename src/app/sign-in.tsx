@@ -8,11 +8,12 @@ import { SafeAreaView } from 'react-native';
 
 const SignInScreen = () => {
   const { signInGoogle } = useAuthContext();
-  const { toggleColorScheme } = useColorScheme();
+  const { toggleColorScheme, isDarkColorScheme } = useColorScheme();
 
   return (
-    <SafeAreaView style={{ flex: 1, gap: 32 }}>
+    <SafeAreaView style={{ flex: 1, gap: 32 }} className="bg-background">
       <H1>Dashboard</H1>
+      <H1 className="text-red-700">{isDarkColorScheme ? 'Dark' : 'Light'}</H1>
       <Button
         className="w-1/2 self-center"
         onPress={async () => {

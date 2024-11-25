@@ -1,18 +1,16 @@
-import '@/global.css';
 import { AuthProvider } from '@/auth/auth-provider';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Slot } from 'expo-router';
-import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '@/locales/i18n';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
-import * as React from 'react';
-import { Platform } from 'react-native';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '@/global.css';
+import { useEffect } from 'react';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -38,48 +36,21 @@ GoogleSignin.configure({
 });
 
 export default function RootLayout() {
-  const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const { isDarkColorScheme } = useColorScheme();
+  // const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
   useEffect(() => {
-    (async () => {
-      const theme = await AsyncStorage.getItem('theme');
-      if (Platform.OS === 'web') {
-        // Adds the background color to the html element to prevent white background on overscroll.
-        document.documentElement.classList.add('bg-background');
-      }
-      if (!theme) {
-        AsyncStorage.setItem('theme', colorScheme);
-        setIsColorSchemeLoaded(true);
-
-        return;
-      }
-      const colorTheme = theme === 'dark' ? 'dark' : 'light';
-      if (colorTheme !== colorScheme) {
-        setColorScheme(colorTheme);
-
-        setIsColorSchemeLoaded(true);
-
-        return;
-      }
-      setIsColorSchemeLoaded(true);
-    })().finally(() => {
-      SplashScreen.hideAsync();
-    });
+    SplashScreen.hideAsync();
   }, []);
 
-  if (!isColorSchemeLoaded) {
-    return null;
-  }
-
   return (
-    // <SafeAreaView style={{ flex: 1 }}>
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <AuthProvider>
-        <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Slot />
-      </AuthProvider>
-    </ThemeProvider>
-    // </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <AuthProvider>
+          <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+          <Slot />
+        </AuthProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

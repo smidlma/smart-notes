@@ -64,7 +64,10 @@ export default function ParallaxScrollView({ children, backgroundImage, renderHe
 
   return (
     <View style={styles.container}>
-      <View style={[{ height: HEADER_HEIGHT, justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[{ height: HEADER_HEIGHT, justifyContent: 'center', alignItems: 'center' }]}
+        onLayout={(event) => console.log(event.nativeEvent.layout)}
+      >
         <Animated.View
           style={[
             { position: 'absolute', top: 0, left: 0, height: HEADER_HEIGHT, width: '100%' },
@@ -72,7 +75,7 @@ export default function ParallaxScrollView({ children, backgroundImage, renderHe
           ]}
         >
           <Image
-            source={require('@/../assets/images/background.jpg')}
+            source={backgroundImage}
             style={[
               {
                 flex: 1,

@@ -1,3 +1,5 @@
 {
-  "app_name": "Smart Notes"
+  "app_name": "Smart Notes",
+  "notes": "Notes",
+  "delete": "Delete"
 }
