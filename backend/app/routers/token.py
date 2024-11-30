@@ -1,12 +1,12 @@
 from datetime import timedelta
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
 
 from app.config import settings
 from app.core.models import Token, TokenRequest, UserSchema
+from app.dependencies import SessionDep
 from app.repositories.users import create_user, find_user_by_email
 from app.utils import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 
@@ -14,9 +14,7 @@ router = APIRouter(prefix="/token", tags=["token"])
 
 
 @router.post("/")
-def login_or_register(
-    data: Annotated[TokenRequest, Depends()],
-) -> Token | None:
+def open_id_login(data: TokenRequest, session: SessionDep) -> Token | None:
     try:
         # 1. Check the token against the google API
         id_info = id_token.verify_oauth2_token(
@@ -26,7 +24,7 @@ def login_or_register(
         email = id_info["email"]
 
         # # 2. If the token is valid, check if the user exists in the database
-        user = find_user_by_email(email=email)
+        user = find_user_by_email(email=email, session=session)
         if not user:
             #     # 3. If the user does not exist, create the user and return a token
             given_name = id_info["given_name"]
