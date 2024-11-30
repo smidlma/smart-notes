@@ -1,6 +1,11 @@
 import { PropsWithChildren, useCallback, useMemo } from 'react';
 import { AuthContext } from './auth-context';
-import { isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import {
+  GoogleSignin,
+  isErrorWithCode,
+  isSuccessResponse,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { useBoolean } from '@/hooks';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
@@ -9,16 +14,16 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signInGoogle = useCallback(async () => {
     try {
-      // await GoogleSignin.hasPlayServices();
-      // const response = await GoogleSignin.signIn();
-      // if (isSuccessResponse(response)) {
-      // setState({ userInfo: response.data });
-      // console.log(response);
-      authenticated.onTrue();
-      // } else {
-      //   // sign in was cancelled by user
-      //   console.log('cancelled');
-      // }
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (isSuccessResponse(response)) {
+        // setState({ userInfo: response.data });
+        console.log(response);
+        authenticated.onTrue();
+      } else {
+        // sign in was cancelled by user
+        console.log('cancelled');
+      }
     } catch (error) {
       console.log(error);
 

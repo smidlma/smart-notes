@@ -1,18 +1,13 @@
-from typing import Annotated, Union
-
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.security import OAuth2PasswordBearer
-from sqlmodel import Session
 
-from app.core.db import create_db_and_tables, get_session
-
-from app.core.models import UserSchema, NoteSchema
-from app.routers import notes, user
-
+from app.core.db import create_db_and_tables
+from app.dependencies import SessionDep
+from app.repositories.users import find_user_by_email
+from app.routers import notes, token, user
 
 app = FastAPI()
 
-SessionDep = Annotated[Session, Depends(get_session)]
 
 router = APIRouter(prefix="/api")
 
@@ -24,6 +19,13 @@ def on_startup():
     create_db_and_tables()
 
 
+router.include_router(token.router)
 router.include_router(user.router)
 router.include_router(notes.router)
 app.include_router(router)
+
+
+@app.get("/")
+def read_root(session: SessionDep):
+    user = find_user_by_email("asdf", session)
+    return {"Hello": "World"}

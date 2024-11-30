@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 import uuid
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 
@@ -18,6 +19,8 @@ class UserSchema(UUIDModel, TimestampModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     email: str = Field(unique=True)
+    given_name: str
+    family_name: str
 
 
 class NoteSchema(UUIDModel, TimestampModel, table=True):
@@ -27,3 +30,19 @@ class NoteSchema(UUIDModel, TimestampModel, table=True):
     title: str
     rich_text: str | None
     edited_at: datetime | None = None
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None
+
+
+class TokenRequest(BaseModel):
+    id_token: str
+    email: str
+    given_name: str
+    family_name: str

@@ -21,7 +21,7 @@ const SignInScreen = () => {
           router.replace('/(app)/(home)');
         }}
       >
-        <Text>Click me</Text>
+        <Text>Sign in google</Text>
       </Button>
 
       <Button className="w-1/2 self-center" onPress={toggleColorScheme}>

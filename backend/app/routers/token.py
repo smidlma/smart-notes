@@ -1,37 +1,49 @@
-from fastapi import APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
+from datetime import timedelta
+from typing import Annotated
 
-SECRET_KEY = "4824400e6393b20320871460e61d0273ab652b897423c636245d275e3aff8dea"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from fastapi import APIRouter, Depends, HTTPException, status
+from google.auth.transport import requests
+from google.oauth2 import id_token
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
+from app.config import settings
+from app.core.models import Token, TokenRequest, UserSchema
+from app.repositories.users import create_user, find_user_by_email
+from app.utils import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 
 router = APIRouter(prefix="/token", tags=["token"])
 
 
-@router.post("/token")
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-) -> Token:
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+@router.post("/")
+def login_or_register(
+    data: Annotated[TokenRequest, Depends()],
+) -> Token | None:
+    try:
+        # 1. Check the token against the google API
+        id_info = id_token.verify_oauth2_token(
+            data.id_token, requests.Request(), settings.CLIENT_ID
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-    return Token(access_token=access_token, token_type="bearer")
+
+        email = id_info["email"]
+
+        # # 2. If the token is valid, check if the user exists in the database
+        user = find_user_by_email(email=email)
+        if not user:
+            #     # 3. If the user does not exist, create the user and return a token
+            given_name = id_info["given_name"]
+            family_name = id_info["family_name"]
+            schema = UserSchema(
+                email=email, given_name=given_name, family_name=family_name
+            )
+            user = create_user(user=schema)
+
+        # # 4. return a token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": email}, expires_delta=access_token_expires
+        )
+        return Token(access_token=access_token, token_type="bearer")
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {e}"
+        )
