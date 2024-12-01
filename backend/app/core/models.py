@@ -1,6 +1,6 @@
-from datetime import datetime
-from typing import Optional
 import uuid
+from datetime import datetime
+
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
@@ -11,7 +11,7 @@ class UUIDModel(SQLModel):
 
 class TimestampModel(SQLModel):
     created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: Optional[datetime]
+    updated_at: datetime = Field(default_factory=datetime.now)
 
 
 class UserSchema(UUIDModel, TimestampModel, table=True):
@@ -39,10 +39,8 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+    user_uuid: uuid.UUID | None = None
 
 
 class TokenRequest(BaseModel):
     id_token: str
-    email: str
-    given_name: str
-    family_name: str

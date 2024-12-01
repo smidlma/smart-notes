@@ -1,13 +1,10 @@
-from dotenv import load_dotenv
 import os
+from pathlib import Path
 
-# Load environment variables
-load_dotenv(dotenv_path="../.env")
+from dotenv import load_dotenv
 
-
-class Settings:
-    CLIENT_ID: str = os.getenv("CLIENT_ID")
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
+load_dotenv(Path("../.env"))
 
 
-settings = Settings()
+CLIENT_ID = os.getenv("CLIENT_ID")
+SECRET_KEY = os.getenv("SECRET_KEY")
