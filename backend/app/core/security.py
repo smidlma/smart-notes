@@ -6,13 +6,13 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 
 from app.config import SECRET_KEY
+from app.core.db import SessionDep
 from app.core.models import TokenData, UserSchema
-from app.dependencies import SessionDep
 from app.repositories.users import find_user_by_email
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
-security = APIKeyHeader(
+global_security = APIKeyHeader(
     name="Authorization", description="JWT token", scheme_name="Bearer"
 )
 
@@ -33,7 +33,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def get_current_user(
-    token: Annotated[str, Depends(security)],
+    token: Annotated[str, Depends(global_security)],
     session: SessionDep,
 ):
     credentials_exception = HTTPException(

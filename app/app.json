@@ -15,9 +15,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.smidlma.smartnotes-v1",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
+        "UIBackgroundModes": ["audio"],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
@@ -68,7 +66,13 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

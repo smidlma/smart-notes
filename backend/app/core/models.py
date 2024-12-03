@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class UUIDModel(SQLModel):
@@ -15,21 +15,35 @@ class TimestampModel(SQLModel):
 
 
 class UserSchema(UUIDModel, TimestampModel, table=True):
-    __tablename__ = "users"
+    __tablename__ = "users"  # type: ignore
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     email: str = Field(unique=True)
     given_name: str
     family_name: str
 
+    notes: list["NoteSchema"] = Relationship(back_populates="user")
 
-class NoteSchema(UUIDModel, TimestampModel, table=True):
-    __tablename__ = "notes"
 
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class NoteBase(UUIDModel, TimestampModel):
     title: str
     rich_text: str | None
     edited_at: datetime | None = None
+
+
+class NoteSchema(NoteBase, table=True):
+    __tablename__ = "notes"  # type: ignore
+    user_id: uuid.UUID | None = Field(default=None, foreign_key="users.id")
+    user: UserSchema | None = Relationship(back_populates="notes")
+
+
+class NoteCreate(SQLModel):
+    title: str
+
+
+class NoteUpdate(SQLModel):
+    title: str | None = None
+    rich_text: str | None = None
 
 
 class Token(BaseModel):
@@ -38,7 +52,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str | None = None
+    email: str
     user_uuid: uuid.UUID | None = None
 
 

@@ -11,6 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '@/global.css';
 import { useEffect } from 'react';
+import { Provider as ReduxStoreProvider } from 'react-redux';
+import { store } from '@/redux/store';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -44,13 +46,15 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <AuthProvider>
-          <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-          <Slot />
-        </AuthProvider>
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <ReduxStoreProvider store={store}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <AuthProvider>
+            <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+            <Slot />
+          </AuthProvider>
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </ReduxStoreProvider>
   );
 }

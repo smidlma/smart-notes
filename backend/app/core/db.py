@@ -1,5 +1,7 @@
-from sqlmodel import create_engine, SQLModel, Session
+from typing import Annotated
 
+from fastapi import Depends
+from sqlmodel import Session, SQLModel, create_engine
 
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:smidlma@localhost:5432/smartnotes"
 
@@ -16,5 +18,4 @@ def get_session():
         yield session
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+SessionDep = Annotated[Session, Depends(get_session)]

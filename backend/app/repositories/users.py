@@ -1,7 +1,7 @@
 from sqlmodel import select
 
+from app.core.db import SessionDep
 from app.core.models import UserSchema
-from app.dependencies import SessionDep
 
 
 def create_user(user: UserSchema, session: SessionDep) -> UserSchema:

@@ -4,9 +4,9 @@ from fastapi import APIRouter, HTTPException, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
 
+from app.core.db import SessionDep
 from app.core.models import Token, TokenRequest, UserSchema
 from app.core.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from app.dependencies import SessionDep
 from app.repositories.users import create_user, find_user_by_email
 
 router = APIRouter(prefix="/token", tags=["token"])
