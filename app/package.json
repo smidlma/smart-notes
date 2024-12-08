@@ -12,7 +12,9 @@
     "editor:post-build": "node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "generate": "npx @rtk-query/codegen-openapi openapi-config.ts"
+    "generate": "npx @rtk-query/codegen-openapi openapi-config.ts",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit"
   },
   "husky": {
     "hooks": {

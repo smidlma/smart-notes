@@ -47,14 +47,14 @@ export default function RootLayout() {
 
   return (
     <ReduxStoreProvider store={store}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <AuthProvider>
+      <AuthProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
             <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
             <Slot />
-          </AuthProvider>
-        </ThemeProvider>
-      </GestureHandlerRootView>
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </AuthProvider>
     </ReduxStoreProvider>
   );
 }

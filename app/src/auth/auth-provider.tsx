@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useMemo, useReducer } from 'react';
 import { AuthContext } from './auth-context';
 import {
   GoogleSignin,
@@ -6,50 +6,142 @@ import {
   isSuccessResponse,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { useBoolean } from '@/hooks';
 import * as SecureStore from 'expo-secure-store';
 import { ACCESS_TOKEN_KEY } from './types';
 import { isValidToken } from './utils';
-import { UserSchema } from '@/services/api';
+import { useOpenIdLoginApiTokenPostMutation, UserSchema } from '@/services/api';
 import { useLazyGetUserDetailApiUsersGetQuery } from '@/services/api/custom-endpoints';
 
+export type AuthUserType = null | UserSchema;
+
+export type ActionMapType<M extends { [index: string]: any }> = {
+  [Key in keyof M]: M[Key] extends undefined
+    ? {
+        type: Key;
+      }
+    : {
+        type: Key;
+        payload: M[Key];
+      };
+};
+
+export type AuthStateType = {
+  status?: string;
+  loading: boolean;
+  user: AuthUserType;
+};
+
+enum Types {
+  INITIAL = 'INITIAL',
+  LOGIN = 'LOGIN',
+  LOGOUT = 'LOGOUT',
+}
+
+type Payload = {
+  [Types.INITIAL]: {
+    user: AuthUserType;
+  };
+  [Types.LOGIN]: {
+    user: AuthUserType;
+  };
+  [Types.LOGOUT]: undefined;
+};
+
+type ActionsType = ActionMapType<Payload>[keyof ActionMapType<Payload>];
+
+const initialState: AuthStateType = {
+  user: null,
+  loading: true,
+};
+
+const reducer = (state: AuthStateType, action: ActionsType) => {
+  if (action.type === Types.INITIAL) {
+    return {
+      loading: false,
+      user: action.payload.user,
+    };
+  }
+  if (action.type === Types.LOGIN) {
+    return {
+      ...state,
+      user: action.payload.user,
+    };
+  }
+  if (action.type === Types.LOGOUT) {
+    return {
+      ...state,
+      user: null,
+    };
+  }
+
+  return state;
+};
+
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const loading = useBoolean(false);
-  const authenticated = useBoolean(false);
-  const [user, setUser] = useState<UserSchema | null>(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   const [getUserDetail] = useLazyGetUserDetailApiUsersGetQuery();
+
+  const [openIdLogin] = useOpenIdLoginApiTokenPostMutation();
 
   const initialize = useCallback(async () => {
     try {
-      loading.onTrue();
       const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-      if (accessToken && isValidToken(accessToken)) {
-        // get user and save it to state
-        const currentUser = await getUserDetail().unwrap();
 
-        setUser(currentUser);
+      if (accessToken && isValidToken(accessToken)) {
+        const user = await getUserDetail().unwrap();
+        console.log('initialize');
+
+        dispatch({
+          type: Types.INITIAL,
+          payload: {
+            user,
+          },
+        });
+
+        return;
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      loading.onFalse();
+
+      dispatch({
+        type: Types.INITIAL,
+        payload: {
+          user: null,
+        },
+      });
+    } catch {
+      dispatch({
+        type: Types.INITIAL,
+        payload: {
+          user: null,
+        },
+      });
     }
-  }, [getUserDetail, loading]);
+  }, [getUserDetail]);
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
+  // LOGIN
   const signInGoogle = useCallback(async () => {
     try {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
-        // setState({ userInfo: response.data });
-        console.log(response);
         if (response.data.idToken) {
-          await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, response.data.idToken);
-          authenticated.onTrue();
+          const tokenResponse = await openIdLogin({
+            tokenRequest: { id_token: response.data.idToken },
+          }).unwrap();
+
+          await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokenResponse?.access_token || '');
+
+          const user = await getUserDetail().unwrap();
+          dispatch({
+            type: Types.LOGIN,
+            payload: {
+              user,
+            },
+          });
         } else {
           // Error no id_token
         }
@@ -75,27 +167,32 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         // an error that's not related to google sign in occurred
       }
     }
-  }, [authenticated]);
+  }, [openIdLogin, getUserDetail]);
 
+  // LOGOUT
   const signOut = useCallback(async () => {
-    try {
-      // await GoogleSignin.signOut();
-      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-      authenticated.onFalse();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [authenticated]);
+    // await GoogleSignin.signOut();
+    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+    dispatch({
+      type: Types.LOGOUT,
+    });
+  }, []);
+
+  // ----------------------------------------------------------------------
+
+  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+
+  const status = state.loading ? 'loading' : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
-      authenticated: authenticated.value,
-      loading: loading.value,
-      signInGoogle: signInGoogle,
+      user: state.user,
+      loading: status === 'loading',
+      authenticated: status === 'authenticated',
+      signInGoogle,
       signOut,
-      user,
     }),
-    [authenticated.value, loading.value, signInGoogle, signOut, user]
+    [signInGoogle, signOut, state.user, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
