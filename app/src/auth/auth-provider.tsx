@@ -90,7 +90,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       if (accessToken && isValidToken(accessToken)) {
         const user = await getUserDetail().unwrap();
-        console.log('initialize');
 
         dispatch({
           type: Types.INITIAL,

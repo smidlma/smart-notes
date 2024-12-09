@@ -1,5 +1,5 @@
+import datetime
 import uuid
-from datetime import datetime
 
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
@@ -10,8 +10,12 @@ class UUIDModel(SQLModel):
 
 
 class TimestampModel(SQLModel):
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    created_at: datetime.datetime = Field(
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
+    )
+    updated_at: datetime.datetime = Field(
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
+    )
 
 
 class UserSchema(UUIDModel, TimestampModel, table=True):
@@ -28,7 +32,9 @@ class UserSchema(UUIDModel, TimestampModel, table=True):
 class NoteBase(UUIDModel, TimestampModel):
     title: str
     rich_text: str | None
-    edited_at: datetime | None = None
+    edited_at: datetime.datetime = Field(
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
+    )
 
 
 class NoteSchema(NoteBase, table=True):

@@ -1,11 +1,11 @@
-import { format, getTime, formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
+import { getTime, formatDistanceToNow, formatDistanceToNowStrict, format } from 'date-fns';
 
 type InputValue = Date | string | number | null | undefined;
 
 export const fDate = (date: InputValue, newFormat?: string) => {
   const fm = newFormat || 'dd MMM yyyy';
 
-  return date ? format(new Date(date), fm) : '';
+  return date ? format(new Date(), fm) : '';
 };
 
 export const fDateTime = (date: InputValue, newFormat?: string) => {

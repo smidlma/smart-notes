@@ -9,19 +9,29 @@ import {
   RichText,
   TenTapStartKit,
   useEditorBridge,
+  useEditorContent,
 } from '@10play/tentap-editor';
 import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
-import { Button } from 'react-native-paper';
 import { editorHtml } from '@/../editor-web/build/editorHtml';
-import { useRef, useState } from 'react';
-import { EditorToolbar } from './editor-toolbar';
+import { useEffect, useRef, useState } from 'react';
 import { useEditorConfig } from './hooks/use-editor-config';
 import { CounterBridge } from './tiptap/counter-bridge';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EditorToolbar } from './editor-toolbar';
 
-export const Editor = () => {
+type Props = {
+  initialContent?: string;
+  onContentChange?: (content: string) => void;
+};
+
+export const Editor = ({ initialContent, onContentChange }: Props) => {
   const { editorCSS } = useEditorConfig();
 
+  const { top } = useSafeAreaInsets();
+  const keyboardVerticalOffset = 44 + top;
+
   const editor = useEditorBridge({
+    initialContent,
     customSource: editorHtml,
     bridgeExtensions: [
       ...TenTapStartKit,
@@ -32,12 +42,12 @@ export const Editor = () => {
         placeholder: 'Enter a Title',
       }),
       HeadingBridge.configureCSS(`
-          .ProseMirror h1.is-empty::before {
-            content: attr(data-placeholder);
-            float: left;
-            color: #ced4da;
-            pointer-events: none;
-            height: 0;
+        .ProseMirror h1.is-empty::before {
+          content: attr(data-placeholder);
+          float: left;
+          color: #ced4da;
+          pointer-events: none;
+          height: 0;
           }
           `),
       ImageBridge.configureCSS(`.ProseMirror-selectednode {
@@ -51,18 +61,30 @@ export const Editor = () => {
   const rootRef = useRef(null);
 
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
+  const content = useEditorContent(editor, { type: 'html', debounceInterval: 1000 });
 
+  useEffect(() => {
+    if (content) {
+      onContentChange?.(content);
+    }
+  }, [content, onContentChange]);
 
-
+  return (
     <SafeAreaView style={styles.fullScreen} ref={rootRef}>
-      <RichText editor={editor} />
-      <View style={{ width: '100%', height: 120, backgroundColor: '#78CD' }}>
-        <Button onPress={() => editor.setReact('React component')}>Set react component</Button>
+      <View style={styles.fullScreen}>
+        <RichText editor={editor} />
       </View>
+      {/* <View style={{ width: '100%', height: 120, backgroundColor: '#78CD' }}>
+        <Button onPress={() => editor.setReact('React component')}>
+          <Text>Set react component</Text>
+        </Button>
+      </View> */}
       <KeyboardAvoidingView
+        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >
+        {/* <Toolbar editor={editor} /> */}
         <EditorToolbar
           editor={editor}
           activeKeyboard={activeKeyboard}

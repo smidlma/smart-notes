@@ -1,12 +1,26 @@
 import { useLocales } from '@/locales';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { MoonStar, Sun } from '@/lib/icons';
 import { useColorScheme } from '@/lib/useColorScheme';
-import { Pressable } from 'react-native';
+import { Alert, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useCreateNoteApiNotesPostMutation } from '@/services/api';
 
 export default function StackLayout() {
   const { t } = useLocales();
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
+
+  const [createNote] = useCreateNoteApiNotesPostMutation();
+
+  const handleCreatePress = async () => {
+    try {
+      const { data } = await createNote({ noteCreate: { title: 'New Note' } });
+      router.push(`./${data?.id}`);
+    } catch (e) {
+      console.log(e);
+      Alert.alert('Error', 'Failed to create note');
+    }
+  };
 
   return (
     <Stack>
@@ -15,6 +29,11 @@ export default function StackLayout() {
         options={{
           title: t('app_name'),
           headerRight: () => (
+            <Pressable onPress={handleCreatePress}>
+              <Ionicons name="create-outline" size={24} />
+            </Pressable>
+          ),
+          headerLeft: () => (
             <Pressable onPress={toggleColorScheme}>
               {isDarkColorScheme ? <Sun /> : <MoonStar />}
             </Pressable>
@@ -25,30 +44,6 @@ export default function StackLayout() {
           headerSearchBarOptions: {
             placeholder: 'Search..',
           },
-        }}
-      />
-      <Stack.Screen
-        name="test"
-        options={{
-          title: 'Welcome!',
-          headerLargeTitle: true,
-          headerStyle: {
-            backgroundColor: 'grey',
-          },
-        }}
-      />
-      <Stack.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="modal"
-        options={{
-          presentation: 'modal',
-          headerShown: false,
         }}
       />
     </Stack>

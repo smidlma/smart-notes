@@ -12,6 +12,14 @@ def read_notes(user: CurrentUserDep) -> list[NoteSchema]:
     return user.notes
 
 
+@router.get("/{note_id}")
+def read_note(note_id: str, session: SessionDep) -> NoteSchema:
+    db_note = session.get(NoteSchema, note_id)
+    if not db_note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return db_note
+
+
 @router.post("/")
 def create_note(
     note: NoteCreate, user: CurrentUserDep, session: SessionDep

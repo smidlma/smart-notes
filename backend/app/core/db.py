@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:smidlma@localhost:5432/smartnotes"
+SQLALCHEMY_DATABASE_URL = "postgresql://smidlma:smidlma@localhost:5432/smartnotes"
 
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

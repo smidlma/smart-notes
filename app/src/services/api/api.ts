@@ -42,6 +42,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['notes'],
       }),
+      readNoteApiNotesNoteIdGet: build.query<
+        ReadNoteApiNotesNoteIdGetApiResponse,
+        ReadNoteApiNotesNoteIdGetApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/notes/${queryArg.noteId}` }),
+        providesTags: ['notes'],
+      }),
       updateNoteApiNotesNoteIdPatch: build.mutation<
         UpdateNoteApiNotesNoteIdPatchApiResponse,
         UpdateNoteApiNotesNoteIdPatchApiArg
@@ -68,6 +75,10 @@ export type ReadNotesApiNotesGetApiArg = void;
 export type CreateNoteApiNotesPostApiResponse = /** status 200 Successful Response */ NoteSchema;
 export type CreateNoteApiNotesPostApiArg = {
   noteCreate: NoteCreate;
+};
+export type ReadNoteApiNotesNoteIdGetApiResponse = /** status 200 Successful Response */ NoteSchema;
+export type ReadNoteApiNotesNoteIdGetApiArg = {
+  noteId: string;
 };
 export type UpdateNoteApiNotesNoteIdPatchApiResponse =
   /** status 200 Successful Response */ NoteSchema;
@@ -119,5 +130,6 @@ export const {
   useGetUserDetailApiUsersGetQuery,
   useReadNotesApiNotesGetQuery,
   useCreateNoteApiNotesPostMutation,
+  useReadNoteApiNotesNoteIdGetQuery,
   useUpdateNoteApiNotesNoteIdPatchMutation,
 } = injectedRtkApi;

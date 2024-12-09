@@ -4,7 +4,7 @@ import ReactComponent from './extensions/extension';
 
 export const AdvancedEditor = () => {
   const editor = useTenTap({
-    bridges: [...TenTapStartKit, CounterBridge],
+    bridges: [...TenTapStartKit],
     tiptapOptions: {
       extensions: [ReactComponent],
     },
