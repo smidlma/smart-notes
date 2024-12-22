@@ -1,6 +1,7 @@
 import re
 
 from fastapi import APIRouter, HTTPException
+from sqlmodel import desc, select
 
 from app.ai import generate_summary
 from app.core.db import SessionDep
@@ -11,8 +12,15 @@ router = APIRouter(prefix="/notes", tags=["notes"])
 
 
 @router.get("/")
-def read_notes(user: CurrentUserDep) -> list[NoteSchema]:
-    return user.notes
+def read_notes(user: CurrentUserDep, session: SessionDep) -> list[NoteSchema]:
+    statement = (
+        select(NoteSchema)
+        .where(NoteSchema.user_id == user.id)
+        .order_by(desc(NoteSchema.edited_at))
+    )
+    results = session.exec(statement).all()
+
+    return list(results)
 
 
 @router.get("/{note_id}")
@@ -27,7 +35,7 @@ def read_note(note_id: str, session: SessionDep) -> NoteSchema:
 def create_note(
     note: NoteCreate, user: CurrentUserDep, session: SessionDep
 ) -> NoteSchema:
-    db_note = NoteSchema(title=note.title, rich_text="")
+    db_note = NoteSchema(title=note.title, rich_text="", description="")
     user.notes.append(db_note)
     session.add(user)
     session.commit()
@@ -45,6 +53,9 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
 
     if note.rich_text:
         note.title = parse_title(note.rich_text)
+        note.description = parse_description(note.rich_text)
+        print(parse_description(note.rich_text))
+
     note_data = note.model_dump(exclude_unset=True)
     db_note.sqlmodel_update(note_data)
 
@@ -70,4 +81,25 @@ def get_summary(note_id: str, session: SessionDep) -> NoteSummary:
 def parse_title(text: str) -> str:
     pattern = r"<h1>(.*?)</h1>"
     match = re.search(pattern, text)
-    return match.group(1) if match else ""
+
+    title = match.group(1) if match else ""
+
+    return title or "New note"
+
+
+def parse_description(text: str) -> str:
+    # Find end of h1 tag
+    h1_pattern = r"</h1>"
+    h1_match = re.search(h1_pattern, text)
+    if not h1_match:
+        return ""
+
+    # Find next tag content after h1
+    end_pos = h1_match.end()
+    remaining_text = text[end_pos:]
+    content_pattern = r"<(\w+)[^>]*>(.*?)</\1>"
+    content_match = re.search(content_pattern, remaining_text)
+
+    description = content_match.group(2) if content_match else ""
+
+    return description[:30]

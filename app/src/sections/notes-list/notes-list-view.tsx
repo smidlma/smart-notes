@@ -21,7 +21,7 @@ export const NotesListView = () => {
       renderItem={({ item }) => (
         <NoteItem
           date={item.edited_at!}
-          description="description"
+          description={item.description ?? ''}
           id={item.id!}
           title={item.title}
           onPress={() => handleOpenNote(item.id!)}

@@ -28,8 +28,13 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
       >
         <Pressable onPress={onPress}>
           <CardHeader className="py-3">
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription numberOfLines={1}>{`${fDate(date)} ${description}`}</CardDescription>
+            <CardTitle className="text-lg" numberOfLines={1}>
+              {title}
+            </CardTitle>
+            <CardDescription
+              numberOfLines={1}
+              className="max-w-64"
+            >{`${fDate(date)} ${description}`}</CardDescription>
           </CardHeader>
         </Pressable>
       </ReanimatedSwipeable>

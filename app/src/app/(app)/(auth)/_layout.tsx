@@ -15,7 +15,7 @@ export default function StackLayout() {
 
   const handleCreatePress = async () => {
     try {
-      const { data } = await createNote({ noteCreate: { title: 'New Note' } });
+      const { data } = await createNote({ noteCreate: { title: t('new_note') } });
       router.push({ pathname: '/(app)/(auth)/note/[id]', params: { id: data?.id ?? '' } });
     } catch (e) {
       console.log(e);

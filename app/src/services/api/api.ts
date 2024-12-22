@@ -132,6 +132,7 @@ export type NoteSchema = {
   id?: string;
   title: string;
   rich_text: string;
+  description: string | null;
   edited_at?: string;
   user_id?: string | null;
 };
@@ -141,6 +142,7 @@ export type NoteCreate = {
 export type NoteUpdate = {
   title?: string | null;
   rich_text?: string | null;
+  description?: string | null;
 };
 export type NoteSummary = {
   note_id: string;
