@@ -1,4 +1,4 @@
-import { NotesListView } from '@/sections/notes-list/notes-list-view';
+import { NotesListView } from '@/sections/notes/notes-list-view';
 
 const HomeScreen = () => {
   return <NotesListView />;

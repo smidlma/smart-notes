@@ -16,7 +16,7 @@ def read_notes(user: CurrentUserDep, session: SessionDep) -> list[NoteSchema]:
     statement = (
         select(NoteSchema)
         .where(NoteSchema.user_id == user.id)
-        .order_by(desc(NoteSchema.edited_at))
+        .order_by(desc(NoteSchema.updated_at))
     )
     results = session.exec(statement).all()
 
@@ -54,9 +54,9 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     if note.rich_text:
         note.title = parse_title(note.rich_text)
         note.description = parse_description(note.rich_text)
-        print(parse_description(note.rich_text))
 
     note_data = note.model_dump(exclude_unset=True)
+
     db_note.sqlmodel_update(note_data)
 
     session.add(db_note)

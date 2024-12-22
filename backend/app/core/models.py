@@ -14,7 +14,11 @@ class TimestampModel(SQLModel):
         default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
     )
     updated_at: datetime.datetime = Field(
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
+        nullable=False,
+        sa_column_kwargs={
+            "onupdate": lambda: datetime.datetime.now(datetime.timezone.utc),
+        },
     )
 
 
@@ -33,9 +37,6 @@ class NoteBase(UUIDModel, TimestampModel):
     title: str
     rich_text: str
     description: str | None
-    edited_at: datetime.datetime = Field(
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
-    )
 
 
 class NoteSchema(NoteBase, table=True):

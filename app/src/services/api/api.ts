@@ -133,7 +133,6 @@ export type NoteSchema = {
   title: string;
   rich_text: string;
   description: string | null;
-  edited_at?: string;
   user_id?: string | null;
 };
 export type NoteCreate = {

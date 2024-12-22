@@ -20,7 +20,7 @@ export const NotesListView = () => {
       keyExtractor={(item) => item.id!}
       renderItem={({ item }) => (
         <NoteItem
-          date={item.edited_at!}
+          date={item.updated_at!}
           description={item.description ?? ''}
           id={item.id!}
           title={item.title}

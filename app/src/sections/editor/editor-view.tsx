@@ -10,7 +10,7 @@ type Props = {
   id: string;
 };
 
-export const NoteEditorView = ({ id }: Props) => {
+export const EditorView = ({ id }: Props) => {
   const { data, status, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId: id });
   const [updateNote] = useUpdateNoteApiNotesNoteIdPatchMutation();
 
