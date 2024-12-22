@@ -107,7 +107,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           user: null,
         },
       });
-    } catch {
+    } catch (error) {
+      console.log(error);
+
       dispatch({
         type: Types.INITIAL,
         payload: {

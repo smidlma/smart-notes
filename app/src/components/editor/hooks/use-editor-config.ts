@@ -1,8 +1,12 @@
 import { darkEditorCss } from '@10play/tentap-editor';
-import { baseEditorCSS } from '../config';
+import { editorBasicCSS } from '../config';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 export const useEditorConfig = () => {
-  const editorCSS = `${baseEditorCSS} ${darkEditorCss}`;
+  const { colorScheme } = useColorScheme();
+
+  const editorCSS = `${colorScheme === 'dark' ? darkEditorCss : ''} 
+  ${editorBasicCSS(colorScheme)} `;
 
   return {
     editorCSS,

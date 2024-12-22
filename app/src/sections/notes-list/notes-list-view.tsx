@@ -1,18 +1,14 @@
-import { faker } from '@faker-js/faker';
 import { FlatList } from 'react-native';
 import { NoteItem } from './note-item';
 import { useReadNotesApiNotesGetQuery } from '@/services/api';
-
-const DATA = Array.from({ length: 10 }).map(() => ({
-  id: faker.string.uuid(),
-  title: faker.lorem.word(),
-  description: faker.lorem.sentence(),
-  date: faker.date.recent(),
-}));
+import { router } from 'expo-router';
 
 export const NotesListView = () => {
   const { data: notes } = useReadNotesApiNotesGetQuery();
-  console.log(notes);
+
+  const handleOpenNote = (id: string) => {
+    router.push({ pathname: '/(app)/(auth)/note/[id]', params: { id } });
+  };
 
   return (
     <FlatList
@@ -28,7 +24,7 @@ export const NotesListView = () => {
           description="description"
           id={item.id!}
           title={item.title}
-          onPress={() => console.log('Pressed', item.id)}
+          onPress={() => handleOpenNote(item.id!)}
         />
       )}
     />

@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI
 
 from app.core.db import create_db_and_tables
 from app.core.security import global_security
 from app.routers import notes, token, users
+
+load_dotenv()
 
 app = FastAPI()
 

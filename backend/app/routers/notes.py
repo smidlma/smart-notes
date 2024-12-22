@@ -1,7 +1,10 @@
+import re
+
 from fastapi import APIRouter, HTTPException
 
+from app.ai import generate_summary
 from app.core.db import SessionDep
-from app.core.models import NoteCreate, NoteSchema, NoteUpdate
+from app.core.models import NoteCreate, NoteSchema, NoteSummary, NoteUpdate
 from app.core.security import CurrentUserDep
 
 router = APIRouter(prefix="/notes", tags=["notes"])
@@ -39,6 +42,9 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     db_note = session.get(NoteSchema, note_id)
     if not db_note:
         raise HTTPException(status_code=404, detail="Hero not found")
+
+    if note.rich_text:
+        note.title = parse_title(note.rich_text)
     note_data = note.model_dump(exclude_unset=True)
     db_note.sqlmodel_update(note_data)
 
@@ -47,3 +53,21 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     session.refresh(db_note)
 
     return db_note
+
+
+@router.get("/summary/{note_id}")
+def get_summary(note_id: str, session: SessionDep) -> NoteSummary:
+    db_note = session.get(NoteSchema, note_id)
+    if not db_note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    if db_note.rich_text is None:
+        raise HTTPException(status_code=400, detail="Note content is empty")
+    summary = generate_summary(db_note.rich_text)
+
+    return NoteSummary(note_id=db_note.id, note_title=db_note.title, summary=summary)
+
+
+def parse_title(text: str) -> str:
+    pattern = r"<h1>(.*?)</h1>"
+    match = re.search(pattern, text)
+    return match.group(1) if match else ""

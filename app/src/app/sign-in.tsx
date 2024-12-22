@@ -18,7 +18,7 @@ const SignInScreen = () => {
         className="w-1/2 self-center"
         onPress={async () => {
           await signInGoogle();
-          router.replace('/(app)/(home)');
+          router.replace('/(app)/(auth)');
         }}
       >
         <Text>Sign in google</Text>

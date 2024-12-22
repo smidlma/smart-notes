@@ -1,5 +1,5 @@
-import { emptyApi as api } from './empty-api';
-export const addTagTypes = ['token', 'users', 'notes'] as const;
+import { emptyApi as api } from "./empty-api";
+export const addTagTypes = ["token", "users", "notes"] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
     addTagTypes,
@@ -12,24 +12,24 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/token/`,
-          method: 'POST',
+          method: "POST",
           body: queryArg.tokenRequest,
         }),
-        invalidatesTags: ['token'],
+        invalidatesTags: ["token"],
       }),
       getUserDetailApiUsersGet: build.query<
         GetUserDetailApiUsersGetApiResponse,
         GetUserDetailApiUsersGetApiArg
       >({
         query: () => ({ url: `/api/users/` }),
-        providesTags: ['users'],
+        providesTags: ["users"],
       }),
       readNotesApiNotesGet: build.query<
         ReadNotesApiNotesGetApiResponse,
         ReadNotesApiNotesGetApiArg
       >({
         query: () => ({ url: `/api/notes/` }),
-        providesTags: ['notes'],
+        providesTags: ["notes"],
       }),
       createNoteApiNotesPost: build.mutation<
         CreateNoteApiNotesPostApiResponse,
@@ -37,17 +37,17 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/`,
-          method: 'POST',
+          method: "POST",
           body: queryArg.noteCreate,
         }),
-        invalidatesTags: ['notes'],
+        invalidatesTags: ["notes"],
       }),
       readNoteApiNotesNoteIdGet: build.query<
         ReadNoteApiNotesNoteIdGetApiResponse,
         ReadNoteApiNotesNoteIdGetApiArg
       >({
         query: (queryArg) => ({ url: `/api/notes/${queryArg.noteId}` }),
-        providesTags: ['notes'],
+        providesTags: ["notes"],
       }),
       updateNoteApiNotesNoteIdPatch: build.mutation<
         UpdateNoteApiNotesNoteIdPatchApiResponse,
@@ -55,28 +55,40 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/${queryArg.noteId}`,
-          method: 'PATCH',
+          method: "PATCH",
           body: queryArg.noteUpdate,
         }),
-        invalidatesTags: ['notes'],
+        invalidatesTags: ["notes"],
+      }),
+      getSummaryApiNotesSummaryNoteIdGet: build.query<
+        GetSummaryApiNotesSummaryNoteIdGetApiResponse,
+        GetSummaryApiNotesSummaryNoteIdGetApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/notes/summary/${queryArg.noteId}` }),
+        providesTags: ["notes"],
       }),
     }),
     overrideExisting: false,
   });
 export { injectedRtkApi as api };
-export type OpenIdLoginApiTokenPostApiResponse = /** status 200 Successful Response */ Token | null;
+export type OpenIdLoginApiTokenPostApiResponse =
+  /** status 200 Successful Response */ Token | null;
 export type OpenIdLoginApiTokenPostApiArg = {
   tokenRequest: TokenRequest;
 };
-export type GetUserDetailApiUsersGetApiResponse = /** status 200 Successful Response */ UserSchema;
+export type GetUserDetailApiUsersGetApiResponse =
+  /** status 200 Successful Response */ UserSchema;
 export type GetUserDetailApiUsersGetApiArg = void;
-export type ReadNotesApiNotesGetApiResponse = /** status 200 Successful Response */ NoteSchema[];
+export type ReadNotesApiNotesGetApiResponse =
+  /** status 200 Successful Response */ NoteSchema[];
 export type ReadNotesApiNotesGetApiArg = void;
-export type CreateNoteApiNotesPostApiResponse = /** status 200 Successful Response */ NoteSchema;
+export type CreateNoteApiNotesPostApiResponse =
+  /** status 200 Successful Response */ NoteSchema;
 export type CreateNoteApiNotesPostApiArg = {
   noteCreate: NoteCreate;
 };
-export type ReadNoteApiNotesNoteIdGetApiResponse = /** status 200 Successful Response */ NoteSchema;
+export type ReadNoteApiNotesNoteIdGetApiResponse =
+  /** status 200 Successful Response */ NoteSchema;
 export type ReadNoteApiNotesNoteIdGetApiArg = {
   noteId: string;
 };
@@ -85,6 +97,11 @@ export type UpdateNoteApiNotesNoteIdPatchApiResponse =
 export type UpdateNoteApiNotesNoteIdPatchApiArg = {
   noteId: string;
   noteUpdate: NoteUpdate;
+};
+export type GetSummaryApiNotesSummaryNoteIdGetApiResponse =
+  /** status 200 Successful Response */ NoteSummary;
+export type GetSummaryApiNotesSummaryNoteIdGetApiArg = {
+  noteId: string;
 };
 export type Token = {
   access_token: string;
@@ -114,8 +131,8 @@ export type NoteSchema = {
   updated_at?: string;
   id?: string;
   title: string;
-  rich_text: string | null;
-  edited_at?: string | null;
+  rich_text: string;
+  edited_at?: string;
   user_id?: string | null;
 };
 export type NoteCreate = {
@@ -125,6 +142,11 @@ export type NoteUpdate = {
   title?: string | null;
   rich_text?: string | null;
 };
+export type NoteSummary = {
+  note_id: string;
+  note_title: string;
+  summary: string;
+};
 export const {
   useOpenIdLoginApiTokenPostMutation,
   useGetUserDetailApiUsersGetQuery,
@@ -132,4 +154,5 @@ export const {
   useCreateNoteApiNotesPostMutation,
   useReadNoteApiNotesNoteIdGetQuery,
   useUpdateNoteApiNotesNoteIdPatchMutation,
+  useGetSummaryApiNotesSummaryNoteIdGetQuery,
 } = injectedRtkApi;

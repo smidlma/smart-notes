@@ -1,1 +1,1 @@
-export { QueryHandlingWrapper } from './query-handling-wrapper';
+export { QueryComponentWrapper } from './query-component-wrapper';

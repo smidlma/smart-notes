@@ -3,6 +3,7 @@ import {
   CoreBridge,
   CustomKeyboard,
   darkEditorTheme,
+  defaultEditorTheme,
   HeadingBridge,
   ImageBridge,
   PlaceholderBridge,
@@ -12,12 +13,12 @@ import {
   useEditorContent,
 } from '@10play/tentap-editor';
 import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
-import { editorHtml } from '@/../editor-web/build/editorHtml';
 import { useEffect, useRef, useState } from 'react';
 import { useEditorConfig } from './hooks/use-editor-config';
 import { CounterBridge } from './tiptap/counter-bridge';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EditorToolbar } from './editor-toolbar';
+import { NAV_THEME } from '@/lib/constants';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 type Props = {
   initialContent?: string;
@@ -25,14 +26,12 @@ type Props = {
 };
 
 export const Editor = ({ initialContent, onContentChange }: Props) => {
+  const { colorScheme } = useColorScheme();
   const { editorCSS } = useEditorConfig();
-
-  const { top } = useSafeAreaInsets();
-  const keyboardVerticalOffset = 44 + top;
 
   const editor = useEditorBridge({
     initialContent,
-    customSource: editorHtml,
+    // customSource: editorHtml,
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(editorCSS).extendExtension({ content: 'heading block+' }),
@@ -54,20 +53,25 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
             outline: 1px solid red !important;
             }`),
     ],
-    theme: darkEditorTheme,
+    theme: {
+      ...(colorScheme === 'dark' ? { ...darkEditorTheme } : { ...defaultEditorTheme }),
+      webview: {
+        backgroundColor: NAV_THEME[colorScheme].background,
+      },
+    },
     avoidIosKeyboard: true,
   });
 
   const rootRef = useRef(null);
 
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
-  const content = useEditorContent(editor, { type: 'html', debounceInterval: 1000 });
+  const content = useEditorContent(editor, { type: 'html', debounceInterval: 100 });
 
   useEffect(() => {
     if (content) {
       onContentChange?.(content);
     }
-  }, [content, onContentChange]);
+  }, [content]);
 
   return (
     <SafeAreaView style={styles.fullScreen} ref={rootRef}>
@@ -80,7 +84,6 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
         </Button>
       </View> */}
       <KeyboardAvoidingView
-        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >
@@ -105,6 +108,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
+    paddingHorizontal: 26,
   },
   keyboardAvoidingView: {
     position: 'absolute',

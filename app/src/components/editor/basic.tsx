@@ -1,16 +1,21 @@
 import React from 'react';
 import { SafeAreaView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  CoreBridge,
+  darkEditorCss,
+  darkEditorTheme,
+  RichText,
+  TenTapStartKit,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
 
 export const Basic = () => {
-  const { top } = useSafeAreaInsets();
-  const keyboardVerticalOffset = 44 + top;
-
   const editor = useEditorBridge({
-    autofocus: true,
+    bridgeExtensions: [...TenTapStartKit, CoreBridge.configureCSS(darkEditorCss)],
     avoidIosKeyboard: true,
     initialContent,
+    theme: darkEditorTheme,
   });
 
   return (
@@ -19,7 +24,6 @@ export const Basic = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
-        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         <Toolbar editor={editor} />
       </KeyboardAvoidingView>

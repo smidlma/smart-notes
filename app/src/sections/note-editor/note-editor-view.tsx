@@ -1,24 +1,33 @@
 import { Editor } from '@/components/editor';
-import { Text } from '@/components/ui/text';
-import { useReadNoteApiNotesNoteIdGetQuery } from '@/services/api';
+import {
+  useReadNoteApiNotesNoteIdGetQuery,
+  useUpdateNoteApiNotesNoteIdPatchMutation,
+} from '@/services/api';
+import { QueryComponentWrapper } from '@/services/components';
+import { useCallback } from 'react';
 
 type Props = {
   id: string;
 };
 
 export const NoteEditorView = ({ id }: Props) => {
-  const { data, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId: id });
+  const { data, status, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId: id });
+  const [updateNote] = useUpdateNoteApiNotesNoteIdPatchMutation();
 
-  const handleContentChange = (content: string) => {
-    console.log(content);
-  };
+  const handleContentChange = useCallback(
+    async (content: string) => {
+      await updateNote({ noteId: id, noteUpdate: { rich_text: content } }).unwrap();
+    },
+    [id, updateNote]
+  );
 
-  return isLoading ? (
-    <Text>Loading</Text>
-  ) : (
-    <Editor
-      onContentChange={handleContentChange}
-      initialContent={data?.rich_text ?? '<h1>New Note</h1>'}
-    />
+  return (
+    <QueryComponentWrapper
+      statuses={[status]}
+      firstFetchLoadingOnly
+      isFetchingFirstTime={isLoading}
+    >
+      <Editor onContentChange={handleContentChange} initialContent={data?.rich_text} />
+    </QueryComponentWrapper>
   );
 };
