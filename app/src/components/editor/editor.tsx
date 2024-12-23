@@ -76,7 +76,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
   return (
     <SafeAreaView style={styles.fullScreen} ref={rootRef}>
       <View style={styles.fullScreen}>
-        <RichText editor={editor} />
+        <RichText editor={editor} showsVerticalScrollIndicator={false} />
       </View>
       {/* <View style={{ width: '100%', height: 120, backgroundColor: '#78CD' }}>
         <Button onPress={() => editor.setReact('React component')}>

@@ -1,11 +1,20 @@
+import {
+  ActionConfirmation,
+  ActionConfirmationRef,
+} from '@/components/action-confirmation/action-confirmation';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
-import { useLocales } from '@/locales';
+import { useDeleteNoteApiNotesNoteIdDeleteMutation } from '@/services/api';
 import { fDate } from '@/utils/format-time';
+import { t } from 'i18next';
+import React from 'react';
+import { useRef } from 'react';
 import { Pressable } from 'react-native-gesture-handler';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-
+import ReanimatedSwipeable, {
+  SwipeableMethods,
+} from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { FadeOut, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { Trash2 } from '@/lib/icons';
+import Animated from 'react-native-reanimated';
 type Props = {
   id: string;
   title: string;
@@ -15,30 +24,62 @@ type Props = {
 };
 
 export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
+  const [deleteNote] = useDeleteNoteApiNotesNoteIdDeleteMutation();
+
+  const actionConfirmationRef = useRef<ActionConfirmationRef>(null);
+  const swipeableRef = useRef<SwipeableMethods>(null);
+
+  const handleDeleteNote = () => {
+    try {
+      deleteNote({ noteId: id }).unwrap();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleCancel = () => {
+    actionConfirmationRef.current?.close();
+    swipeableRef.current?.close();
+  };
+
   return (
-    <Card>
-      <ReanimatedSwipeable
-        friction={2}
-        enableTrackpadTwoFingerGesture
-        rightThreshold={40}
-        overshootRight={false}
-        renderRightActions={(_prog, drag) => (
-          <RightAction drag={drag} onPress={() => console.log('Delete', id)} titleKey="delete" />
-        )}
-      >
-        <Pressable onPress={onPress}>
-          <CardHeader className="py-3">
-            <CardTitle className="text-lg" numberOfLines={1}>
-              {title}
-            </CardTitle>
-            <CardDescription
-              numberOfLines={1}
-              className="max-w-64"
-            >{`${fDate(date)} ${description}`}</CardDescription>
-          </CardHeader>
-        </Pressable>
-      </ReanimatedSwipeable>
-    </Card>
+    <Animated.View exiting={FadeOut}>
+      <Card className="overflow-hidden">
+        <ReanimatedSwipeable
+          ref={swipeableRef}
+          friction={2}
+          enableTrackpadTwoFingerGesture
+          rightThreshold={40}
+          overshootRight={false}
+          renderRightActions={(_prog, drag) => (
+            <RightAction
+              drag={drag}
+              onPress={() => actionConfirmationRef.current?.open()}
+              titleKey="delete"
+            />
+          )}
+        >
+          <Pressable onPress={onPress}>
+            <CardHeader className="py-3">
+              <CardTitle className="text-lg" numberOfLines={1}>
+                {title}
+              </CardTitle>
+              <CardDescription
+                numberOfLines={1}
+                className="max-w-64"
+              >{`${fDate(date)} ${description}`}</CardDescription>
+            </CardHeader>
+          </Pressable>
+        </ReanimatedSwipeable>
+      </Card>
+      <ActionConfirmation
+        ref={actionConfirmationRef}
+        title={t('delete_note', { name: title })}
+        description={t('delete_note_description')}
+        onConfirm={handleDeleteNote}
+        onCancel={handleCancel}
+      />
+    </Animated.View>
   );
 };
 
@@ -52,8 +93,8 @@ type ActionProps = {
 const RightAction = ({
   drag,
   onPress,
-  titleKey,
-  defaultWidth = 80,
+
+  defaultWidth = 64,
   defaultOffset = 0,
 }: ActionProps) => {
   const styleAnimation = useAnimatedStyle(() => {
@@ -62,16 +103,13 @@ const RightAction = ({
     };
   });
 
-  const { t } = useLocales();
-
   return (
-    <Reanimated.View style={[styleAnimation]} className={'bg-red-600 justify-center rounded-r-2xl'}>
+    <Reanimated.View
+      style={[styleAnimation]}
+      className="bg-destructive justify-center rounded-r-2xl"
+    >
       <Pressable onPress={onPress}>
-        {
-          <Text style={{ width: defaultWidth }} className={`self-center text-center`}>
-            {t(titleKey)}
-          </Text>
-        }
+        <Trash2 width={defaultWidth} height={28} className="text-primary" />
       </Pressable>
     </Reanimated.View>
   );

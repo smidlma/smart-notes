@@ -1,7 +1,7 @@
-import { FlatList } from 'react-native';
 import { NoteItem } from './note-item';
 import { useReadNotesApiNotesGetQuery } from '@/services/api';
 import { router } from 'expo-router';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 export const NotesListView = () => {
   const { data: notes } = useReadNotesApiNotesGetQuery();
@@ -11,13 +11,14 @@ export const NotesListView = () => {
   };
 
   return (
-    <FlatList
+    <Animated.FlatList
       style={{ paddingTop: 16 }}
       contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
       keyboardDismissMode="on-drag"
       contentInsetAdjustmentBehavior="automatic"
       data={notes}
       keyExtractor={(item) => item.id!}
+      itemLayoutAnimation={LinearTransition}
       renderItem={({ item }) => (
         <NoteItem
           date={item.updated_at!}

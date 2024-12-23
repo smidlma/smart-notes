@@ -13,6 +13,10 @@ import '@/global.css';
 import { useEffect } from 'react';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import { store } from '@/redux/store';
+import { PortalHost } from '@rn-primitives/portal';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from '@/components/toast/Toast';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -49,10 +53,14 @@ export default function RootLayout() {
     <ReduxStoreProvider store={store}>
       <AuthProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-            <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-            <Slot />
-          </ThemeProvider>
+          <BottomSheetModalProvider>
+            <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+              <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+              <Slot />
+              <PortalHost />
+              <Toast config={toastConfig} topOffset={64} />
+            </ThemeProvider>
+          </BottomSheetModalProvider>
         </GestureHandlerRootView>
       </AuthProvider>
     </ReduxStoreProvider>

@@ -1,11 +1,10 @@
 import { useLocales } from '@/locales';
 import { router, Stack } from 'expo-router';
 import { useColorScheme } from '@/lib/useColorScheme';
-import { Alert, Pressable, View } from 'react-native';
+import { Pressable } from 'react-native';
 import { useCreateNoteApiNotesPostMutation } from '@/services/api';
 import { NotebookPen, Sun, MoonStar } from 'lucide-react-native';
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
+import Toast from 'react-native-toast-message';
 
 export default function StackLayout() {
   const { t } = useLocales();
@@ -17,9 +16,14 @@ export default function StackLayout() {
     try {
       const { data } = await createNote({ noteCreate: { title: t('new_note') } });
       router.push({ pathname: '/(app)/(auth)/note/[id]', params: { id: data?.id ?? '' } });
-    } catch (e) {
-      console.log(e);
-      Alert.alert('Error', 'Failed to create note');
+      Toast.show({
+        type: 'success',
+        text1: t('success'),
+        autoHide: false,
+        text2: 'asdfff asd aa s',
+      });
+    } catch {
+      Toast.show({ type: 'error', text1: t('error') });
     }
   };
 
@@ -54,13 +58,6 @@ export default function StackLayout() {
           headerTransparent: true,
           headerTitle: 'Note',
           headerBackTitle: 'Back',
-          headerRight: () => (
-            <View>
-              <Button onPress={() => router.push('/(app)/(auth)/note/modal')}>
-                <Text>modal</Text>
-              </Button>
-            </View>
-          ),
         }}
       />
       <Stack.Screen

@@ -66,6 +66,18 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     return db_note
 
 
+@router.delete("/{note_id}")
+def delete_note(note_id: str, session: SessionDep) -> dict[str, str]:
+    db_note = session.get(NoteSchema, note_id)
+    if not db_note:
+        raise HTTPException(status_code=404, detail="Note not found")
+
+    session.delete(db_note)
+    session.commit()
+
+    return {"message": "Note deleted"}
+
+
 @router.get("/summary/{note_id}")
 def get_summary(note_id: str, session: SessionDep) -> NoteSummary:
     db_note = session.get(NoteSchema, note_id)
@@ -94,12 +106,12 @@ def parse_description(text: str) -> str:
     if not h1_match:
         return ""
 
-    # Find next tag content after h1
+    # Get all text after h1
     end_pos = h1_match.end()
     remaining_text = text[end_pos:]
-    content_pattern = r"<(\w+)[^>]*>(.*?)</\1>"
-    content_match = re.search(content_pattern, remaining_text)
 
-    description = content_match.group(2) if content_match else ""
+    # Remove all HTML tags
+    clean_text = re.sub(r"<[^>]+>", " ", remaining_text)
 
-    return description[:30]
+    # Clean up whitespace and truncate
+    return clean_text[:30]

@@ -60,6 +60,16 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["notes"],
       }),
+      deleteNoteApiNotesNoteIdDelete: build.mutation<
+        DeleteNoteApiNotesNoteIdDeleteApiResponse,
+        DeleteNoteApiNotesNoteIdDeleteApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/notes/${queryArg.noteId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["notes"],
+      }),
       getSummaryApiNotesSummaryNoteIdGet: build.query<
         GetSummaryApiNotesSummaryNoteIdGetApiResponse,
         GetSummaryApiNotesSummaryNoteIdGetApiArg
@@ -97,6 +107,13 @@ export type UpdateNoteApiNotesNoteIdPatchApiResponse =
 export type UpdateNoteApiNotesNoteIdPatchApiArg = {
   noteId: string;
   noteUpdate: NoteUpdate;
+};
+export type DeleteNoteApiNotesNoteIdDeleteApiResponse =
+  /** status 200 Successful Response */ {
+    [key: string]: string;
+  };
+export type DeleteNoteApiNotesNoteIdDeleteApiArg = {
+  noteId: string;
 };
 export type GetSummaryApiNotesSummaryNoteIdGetApiResponse =
   /** status 200 Successful Response */ NoteSummary;
@@ -155,5 +172,6 @@ export const {
   useCreateNoteApiNotesPostMutation,
   useReadNoteApiNotesNoteIdGetQuery,
   useUpdateNoteApiNotesNoteIdPatchMutation,
+  useDeleteNoteApiNotesNoteIdDeleteMutation,
   useGetSummaryApiNotesSummaryNoteIdGetQuery,
 } = injectedRtkApi;
