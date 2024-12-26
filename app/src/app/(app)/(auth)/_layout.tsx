@@ -16,14 +16,8 @@ export default function StackLayout() {
     try {
       const { data } = await createNote({ noteCreate: { title: t('new_note') } });
       router.push({ pathname: '/(app)/(auth)/note/[id]', params: { id: data?.id ?? '' } });
-      Toast.show({
-        type: 'success',
-        text1: t('success'),
-        autoHide: false,
-        text2: 'asdfff asd aa s',
-      });
     } catch {
-      Toast.show({ type: 'error', text1: t('error') });
+      Toast.show({ type: 'error', text1: t('create_note_error') });
     }
   };
 
@@ -61,7 +55,7 @@ export default function StackLayout() {
         }}
       />
       <Stack.Screen
-        name="note/modal"
+        name="note/summary"
         options={{
           headerShown: false,
           presentation: 'modal',

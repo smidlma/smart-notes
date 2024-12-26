@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
 import { EditorView } from '@/sections/editor/editor-view';
+import { Pressable } from '@rn-primitives/slot';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { WandSparkles } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
@@ -13,13 +13,13 @@ const EditorScreen = () => {
     navigation.setOptions({
       headerRight: () => (
         <View>
-          <Button
+          <Pressable
             onPress={() =>
-              router.push({ pathname: '/(app)/(auth)/note/modal', params: { id: id } })
+              router.push({ pathname: '/(app)/(auth)/note/summary', params: { id: id } })
             }
           >
-            <Text>modal</Text>
-          </Button>
+            <WandSparkles />
+          </Pressable>
         </View>
       ),
     });

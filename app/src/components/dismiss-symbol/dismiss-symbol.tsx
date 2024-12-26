@@ -7,7 +7,7 @@ type Props = {
 export const DismissSymbol = ({ width = 70 }: Props) => {
   return (
     <View style={{ ...styles.container }}>
-      <View style={{ ...styles.symbol, width, backgroundColor: 'grey' }}></View>
+      <View style={{ width }} className="h-1.5 rounded-md bg-primary" />
     </View>
   );
 };
@@ -20,10 +20,5 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
-  },
-  symbol: {
-    width: 40,
-    height: 6,
-    borderRadius: 4,
   },
 });

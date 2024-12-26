@@ -113,5 +113,8 @@ def parse_description(text: str) -> str:
     # Remove all HTML tags
     clean_text = re.sub(r"<[^>]+>", " ", remaining_text)
 
+    # Normalize spaces - replace multiple spaces with single space
+    normalized_text = re.sub(r"\s+", " ", clean_text)
+
     # Clean up whitespace and truncate
-    return clean_text[:30]
+    return normalized_text.strip()[:30]

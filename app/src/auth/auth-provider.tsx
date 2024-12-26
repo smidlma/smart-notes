@@ -11,6 +11,8 @@ import { ACCESS_TOKEN_KEY } from './types';
 import { isValidToken } from './utils';
 import { useOpenIdLoginApiTokenPostMutation, UserSchema } from '@/services/api';
 import { useLazyGetUserDetailApiUsersGetQuery } from '@/services/api/custom-endpoints';
+import Toast from 'react-native-toast-message';
+import { t } from 'i18next';
 
 export type AuthUserType = null | UserSchema;
 
@@ -107,8 +109,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           user: null,
         },
       });
-    } catch (error) {
-      console.log(error);
+    } catch {
+      Toast.show({ type: 'error', text1: t('connection_error'), autoHide: false });
 
       dispatch({
         type: Types.INITIAL,
