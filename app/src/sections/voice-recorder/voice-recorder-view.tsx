@@ -1,7 +1,6 @@
-import { Alert, View } from 'react-native';
+import { ActivityIndicator, Alert, View } from 'react-native';
 import { VoiceRecorderHeader } from './components/voice-recorder-header';
 import { fMilliseconds } from '@/utils/format-time';
-import { VoiceRecorderControls } from './components/voice-recorder-controls';
 import {
   useAudioRecorder,
   RecordingPresets,
@@ -11,81 +10,89 @@ import {
 } from 'expo-audio';
 import { useEffect } from 'react';
 import { useBoolean } from '@/hooks';
-import { H3 } from '@/components/ui/typography';
+import { H4 } from '@/components/ui/typography';
+import { VoiceRecorderControls } from './components/voice-recorder-controls';
+import { uploadHandler } from '@/utils/upload';
+import { Text } from '@/components/ui/text';
 
-export const VoiceRecorderView = () => {
+export const VoiceRecorderView = ({ id }: { id: string }) => {
   const isDoneRecording = useBoolean(false);
-  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  // const audioRecorderState = useAudioRecorderState(audioRecorder, 5000);
+  const isRecording = useBoolean(false);
+  const isNewRecording = useBoolean(true);
+  const isUploading = useBoolean(false);
 
-  const record = () => audioRecorder.record();
+  const audioRecorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY,
+  });
 
-  const pauseRecording = () => audioRecorder.pause();
+  const record = () => {
+    audioRecorder.record();
+    isRecording.onTrue();
+    isNewRecording.onFalse();
+  };
+
+  const pauseRecording = () => {
+    isRecording.onFalse();
+    audioRecorder.pause();
+  };
 
   const stopRecording = async () => {
-    // The recording will be available on `audioRecorder.uri`.
     await audioRecorder.stop();
-    console.log(audioRecorder.uri);
+    isRecording.onFalse();
     isDoneRecording.onTrue();
+    if (audioRecorder.uri) {
+      await handleFinishRecording(audioRecorder.uri);
+    }
   };
 
   useEffect(() => {
     (async () => {
       const status = await AudioModule.requestRecordingPermissionsAsync();
+
       if (!status.granted) {
         Alert.alert('Permission to access microphone was denied');
       }
     })();
   }, []);
 
-  // const handleFinishRecording = async (recordingUri: string) => {
-  //   console.log('Recording finished', recordingUri);
+  const handleFinishRecording = async (recordingUri: string) => {
+    isUploading.onTrue();
 
-  //   const fileName = `recording-${Date.now()}.m4a`;
+    await uploadHandler({
+      fileUri: recordingUri,
+      type: 'voice',
+      pathParam: id,
+    });
 
-  //   // Move the recording to the new directory with the new file name
-  //   await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'recordings/', {
-  //     intermediates: true,
-  //   });
-  //   await FileSystem.moveAsync({
-  //     from: recordingUri,
-  //     to: FileSystem.documentDirectory + 'recordings/' + `${fileName}`,
-  //   });
-  // };
-
-  // const getDirectoryFiles = async () => {
-  //   try {
-  //     const files = await FileSystem.readDirectoryAsync(
-  //       FileSystem.documentDirectory + 'recordings/'
-  //     );
-  //     console.log('Files in the directory', files);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // const { finishRecording, startOrResumeRecording, pauseRecording, duration, isRecording } =
-  //   useAudioRecorder({
-  //     onFinished: handleFinishRecording,
-  //   });
+    isUploading.onFalse();
+  };
 
   return (
-    <View className="h-full">
+    <View className="flex-1 px-4">
+      {isUploading.value && <ActivityIndicator size="large" />}
       <VoiceRecorderHeader />
+
       <DurationTimer player={audioRecorder} />
+
       <VoiceRecorderControls
-        isRecording={audioRecorder.isRecording}
-        onRecordStart={record}
-        onRecordStop={stopRecording}
+        isNewRecording={isNewRecording.value}
+        isRecording={isRecording.value}
+        onStart={record}
+        onFinish={stopRecording}
         onPause={pauseRecording}
-        isDoneRecording={true}
+        isDoneRecording={isDoneRecording.value}
       />
     </View>
   );
 };
 
 const DurationTimer = ({ player }: { player: AudioRecorder }) => {
-  const { durationMillis } = useAudioRecorderState(player, 1000);
+  const { durationMillis, metering } = useAudioRecorderState(player, 500);
 
-  return <H3 className="self-center">{fMilliseconds(durationMillis ?? 0)}</H3>;
+  return (
+    <View className="flex-grow justify-center pb-52">
+      <Text className="self-center text-7xl">{fMilliseconds(durationMillis ?? 0)}</Text>
+      <H4 className="self-center">Metering: {metering ?? 0}</H4>
+    </View>
+  );
 };

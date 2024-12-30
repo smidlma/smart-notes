@@ -4,10 +4,10 @@ import { Text } from '@/components/ui/text';
 import { H1 } from '@/components/ui/typography';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native';
+import { ActivityIndicator, SafeAreaView } from 'react-native';
 
 const SignInScreen = () => {
-  const { signInGoogle } = useAuthContext();
+  const { signInGoogle, loading } = useAuthContext();
   const { toggleColorScheme, isDarkColorScheme } = useColorScheme();
 
   return (
@@ -21,7 +21,7 @@ const SignInScreen = () => {
           router.replace('/(app)/(auth)');
         }}
       >
-        <Text>Sign in google</Text>
+        {loading ? <ActivityIndicator /> : <Text>Sign in google</Text>}
       </Button>
 
       <Button className="w-1/2 self-center" onPress={toggleColorScheme}>

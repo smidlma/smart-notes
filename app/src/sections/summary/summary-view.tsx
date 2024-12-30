@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { H1 } from '@/components/ui/typography';
 import { useLocales } from '@/locales';
-import { useLazyGetSummaryApiNotesSummaryNoteIdGetQuery } from '@/services/api/custom-endpoints';
 import { BookOpen } from 'lucide-react-native';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -10,23 +9,25 @@ import Markdown from '@ronradtke/react-native-markdown-display';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import { alpha } from '@/utils/alpha';
+import { useCreateSummaryApiNotesSummaryNoteIdPostMutation } from '@/services/api';
+import Toast from 'react-native-toast-message';
 
 type Props = { noteId: string };
 
 export const SummaryView = ({ noteId }: Props) => {
   const { t } = useLocales();
 
-  const [summary, setSummary] = useState('');
+  const [summary, setSummary] = useState<string | null | undefined>(null);
 
-  const [generateSummary, { isLoading }] = useLazyGetSummaryApiNotesSummaryNoteIdGetQuery();
+  const [generateSummary, { isLoading }] = useCreateSummaryApiNotesSummaryNoteIdPostMutation();
 
   const handleGenerateSummary = async () => {
     try {
       const result = await generateSummary({ noteId }).unwrap();
-      console.log(result);
-      setSummary(result.summary);
+
+      setSummary(result?.summary_text);
     } catch (e) {
-      console.log(e);
+      Toast.show({ type: 'error', text1: t('error'), text2: (e as Error).message });
     }
   };
 

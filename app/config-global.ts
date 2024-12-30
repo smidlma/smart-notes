@@ -6,6 +6,7 @@ const getMissingVariables = (env: { [key: string]: string }): string[] =>
 const validateAppEnv = () => {
   const env = {
     API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || '',
+    STORAGE_UPLOAD_URL: process.env.EXPO_PUBLIC_STORAGE_UPLOAD_URL || '',
   };
 
   const missingVariables = getMissingVariables(env);
@@ -16,6 +17,6 @@ const validateAppEnv = () => {
   return env;
 };
 
-const { API_BASE_URL } = validateAppEnv();
+const { API_BASE_URL, STORAGE_UPLOAD_URL } = validateAppEnv();
 
-export { API_BASE_URL };
+export { API_BASE_URL, STORAGE_UPLOAD_URL };

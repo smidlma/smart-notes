@@ -1,10 +1,12 @@
 import datetime
 import uuid
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import JSON, Column, Field, Relationship, SQLModel, String
 
 
+# REUSABLE
 class UUIDModel(SQLModel):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
@@ -22,10 +24,9 @@ class TimestampModel(SQLModel):
     )
 
 
+# USER
 class UserSchema(UUIDModel, TimestampModel, table=True):
     __tablename__ = "users"  # type: ignore
-
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     email: str = Field(unique=True)
     given_name: str
     family_name: str
@@ -33,16 +34,18 @@ class UserSchema(UUIDModel, TimestampModel, table=True):
     notes: list["NoteSchema"] = Relationship(back_populates="user")
 
 
-class NoteBase(UUIDModel, TimestampModel):
-    title: str
-    rich_text: str
-    description: str | None
-
-
-class NoteSchema(NoteBase, table=True):
+# NOTE
+class NoteSchema(UUIDModel, TimestampModel, table=True):
     __tablename__ = "notes"  # type: ignore
     user_id: uuid.UUID | None = Field(default=None, foreign_key="users.id")
+    title: str
+    content: str
+    description: str | None
+
     user: UserSchema | None = Relationship(back_populates="notes")
+    attachments: List["AttachmentSchema"] = Relationship(back_populates="note")
+    voice_recordings: List["VoiceRecordingSchema"] = Relationship(back_populates="note")
+    summaries: List["SummarySchema"] = Relationship(back_populates="note")
 
 
 class NoteCreate(SQLModel):
@@ -51,16 +54,49 @@ class NoteCreate(SQLModel):
 
 class NoteUpdate(SQLModel):
     title: str | None = None
-    rich_text: str | None = None
+    content: str | None = None
     description: str | None = None
 
 
-class NoteSummary(BaseModel):
-    note_id: uuid.UUID
-    note_title: str
-    summary: str
+# Attachment
+class AttachmentSchema(UUIDModel, TimestampModel, table=True):
+    __tablename__ = "attachments"  # type: ignore
+    note_id: uuid.UUID = Field(foreign_key="notes.id")
+    file_path: str
+    type: Literal["image", "document"] = Field(sa_type=String)
+    summary: str | None = None
+
+    note: NoteSchema = Relationship(back_populates="attachments")
 
 
+# Voice
+class WordSchema(SQLModel):
+    word: str
+    start: float
+    end: float
+
+
+class VoiceRecordingSchema(UUIDModel, TimestampModel, table=True):
+    __tablename__ = "voicerecordings"  # type: ignore
+
+    note_id: uuid.UUID = Field(foreign_key="notes.id")
+    file_path: str
+    transcription: Optional[str] = None
+    words: Optional[list[WordSchema]] = Field(sa_column=Column(JSON), default=[])
+
+    note: NoteSchema = Relationship(back_populates="voice_recordings")
+
+
+# SUMMARY
+class SummarySchema(UUIDModel, TimestampModel, table=True):
+    __tablename__ = "summaries"  # type: ignore
+    note_id: uuid.UUID = Field(foreign_key="notes.id")
+    summary_text: str | None = None
+
+    note: NoteSchema = Relationship(back_populates="summaries")
+
+
+# AUTH
 class Token(BaseModel):
     access_token: str
     token_type: str

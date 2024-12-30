@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, FastAPI
 
 from app.core.db import create_db_and_tables
 from app.core.security import global_security
-from app.routers import notes, token, users
+from app.routers import attachments, notes, token, users
 
 load_dotenv()
 
@@ -21,4 +21,5 @@ def on_startup():
 router.include_router(token.router)
 router.include_router(users.router)
 router.include_router(notes.router, dependencies=[Depends(global_security)])
+router.include_router(attachments.router, dependencies=[Depends(global_security)])
 app.include_router(router)

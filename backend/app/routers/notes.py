@@ -1,11 +1,12 @@
 import re
+import uuid
 
 from fastapi import APIRouter, HTTPException
 from sqlmodel import desc, select
 
 from app.ai import generate_summary
 from app.core.db import SessionDep
-from app.core.models import NoteCreate, NoteSchema, NoteSummary, NoteUpdate
+from app.core.models import NoteCreate, NoteSchema, NoteUpdate, SummarySchema
 from app.core.security import CurrentUserDep
 
 router = APIRouter(prefix="/notes", tags=["notes"])
@@ -35,7 +36,7 @@ def read_note(note_id: str, session: SessionDep) -> NoteSchema:
 def create_note(
     note: NoteCreate, user: CurrentUserDep, session: SessionDep
 ) -> NoteSchema:
-    db_note = NoteSchema(title=note.title, rich_text="", description="")
+    db_note = NoteSchema(title=note.title, content="", description="")
     user.notes.append(db_note)
     session.add(user)
     session.commit()
@@ -51,9 +52,9 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     if not db_note:
         raise HTTPException(status_code=404, detail="Hero not found")
 
-    if note.rich_text:
-        note.title = parse_title(note.rich_text)
-        note.description = parse_description(note.rich_text)
+    if note.content:
+        note.title = parse_title(note.content)
+        note.description = parse_description(note.content)
 
     note_data = note.model_dump(exclude_unset=True)
 
@@ -78,16 +79,29 @@ def delete_note(note_id: str, session: SessionDep) -> dict[str, str]:
     return {"message": "Note deleted"}
 
 
-@router.get("/summary/{note_id}")
-def get_summary(note_id: str, session: SessionDep) -> NoteSummary:
+@router.post("/summary/{note_id}")
+def create_summary(note_id: uuid.UUID, session: SessionDep) -> SummarySchema:
     db_note = session.get(NoteSchema, note_id)
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
-    if db_note.rich_text is None:
-        raise HTTPException(status_code=400, detail="Note content is empty")
-    summary = generate_summary(db_note.rich_text)
 
-    return NoteSummary(note_id=db_note.id, note_title=db_note.title, summary=summary)
+    summary = generate_summary(db_note.content)
+
+    db_summary = SummarySchema(note_id=note_id, summary_text=summary)
+
+    session.add(db_summary)
+    session.commit()
+    session.refresh(db_summary)
+
+    return db_summary
+
+
+@router.get("/summary/{note_id}")
+def get_summaries(note_id: uuid.UUID, session: SessionDep) -> list[SummarySchema]:
+    statement = select(SummarySchema).where(SummarySchema.note_id == note_id)
+    results = session.exec(statement).all()
+
+    return list(results)
 
 
 def parse_title(text: str) -> str:

@@ -40,9 +40,7 @@ enum Types {
 }
 
 type Payload = {
-  [Types.INITIAL]: {
-    user: AuthUserType;
-  };
+  [Types.INITIAL]: undefined;
   [Types.LOGIN]: {
     user: AuthUserType;
   };
@@ -59,19 +57,20 @@ const initialState: AuthStateType = {
 const reducer = (state: AuthStateType, action: ActionsType) => {
   if (action.type === Types.INITIAL) {
     return {
-      loading: false,
-      user: action.payload.user,
+      ...state,
+      loading: true,
     };
   }
   if (action.type === Types.LOGIN) {
     return {
-      ...state,
+      loading: false,
       user: action.payload.user,
     };
   }
   if (action.type === Types.LOGOUT) {
     return {
       ...state,
+      loading: false,
       user: null,
     };
   }
@@ -88,13 +87,15 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const initialize = useCallback(async () => {
     try {
+      dispatch({ type: Types.INITIAL });
+
       const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
 
       if (accessToken && isValidToken(accessToken)) {
         const user = await getUserDetail().unwrap();
 
         dispatch({
-          type: Types.INITIAL,
+          type: Types.LOGIN,
           payload: {
             user,
           },
@@ -104,19 +105,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
 
       dispatch({
-        type: Types.INITIAL,
-        payload: {
-          user: null,
-        },
+        type: Types.LOGOUT,
       });
     } catch {
       Toast.show({ type: 'error', text1: t('connection_error'), autoHide: false });
 
       dispatch({
-        type: Types.INITIAL,
-        payload: {
-          user: null,
-        },
+        type: Types.LOGOUT,
       });
     }
   }, [getUserDetail]);
@@ -128,6 +123,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   // LOGIN
   const signInGoogle = useCallback(async () => {
     try {
+      dispatch({
+        type: Types.INITIAL,
+      });
+
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
@@ -139,6 +138,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokenResponse?.access_token || '');
 
           const user = await getUserDetail().unwrap();
+
           dispatch({
             type: Types.LOGIN,
             payload: {
@@ -147,12 +147,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           });
         } else {
           // Error no id_token
+          dispatch({
+            type: Types.LOGOUT,
+          });
         }
       } else {
         // sign in was cancelled by user
+        dispatch({
+          type: Types.LOGOUT,
+        });
         console.log('cancelled');
       }
     } catch (error) {
+      dispatch({
+        type: Types.LOGOUT,
+      });
+
       console.log(error);
 
       if (isErrorWithCode(error)) {
@@ -168,6 +178,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         }
       } else {
         // an error that's not related to google sign in occurred
+        Toast.show({ type: 'error', text1: t('connection_error'), autoHide: false });
       }
     }
   }, [openIdLogin, getUserDetail]);

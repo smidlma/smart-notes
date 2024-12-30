@@ -1,12 +1,14 @@
 import { useLocales } from '@/locales';
 import { router, Stack } from 'expo-router';
 import { useColorScheme } from '@/lib/useColorScheme';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useCreateNoteApiNotesPostMutation } from '@/services/api';
-import { NotebookPen, Sun, MoonStar } from 'lucide-react-native';
+import { NotebookPen, Sun, MoonStar, LogOut } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
+import { useAuthContext } from '@/auth';
 
 export default function StackLayout() {
+  const { signOut } = useAuthContext();
   const { t } = useLocales();
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
 
@@ -33,9 +35,14 @@ export default function StackLayout() {
             </Pressable>
           ),
           headerLeft: () => (
-            <Pressable onPress={toggleColorScheme}>
-              {isDarkColorScheme ? <Sun /> : <MoonStar />}
-            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <Pressable onPress={signOut}>
+                <LogOut />
+              </Pressable>
+              <Pressable onPress={toggleColorScheme}>
+                {isDarkColorScheme ? <Sun /> : <MoonStar />}
+              </Pressable>
+            </View>
           ),
           headerLargeTitle: true,
           headerBlurEffect: 'regular',

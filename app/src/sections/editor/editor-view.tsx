@@ -16,7 +16,7 @@ export const EditorView = ({ id }: Props) => {
 
   const handleContentChange = useCallback(
     async (content: string) => {
-      await updateNote({ noteId: id, noteUpdate: { rich_text: content } }).unwrap();
+      await updateNote({ noteId: id, noteUpdate: { content } }).unwrap();
     },
     [id, updateNote]
   );
@@ -27,7 +27,7 @@ export const EditorView = ({ id }: Props) => {
       firstFetchLoadingOnly
       isFetchingFirstTime={isLoading}
     >
-      <Editor onContentChange={handleContentChange} initialContent={data?.rich_text} />
+      <Editor onContentChange={handleContentChange} initialContent={data?.content} />
     </QueryComponentWrapper>
   );
 };
