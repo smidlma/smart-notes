@@ -19,6 +19,7 @@ import { CounterBridge } from './tiptap/counter-bridge';
 import { EditorToolbar } from './editor-toolbar';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   initialContent?: string;
@@ -26,6 +27,10 @@ type Props = {
 };
 
 export const Editor = ({ initialContent, onContentChange }: Props) => {
+  const { top } = useSafeAreaInsets();
+  const headerHeight = 38;
+  const keyboardVerticalOffset = headerHeight + top;
+
   const { colorScheme } = useColorScheme();
   const { editorCSS } = useEditorConfig();
 
@@ -84,7 +89,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
         </Button>
       </View> */}
       <KeyboardAvoidingView
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 : 0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >

@@ -18,21 +18,23 @@ import { Button } from '@/components/ui/button';
 import { Captions, CircleEllipsis } from 'lucide-react-native';
 import { useBoolean } from '@/hooks';
 import { VoiceTranscript } from './components/voice-transcript';
+import { useLocales } from '@/locales';
+import { router } from 'expo-router';
 
 type Props = {
   voiceId: string;
 };
 
 export const VoicePlayer = ({ voiceId }: Props) => {
+  const { t } = useLocales();
   const { navTheme, colorScheme } = useColorScheme();
   const showTranscript = useBoolean(false);
 
-  const { data, status, isLoading, refetch } =
-    useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery({
-      voiceId,
-    });
+  const { data, status, isLoading } = useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery({
+    voiceId,
+  });
 
-  const audioPlayer = useAudioPlayer(null, 500);
+  const audioPlayer = useAudioPlayer(null, 100);
   const playerStatus = useAudioPlayerStatus(audioPlayer);
 
   const progress = useSharedValue(0);
@@ -72,25 +74,14 @@ export const VoicePlayer = ({ voiceId }: Props) => {
     >
       <View className="flex-grow pb-14 gap-10 pt-6">
         <View className="flex-row justify-between px-8">
-          <Button
-            size="icon"
-            variant={showTranscript.value ? 'default' : 'ghost'}
-            onPress={() => {
-              if (!showTranscript.value) {
-                refetch();
-              }
-              showTranscript.onToggle();
-            }}
-          >
-            <Captions />
-          </Button>
+          <View className="flex-1" />
           <VoiceHeader date={data?.created_at} title={data?.title ?? undefined} />
           <Button size="icon" variant="ghost">
-            <CircleEllipsis />
+            <CircleEllipsis size={32} />
           </Button>
         </View>
         {showTranscript.value ? (
-          <VoiceTranscript transcription={data?.transcription ?? ''} />
+          <VoiceTranscript voiceId={voiceId} currentTime={playerStatus.currentTime} />
         ) : (
           <DurationTimer player={audioPlayer} />
         )}
@@ -113,22 +104,41 @@ export const VoicePlayer = ({ voiceId }: Props) => {
           />
         </View>
 
-        <View className="items-center pb-12">
-          <MotiPressable
-            onPress={() => {
-              if (playerStatus.playing) {
-                audioPlayer.pause();
-              } else {
-                audioPlayer.play();
-              }
-            }}
-          >
-            {playerStatus.playing ? (
-              <Pause size={64} className="fill-primary text-primary" />
-            ) : (
-              <Play size={64} className="fill-primary text-primary" />
-            )}
-          </MotiPressable>
+        <View className="flex-row items-center pb-12 justify-between px-8">
+          <View className="flex-1">
+            <Button
+              size="icon"
+              variant={showTranscript.value ? 'default' : 'ghost'}
+              onPress={() => {
+                showTranscript.onToggle();
+              }}
+            >
+              <Captions size={32} />
+            </Button>
+          </View>
+          <View className="flex-1 items-center">
+            <MotiPressable
+              onPress={() => {
+                if (playerStatus.playing) {
+                  audioPlayer.pause();
+                } else {
+                  audioPlayer.play();
+                }
+              }}
+            >
+              {playerStatus.playing ? (
+                <Pause size={64} className="fill-primary text-primary" />
+              ) : (
+                <Play size={64} className="fill-primary text-primary" />
+              )}
+            </MotiPressable>
+          </View>
+
+          <View className="flex-1 items-end">
+            <Button variant="ghost" onPress={() => router.back()}>
+              <Text>{t('done')}</Text>
+            </Button>
+          </View>
         </View>
       </View>
     </QueryComponentWrapper>

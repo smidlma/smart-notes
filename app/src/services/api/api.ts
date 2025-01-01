@@ -87,6 +87,27 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/notes/summary/${queryArg.noteId}` }),
         providesTags: ["notes"],
       }),
+      getVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGet:
+        build.query<
+          GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse,
+          GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg
+        >({
+          query: (queryArg) => ({
+            url: `/api/attachments/voice/${queryArg.voiceId}/transcription`,
+          }),
+          providesTags: ["attachments"],
+        }),
+      createVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPost:
+        build.mutation<
+          CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiResponse,
+          CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiArg
+        >({
+          query: (queryArg) => ({
+            url: `/api/attachments/voice/${queryArg.voiceId}/transcription`,
+            method: "POST",
+          }),
+          invalidatesTags: ["attachments"],
+        }),
       getVoiceRecordingApiAttachmentsVoiceVoiceIdGet: build.query<
         GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse,
         GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiArg
@@ -164,6 +185,18 @@ export type GetSummariesApiNotesSummaryNoteIdGetApiResponse =
 export type GetSummariesApiNotesSummaryNoteIdGetApiArg = {
   noteId: string;
 };
+export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse =
+  /** status 200 Successful Response */ VoiceTranscriptionResponse;
+export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg =
+  {
+    voiceId: string;
+  };
+export type CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiResponse =
+  /** status 200 Successful Response */ VoiceTranscriptionResponse;
+export type CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiArg =
+  {
+    voiceId: string;
+  };
 export type GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse =
   /** status 200 Successful Response */ VoiceRecordingSchema;
 export type GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiArg = {
@@ -232,6 +265,11 @@ export type WordSchema = {
   start: number;
   end: number;
 };
+export type VoiceTranscriptionResponse = {
+  transcription?: string | null;
+  words?: WordSchema[] | null;
+  status: "new" | "processing" | "done" | "failed";
+};
 export type VoiceRecordingSchema = {
   created_at?: string;
   updated_at?: string;
@@ -256,6 +294,8 @@ export const {
   useDeleteNoteApiNotesNoteIdDeleteMutation,
   useCreateSummaryApiNotesSummaryNoteIdPostMutation,
   useGetSummariesApiNotesSummaryNoteIdGetQuery,
+  useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
+  useCreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostMutation,
   useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,

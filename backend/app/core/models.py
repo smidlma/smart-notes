@@ -91,6 +91,12 @@ class VoiceRecordingSchema(UUIDModel, TimestampModel, table=True):
     note: NoteSchema = Relationship(back_populates="voice_recordings")
 
 
+class VoiceTranscriptionResponse(SQLModel):
+    transcription: str | None = None
+    words: list[WordSchema] | None = None
+    status: Literal["new", "processing", "done", "failed"]
+
+
 # SUMMARY
 class SummarySchema(UUIDModel, TimestampModel, table=True):
     __tablename__ = "summaries"  # type: ignore
