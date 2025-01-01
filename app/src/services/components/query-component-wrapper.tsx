@@ -6,6 +6,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { H1 } from '@/components/ui/typography';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { MotiView } from 'moti';
 
 type MainProps = {
   LoadingSkeleton?: React.ReactNode;
@@ -34,12 +36,14 @@ export const QueryComponentWrapper = ({
     isFetchingFirstTime
   );
 
+  const height = useHeaderHeight();
+
   if (someQueryPending) {
     return (
       <>
         {LoadingSkeleton || (
-          <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" />
+          <View className="flex-1 justify-center items-center bg">
+            <ActivityIndicator size="large" style={{ paddingBottom: height }} />
           </View>
         )}
       </>
@@ -59,5 +63,9 @@ export const QueryComponentWrapper = ({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <MotiView className="flex-1" from={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {children}
+    </MotiView>
+  );
 };

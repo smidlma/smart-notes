@@ -1,5 +1,4 @@
-import { ActivityIndicator, Alert, View } from 'react-native';
-import { VoiceRecorderHeader } from './components/voice-recorder-header';
+import { Alert, View } from 'react-native';
 import { fMilliseconds } from '@/utils/format-time';
 import {
   useAudioRecorder,
@@ -14,12 +13,24 @@ import { H4 } from '@/components/ui/typography';
 import { VoiceRecorderControls } from './components/voice-recorder-controls';
 import { uploadHandler } from '@/utils/upload';
 import { Text } from '@/components/ui/text';
+import { useDispatch } from 'react-redux';
+import { api, VoiceRecordingSchema } from '@/services/api';
+import React from 'react';
+import { LoadingOverlay } from '@/components/loading-overlay/loading-overlay';
+import { router } from 'expo-router';
+import { VoiceHeader } from './components/voice-header';
 
-export const VoiceRecorderView = ({ id }: { id: string }) => {
+type Props = {
+  noteId: string;
+};
+
+export const VoiceRecorder = ({ noteId }: Props) => {
   const isDoneRecording = useBoolean(false);
   const isRecording = useBoolean(false);
   const isNewRecording = useBoolean(true);
   const isUploading = useBoolean(false);
+
+  const dispatch = useDispatch();
 
   const audioRecorder = useAudioRecorder({
     ...RecordingPresets.HIGH_QUALITY,
@@ -41,7 +52,26 @@ export const VoiceRecorderView = ({ id }: { id: string }) => {
     isRecording.onFalse();
     isDoneRecording.onTrue();
     if (audioRecorder.uri) {
-      await handleFinishRecording(audioRecorder.uri);
+      isUploading.onTrue();
+
+      const result = await uploadHandler<VoiceRecordingSchema>({
+        fileUri: audioRecorder.uri,
+        type: 'voice',
+        pathParam: noteId,
+      });
+
+      console.log(result);
+
+      isUploading.onFalse();
+
+      dispatch(api.util.invalidateTags(['attachments']));
+
+      if (result?.id) {
+        router.push({
+          pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
+          params: { voiceId: result.id, noteId },
+        });
+      }
     }
   };
 
@@ -55,34 +85,21 @@ export const VoiceRecorderView = ({ id }: { id: string }) => {
     })();
   }, []);
 
-  const handleFinishRecording = async (recordingUri: string) => {
-    isUploading.onTrue();
-
-    await uploadHandler({
-      fileUri: recordingUri,
-      type: 'voice',
-      pathParam: id,
-    });
-
-    isUploading.onFalse();
-  };
-
   return (
-    <View className="flex-1 px-4">
-      {isUploading.value && <ActivityIndicator size="large" />}
-      <VoiceRecorderHeader />
-
-      <DurationTimer player={audioRecorder} />
-
-      <VoiceRecorderControls
-        isNewRecording={isNewRecording.value}
-        isRecording={isRecording.value}
-        onStart={record}
-        onFinish={stopRecording}
-        onPause={pauseRecording}
-        isDoneRecording={isDoneRecording.value}
-      />
-    </View>
+    <>
+      <View className="flex-grow px-6">
+        <VoiceHeader />
+        <DurationTimer player={audioRecorder} />
+        <VoiceRecorderControls
+          isNewRecording={isNewRecording.value}
+          isRecording={isRecording.value}
+          onStart={record}
+          onFinish={stopRecording}
+          onPause={pauseRecording}
+        />
+      </View>
+      <LoadingOverlay show={isUploading.value} />
+    </>
   );
 };
 

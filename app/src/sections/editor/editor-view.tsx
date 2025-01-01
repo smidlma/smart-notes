@@ -4,13 +4,17 @@ import {
   useUpdateNoteApiNotesNoteIdPatchMutation,
 } from '@/services/api';
 import { QueryComponentWrapper } from '@/services/components';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useCallback } from 'react';
+import { View } from 'react-native';
 
 type Props = {
   id: string;
 };
 
 export const EditorView = ({ id }: Props) => {
+  const height = useHeaderHeight();
+
   const { data, status, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId: id });
   const [updateNote] = useUpdateNoteApiNotesNoteIdPatchMutation();
 
@@ -22,12 +26,14 @@ export const EditorView = ({ id }: Props) => {
   );
 
   return (
-    <QueryComponentWrapper
-      statuses={[status]}
-      firstFetchLoadingOnly
-      isFetchingFirstTime={isLoading}
-    >
-      <Editor onContentChange={handleContentChange} initialContent={data?.content} />
-    </QueryComponentWrapper>
+    <View className="flex-grow" style={{ paddingTop: height }}>
+      <QueryComponentWrapper
+        statuses={[status]}
+        firstFetchLoadingOnly
+        isFetchingFirstTime={isLoading}
+      >
+        <Editor onContentChange={handleContentChange} initialContent={data?.content} />
+      </QueryComponentWrapper>
+    </View>
   );
 };

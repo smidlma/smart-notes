@@ -27,6 +27,8 @@ export const SummaryView = ({ noteId }: Props) => {
 
       setSummary(result?.summary_text);
     } catch (e) {
+      console.log(e);
+
       Toast.show({ type: 'error', text1: t('error'), text2: (e as Error).message });
     }
   };
@@ -63,12 +65,12 @@ const LoadingSkeleton = () => {
   return (
     <MotiView className="gap-4">
       <Skeleton width="30%" height={20} radius={16} colors={gradient} />
-      <Skeleton width="80%" height={20} radius={'round'} colors={gradient} />
-      <Skeleton width="100%" height={20} radius={'round'} colors={gradient} />
-      <Skeleton width="60%" height={20} radius={'round'} colors={gradient} />
-      <Skeleton width="60%" height={20} radius={'round'} colors={gradient} />
-      <Skeleton width="100%" height={20} radius={'round'} colors={gradient} />
-      <Skeleton width="100%" height={20} radius={'round'} colors={gradient} />
+      <Skeleton width="80%" height={20} radius="round" colors={gradient} />
+      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
+      <Skeleton width="60%" height={20} radius="round" colors={gradient} />
+      <Skeleton width="60%" height={20} radius="round" colors={gradient} />
+      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
+      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
     </MotiView>
   );
 };

@@ -62,7 +62,7 @@ class NoteUpdate(SQLModel):
 class AttachmentSchema(UUIDModel, TimestampModel, table=True):
     __tablename__ = "attachments"  # type: ignore
     note_id: uuid.UUID = Field(foreign_key="notes.id")
-    file_path: str
+    file_name: str
     type: Literal["image", "document"] = Field(sa_type=String)
     summary: str | None = None
 
@@ -80,9 +80,13 @@ class VoiceRecordingSchema(UUIDModel, TimestampModel, table=True):
     __tablename__ = "voicerecordings"  # type: ignore
 
     note_id: uuid.UUID = Field(foreign_key="notes.id")
-    file_path: str
+    title: str | None = None
+    file_name: str
     transcription: Optional[str] = None
     words: Optional[list[WordSchema]] = Field(sa_column=Column(JSON), default=[])
+    status: Literal["new", "processing", "done", "failed"] = Field(
+        sa_type=String, default="new"
+    )
 
     note: NoteSchema = Relationship(back_populates="voice_recordings")
 

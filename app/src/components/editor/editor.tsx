@@ -84,6 +84,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
         </Button>
       </View> */}
       <KeyboardAvoidingView
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 : 0}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >

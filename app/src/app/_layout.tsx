@@ -55,10 +55,10 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <BottomSheetModalProvider>
             <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-              <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
               <Slot />
               <PortalHost />
               <Toast config={toastConfig} topOffset={64} />
+              <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
             </ThemeProvider>
           </BottomSheetModalProvider>
         </GestureHandlerRootView>

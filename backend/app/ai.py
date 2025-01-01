@@ -33,32 +33,42 @@ def process_audio_file(
     if not db_voice:
         raise ValueError("Voice recording not found")
 
-    loader = AssemblyAIAudioTranscriptLoader(file_path=file_path)
-    docs = loader.load()
-
-    # Not optimal for large files cuz its in memory
-    transcriptions = []
-    words = []
-
-    for doc in docs:
-        transcription = doc.page_content
-        words_map = map(
-            lambda x: WordSchema(
-                word=x["text"], start=x["start"], end=x["end"]
-            ).model_dump(),
-            doc.metadata["words"],
-        )
-        transcriptions.append(transcription)
-        words.append(list(words_map))
-
-    transcription = " ".join(transcriptions)
-    merged_words = list(itertools.chain.from_iterable(words))
-
-    print(f"Transcription: {transcription}")
-    print(f"Words: {words}")
-
-    db_voice.sqlmodel_update({"transcription": transcription, "words": merged_words})
-
+    db_voice.sqlmodel_update({"status": "processing"})
     session.add(db_voice)
     session.commit()
     session.refresh(db_voice)
+
+    try:
+        loader = AssemblyAIAudioTranscriptLoader(file_path=file_path)
+        docs = loader.load()
+
+        # Not optimal for large files cuz its in memory
+        transcriptions = []
+        words = []
+
+        for doc in docs:
+            transcription = doc.page_content
+            words_map = map(
+                lambda x: WordSchema(
+                    word=x["text"], start=x["start"], end=x["end"]
+                ).model_dump(),
+                doc.metadata["words"],
+            )
+            transcriptions.append(transcription)
+            words.append(list(words_map))
+
+        transcription = " ".join(transcriptions)
+        merged_words = list(itertools.chain.from_iterable(words))
+
+        db_voice.sqlmodel_update(
+            {"transcription": transcription, "words": merged_words, "status": "done"}
+        )
+
+        session.add(db_voice)
+        session.commit()
+        session.refresh(db_voice)
+    except Exception:
+        db_voice.sqlmodel_update({"status": "failed"})
+        session.add(db_voice)
+        session.commit()
+        session.refresh(db_voice)

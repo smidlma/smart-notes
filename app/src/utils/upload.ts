@@ -9,11 +9,15 @@ type UploadHandlerProps = {
   pathParam: string;
   callback?: (params: FileSystem.UploadProgressData) => void;
 };
-export const uploadHandler = async ({ fileUri, type, pathParam, callback }: UploadHandlerProps) => {
+export const uploadHandler = async <T>({
+  fileUri,
+  type,
+  pathParam,
+  callback,
+}: UploadHandlerProps) => {
   try {
     const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     const url = `${API_BASE_URL}${STORAGE_UPLOAD_URL}/${type}/${pathParam}`;
-    console.log('url', url);
 
     const uploadTask = FileSystem.createUploadTask(
       url,
@@ -31,7 +35,7 @@ export const uploadHandler = async ({ fileUri, type, pathParam, callback }: Uplo
 
     const result = await uploadTask.uploadAsync();
 
-    return result;
+    return JSON.parse(result?.body as string) as T;
   } catch (e) {
     console.log(e);
   }

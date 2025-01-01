@@ -57,8 +57,8 @@ export default function StackLayout() {
         options={{
           headerShown: true,
           headerTransparent: true,
-          headerTitle: 'Note',
-          headerBackTitle: 'Back',
+          headerTitle: t('note'),
+          headerBackTitle: t('back'),
         }}
       />
       <Stack.Screen
@@ -68,6 +68,7 @@ export default function StackLayout() {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen name="note/voice/[noteId, voiceId]" options={{ headerTitle: t('voice') }} />
     </Stack>
   );
 }

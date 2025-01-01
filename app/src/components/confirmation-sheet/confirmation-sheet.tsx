@@ -20,7 +20,7 @@ export type ActionConfirmationRef = {
   close: () => void;
 };
 
-export const ActionConfirmation = forwardRef<ActionConfirmationRef, Props>(
+export const ConfirmationSheet = forwardRef<ActionConfirmationRef, Props>(
   ({ title, description, onConfirm, onCancel }: Props, ref) => {
     const { t } = useLocales();
     const { colorScheme } = useColorScheme();
@@ -69,4 +69,4 @@ export const ActionConfirmation = forwardRef<ActionConfirmationRef, Props>(
 );
 
 // Assign displayName for better debugging
-ActionConfirmation.displayName = 'ActionConfirmation';
+ConfirmationSheet.displayName = 'ConfirmationSheet';

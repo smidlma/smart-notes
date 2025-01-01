@@ -4,15 +4,14 @@ import { formatRelative } from 'date-fns';
 
 type Props = {
   title?: string;
-  date?: Date;
+  date?: Date | string;
 };
 
-export const VoiceRecorderHeader = ({ title = 'New recording', date = new Date() }: Props) => {
+export const VoiceHeader = ({ title = 'New recording', date = new Date() }: Props) => {
   return (
     <View
       style={{
         flexDirection: 'row',
-        width: '100%',
         alignItems: 'flex-start',
       }}
     >

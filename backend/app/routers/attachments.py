@@ -1,15 +1,37 @@
 import uuid
-from pathlib import Path
-from typing import Literal
 
 import aiofiles
-from fastapi import APIRouter, BackgroundTasks, UploadFile
+from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
+from sqlmodel import select
 
 from app.ai import process_audio_file
+from app.config import VOICE_STORAGE_PATH
 from app.core.db import SessionDep
-from app.core.models import AttachmentSchema, VoiceRecordingSchema
+from app.core.models import VoiceRecordingSchema
 
 router = APIRouter(prefix="/attachments", tags=["attachments"])
+
+
+@router.get("/voice/{voice_id}")
+async def get_voice_recording(
+    voice_id: uuid.UUID, session: SessionDep
+) -> VoiceRecordingSchema:
+    voice_db = session.get(VoiceRecordingSchema, voice_id)
+    if not voice_db:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return voice_db
+
+
+@router.get("/{note_id}/voice")
+def get_voice_recordings(
+    note_id: uuid.UUID, session: SessionDep
+) -> list[VoiceRecordingSchema]:
+    statement = select(VoiceRecordingSchema).where(
+        VoiceRecordingSchema.note_id == note_id
+    )
+    result = session.exec(statement).all()
+
+    return list(result)
 
 
 @router.post("/upload/voice/{note_id}")
@@ -20,14 +42,14 @@ async def upload_voice(
     background_tasks: BackgroundTasks,
 ) -> VoiceRecordingSchema:
     file_name = file.filename
-    storage_path = Path().parent.parent.joinpath("storage").joinpath("voice")
-    out_file_path = f"{storage_path}/{file_name}"
+
+    out_file_path = f"{VOICE_STORAGE_PATH}/{file_name}"
 
     async with aiofiles.open(out_file_path, "wb") as out_file:
         while content := await file.read(1024):  # async read chunk
             await out_file.write(content)  # async write chunk
 
-    db_voice = VoiceRecordingSchema(note_id=note_id, file_path=file_name or "unknown")
+    db_voice = VoiceRecordingSchema(note_id=note_id, file_name=file_name or "unknown")
     session.add(db_voice)
     session.commit()
     session.refresh(db_voice)
@@ -37,25 +59,25 @@ async def upload_voice(
     return db_voice
 
 
-@router.post("/upload/attachment/{note_id}")
-async def upload_attachment(
-    note_id: uuid.UUID,
-    type: Literal["image", "document"],
-    file: UploadFile,
-    session: SessionDep,
-) -> AttachmentSchema:
-    file_name = file.filename
-    storage_path = Path().parent.parent.joinpath("storage").joinpath("voice")
-    out_file_path = f"{storage_path}/{file_name}"
+# @router.post("/upload/attachment/{note_id}")
+# async def upload_attachment(
+#     note_id: uuid.UUID,
+#     type: Literal["image", "document"],
+#     file: UploadFile,
+#     session: SessionDep,
+# ) -> AttachmentSchema:
+#     file_name = file.filename
+#     storage_path = Path().parent.parent.joinpath("storage").joinpath("voice")
+#     out_file_path = f"{storage_path}/{file_name}"
 
-    async with aiofiles.open(out_file_path, "wb") as out_file:
-        while content := await file.read(1024):  # async read chunk
-            await out_file.write(content)  # async write chunk
+#     async with aiofiles.open(out_file_path, "wb") as out_file:
+#         while content := await file.read(1024):  # async read chunk
+#             await out_file.write(content)  # async write chunk
 
-    db_attachment = AttachmentSchema(
-        note_id=note_id, type=type, file_path=file_name or "unknown"
-    )
-    session.add(db_attachment)
-    session.commit()
-    session.refresh(db_attachment)
-    return db_attachment
+#     db_attachment = AttachmentSchema(
+#         note_id=note_id, type=type, file_name=file_name or "unknown"
+#     )
+#     session.add(db_attachment)
+#     session.commit()
+#     session.refresh(db_attachment)
+#     return db_attachment

@@ -19,4 +19,7 @@ const customEndpoints = api;
 //   }),
 // });
 
-export const { useLazyGetUserDetailApiUsersGetQuery } = customEndpoints;
+export const {
+  useLazyGetUserDetailApiUsersGetQuery,
+  useLazyGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
+} = customEndpoints;

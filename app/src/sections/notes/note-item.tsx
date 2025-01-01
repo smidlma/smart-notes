@@ -1,7 +1,3 @@
-import {
-  ActionConfirmation,
-  ActionConfirmationRef,
-} from '@/components/action-confirmation/action-confirmation';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDeleteNoteApiNotesNoteIdDeleteMutation } from '@/services/api';
 import { fDate } from '@/utils/format-time';
@@ -15,6 +11,10 @@ import ReanimatedSwipeable, {
 import Reanimated, { FadeOut, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { Trash2 } from '@/lib/icons';
 import Animated from 'react-native-reanimated';
+import {
+  ActionConfirmationRef,
+  ConfirmationSheet,
+} from '@/components/confirmation-sheet/confirmation-sheet';
 type Props = {
   id: string;
   title: string;
@@ -72,7 +72,7 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
           </Pressable>
         </ReanimatedSwipeable>
       </Card>
-      <ActionConfirmation
+      <ConfirmationSheet
         ref={actionConfirmationRef}
         title={t('delete_note', { name: title })}
         description={t('delete_note_description')}
