@@ -21,6 +21,8 @@ import { VoiceTranscript } from './components/voice-transcript';
 import { useLocales } from '@/locales';
 import { router } from 'expo-router';
 import * as DropdownMenu from 'zeego/dropdown-menu';
+import * as Clipboard from 'expo-clipboard';
+import Toast from 'react-native-toast-message';
 
 type Props = {
   voiceId: string;
@@ -67,6 +69,11 @@ export const VoicePlayer = ({ voiceId }: Props) => {
     audioPlayer.play();
   };
 
+  const copyTranscript = async () => {
+    await Clipboard.setStringAsync(data?.transcription ?? '');
+    Toast.show({ type: 'success', text1: t('copied_transcript') });
+  };
+
   return (
     <QueryComponentWrapper
       statuses={[status]}
@@ -88,11 +95,11 @@ export const VoicePlayer = ({ voiceId }: Props) => {
               </DropdownMenu.Trigger>
 
               <DropdownMenu.Content>
-                <DropdownMenu.Item key="cars">
+                <DropdownMenu.Item key="rename">
                   <DropdownMenu.ItemIcon
                     ios={{
                       name: 'pencil', // required
-                      pointSize: 26,
+                      pointSize: 24,
                       weight: 'semibold',
                       scale: 'medium',
                       // can also be a color string. Requires iOS 15+
@@ -104,6 +111,24 @@ export const VoicePlayer = ({ voiceId }: Props) => {
                   />
                   <DropdownMenu.ItemTitle>{t('rename')}</DropdownMenu.ItemTitle>
                 </DropdownMenu.Item>
+                {data?.transcription && (
+                  <DropdownMenu.Item key="copy" onSelect={copyTranscript}>
+                    <DropdownMenu.ItemIcon
+                      ios={{
+                        name: 'list.clipboard', // required
+                        pointSize: 24,
+                        weight: 'semibold',
+                        scale: 'medium',
+                        // can also be a color string. Requires iOS 15+
+                        hierarchicalColor: {
+                          dark: navTheme.primary,
+                          light: navTheme.primary,
+                        },
+                      }}
+                    />
+                    <DropdownMenu.ItemTitle>{t('copy_transcript')}</DropdownMenu.ItemTitle>
+                  </DropdownMenu.Item>
+                )}
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </View>

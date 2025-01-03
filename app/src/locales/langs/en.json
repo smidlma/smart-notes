@@ -12,5 +12,7 @@
   "save": "Save",
   "rename": "Rename",
   "cancel": "Cancel",
-  "save_and_leave": "Save and leave"
+  "save_and_leave": "Save and leave",
+  "copy_transcript": "Copy transcript",
+  "copied_transcript": "Transcript copied"
 }
