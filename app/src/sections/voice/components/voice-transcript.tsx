@@ -1,13 +1,18 @@
 import { Text } from '@/components/ui/text';
 import { useBoolean } from '@/hooks';
-import { useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery } from '@/services/api';
+import {
+  api,
+  useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
+} from '@/services/api';
 import { QueryComponentWrapper } from '@/services/components';
 import { useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 type Props = { voiceId: string; currentTime: number };
 
 export const VoiceTranscript = ({ voiceId, currentTime }: Props) => {
+  const dispatch = useDispatch();
   const shouldPool = useBoolean(false);
 
   const { data, status } = useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery(
@@ -22,6 +27,7 @@ export const VoiceTranscript = ({ voiceId, currentTime }: Props) => {
       shouldPool.onTrue();
     } else {
       shouldPool.onFalse();
+      dispatch(api.util.invalidateTags(['attachments']));
     }
   }, [data]);
 
