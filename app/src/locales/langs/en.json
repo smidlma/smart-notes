@@ -10,5 +10,7 @@
   "summary": "Summary",
   "done": "Done",
   "save": "Save",
-  "rename": "Rename"
+  "rename": "Rename",
+  "cancel": "Cancel",
+  "save_and_leave": "Save and leave"
 }

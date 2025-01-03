@@ -41,9 +41,9 @@ export const VoiceRecorderControls = ({
       </Button>
 
       <View className="flex-1 items-end">
-        <MotiPressable onPress={onFinish} disabled={isNewRecording || isRecording}>
+        <Button variant="ghost" onPress={onFinish} disabled={isNewRecording || isRecording}>
           <Text>{t('save')}</Text>
-        </MotiPressable>
+        </Button>
       </View>
     </View>
   );

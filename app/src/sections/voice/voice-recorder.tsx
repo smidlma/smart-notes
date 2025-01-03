@@ -1,4 +1,4 @@
-import { Alert, View } from 'react-native';
+import { ActionSheetIOS, Alert, View } from 'react-native';
 import { fMilliseconds } from '@/utils/format-time';
 import {
   useAudioRecorder,
@@ -19,16 +19,35 @@ import React from 'react';
 import { LoadingOverlay } from '@/components/loading-overlay/loading-overlay';
 import { router } from 'expo-router';
 import { VoiceHeader } from './components/voice-header';
+import { useLocales } from '@/locales';
+import { usePreventRemove } from '@react-navigation/native';
 
 type Props = {
   noteId: string;
 };
 
 export const VoiceRecorder = ({ noteId }: Props) => {
+  const { t } = useLocales();
+
   const isDoneRecording = useBoolean(false);
   const isRecording = useBoolean(false);
   const isNewRecording = useBoolean(true);
   const isUploading = useBoolean(false);
+
+  usePreventRemove(isRecording.value || isUploading.value || !isNewRecording.value, () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: [t('cancel'), t('save_and_leave')],
+        destructiveButtonIndex: 1,
+        cancelButtonIndex: 0,
+      },
+      async (buttonIndex) => {
+        if (buttonIndex === 1) {
+          await saveRecording();
+        }
+      }
+    );
+  });
 
   const dispatch = useDispatch();
 
@@ -47,7 +66,7 @@ export const VoiceRecorder = ({ noteId }: Props) => {
     audioRecorder.pause();
   };
 
-  const stopRecording = async () => {
+  const saveRecording = async () => {
     await audioRecorder.stop();
     isRecording.onFalse();
     isDoneRecording.onTrue();
@@ -59,8 +78,6 @@ export const VoiceRecorder = ({ noteId }: Props) => {
         type: 'voice',
         pathParam: noteId,
       });
-
-      console.log(result);
 
       isUploading.onFalse();
 
@@ -87,14 +104,14 @@ export const VoiceRecorder = ({ noteId }: Props) => {
 
   return (
     <>
-      <View className="flex-grow px-6">
+      <View className="flex-grow px-6  pt-6">
         <VoiceHeader />
         <DurationTimer player={audioRecorder} />
         <VoiceRecorderControls
           isNewRecording={isNewRecording.value}
           isRecording={isRecording.value}
           onStart={record}
-          onFinish={stopRecording}
+          onFinish={saveRecording}
           onPause={pauseRecording}
         />
       </View>

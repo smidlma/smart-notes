@@ -74,35 +74,39 @@ export const VoicePlayer = ({ voiceId }: Props) => {
       isFetchingFirstTime={isLoading}
     >
       <View className="flex-grow pb-14 gap-10 pt-6">
-        <View className="flex-row justify-between px-8">
+        <View className="flex-row justify-between px-6">
           <View className="flex-1" />
-          <VoiceHeader date={data?.created_at} title={data?.title ?? undefined} />
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              <MotiPressable>
-                <CircleEllipsis size={26} />
-              </MotiPressable>
-            </DropdownMenu.Trigger>
+          <View className="flex-grow">
+            <VoiceHeader date={data?.created_at} title={data?.title ?? undefined} />
+          </View>
+          <View className="flex-1 items-end">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger>
+                <MotiPressable>
+                  <CircleEllipsis size={26} />
+                </MotiPressable>
+              </DropdownMenu.Trigger>
 
-            <DropdownMenu.Content>
-              <DropdownMenu.Item key="cars">
-                <DropdownMenu.ItemIcon
-                  ios={{
-                    name: 'pencil', // required
-                    pointSize: 26,
-                    weight: 'semibold',
-                    scale: 'medium',
-                    // can also be a color string. Requires iOS 15+
-                    hierarchicalColor: {
-                      dark: navTheme.primary,
-                      light: navTheme.primary,
-                    },
-                  }}
-                />
-                <DropdownMenu.ItemTitle>{t('rename')}</DropdownMenu.ItemTitle>
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item key="cars">
+                  <DropdownMenu.ItemIcon
+                    ios={{
+                      name: 'pencil', // required
+                      pointSize: 26,
+                      weight: 'semibold',
+                      scale: 'medium',
+                      // can also be a color string. Requires iOS 15+
+                      hierarchicalColor: {
+                        dark: navTheme.primary,
+                        light: navTheme.primary,
+                      },
+                    }}
+                  />
+                  <DropdownMenu.ItemTitle>{t('rename')}</DropdownMenu.ItemTitle>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </View>
         </View>
         {showTranscript.value ? (
           <VoiceTranscript voiceId={voiceId} currentTime={playerStatus.currentTime} />
