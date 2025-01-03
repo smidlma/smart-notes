@@ -60,8 +60,15 @@ def process_audio_file(
         transcription = " ".join(transcriptions)
         merged_words = list(itertools.chain.from_iterable(words))
 
+        title = " ".join(list(map(lambda x: x["word"], merged_words[:4])))
+
         db_voice.sqlmodel_update(
-            {"transcription": transcription, "words": merged_words, "status": "done"}
+            {
+                "transcription": transcription,
+                "words": merged_words,
+                "status": "done",
+                "title": title,
+            }
         )
 
         session.add(db_voice)

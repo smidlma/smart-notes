@@ -9,5 +9,6 @@
   "connection_error": "Unable to connect to the server",
   "summary": "Summary",
   "done": "Done",
-  "save": "Save"
+  "save": "Save",
+  "rename": "Rename"
 }

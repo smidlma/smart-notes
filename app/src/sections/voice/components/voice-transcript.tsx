@@ -31,7 +31,7 @@ export const VoiceTranscript = ({ voiceId, currentTime }: Props) => {
         {data?.words?.map(({ start, end, word }) => (
           <Text
             key={start}
-            className={`${currentTime >= start && currentTime <= end ? 'text-xl text-primary' : 'text-xl text-muted-foreground'} `}
+            className={`${currentTime >= start && currentTime <= end ? 'text-primary' : 'text-muted-foreground'} text-xl font-semibold`}
           >
             {word}
           </Text>

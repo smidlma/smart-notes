@@ -7,7 +7,11 @@ from sqlmodel import select
 from app.ai import process_audio_file
 from app.config import VOICE_STORAGE_PATH
 from app.core.db import SessionDep
-from app.core.models import VoiceRecordingSchema, VoiceTranscriptionResponse
+from app.core.models import (
+    VoiceRecordingSchema,
+    VoiceRecordingUpdate,
+    VoiceTranscriptionResponse,
+)
 
 router = APIRouter(prefix="/attachments", tags=["attachments"])
 
@@ -50,6 +54,23 @@ async def get_voice_recording(
     voice_db = session.get(VoiceRecordingSchema, voice_id)
     if not voice_db:
         raise HTTPException(status_code=404, detail="Note not found")
+    return voice_db
+
+
+@router.put("/voice/{voice_id}")
+def update_voice_recording(
+    voice_id: uuid.UUID, voice_update: VoiceRecordingUpdate, session: SessionDep
+) -> VoiceRecordingSchema:
+    voice_db = session.get(VoiceRecordingSchema, voice_id)
+    if not voice_db:
+        raise HTTPException(status_code=404, detail="Note not found")
+
+    voice_data = voice_update.model_dump(exclude_unset=True)
+    voice_db.sqlmodel_update(voice_data)
+    session.add(voice_db)
+    session.commit()
+    session.refresh(voice_db)
+
     return voice_db
 
 

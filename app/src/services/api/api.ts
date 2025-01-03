@@ -117,6 +117,17 @@ const injectedRtkApi = api
         }),
         providesTags: ["attachments"],
       }),
+      updateVoiceRecordingApiAttachmentsVoiceVoiceIdPut: build.mutation<
+        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiResponse,
+        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/voice/${queryArg.voiceId}`,
+          method: "PUT",
+          body: queryArg.voiceRecordingUpdate,
+        }),
+        invalidatesTags: ["attachments"],
+      }),
       getVoiceRecordingsApiAttachmentsNoteIdVoiceGet: build.query<
         GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse,
         GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiArg
@@ -202,6 +213,12 @@ export type GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse =
 export type GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiArg = {
   voiceId: string;
 };
+export type UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiResponse =
+  /** status 200 Successful Response */ VoiceRecordingSchema;
+export type UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiArg = {
+  voiceId: string;
+  voiceRecordingUpdate: VoiceRecordingUpdate;
+};
 export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse =
   /** status 200 Successful Response */ VoiceRecordingSchema[];
 export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiArg = {
@@ -281,6 +298,9 @@ export type VoiceRecordingSchema = {
   words?: WordSchema[] | null;
   status?: "new" | "processing" | "done" | "failed";
 };
+export type VoiceRecordingUpdate = {
+  title: string;
+};
 export type BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost = {
   file: Blob;
 };
@@ -297,6 +317,7 @@ export const {
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
   useCreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostMutation,
   useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
+  useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,
 } = injectedRtkApi;

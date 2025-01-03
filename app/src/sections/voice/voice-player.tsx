@@ -20,6 +20,7 @@ import { useBoolean } from '@/hooks';
 import { VoiceTranscript } from './components/voice-transcript';
 import { useLocales } from '@/locales';
 import { router } from 'expo-router';
+import * as DropdownMenu from 'zeego/dropdown-menu';
 
 type Props = {
   voiceId: string;
@@ -34,7 +35,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
     voiceId,
   });
 
-  const audioPlayer = useAudioPlayer(null, 100);
+  const audioPlayer = useAudioPlayer(null, 250);
   const playerStatus = useAudioPlayerStatus(audioPlayer);
 
   const progress = useSharedValue(0);
@@ -76,9 +77,32 @@ export const VoicePlayer = ({ voiceId }: Props) => {
         <View className="flex-row justify-between px-8">
           <View className="flex-1" />
           <VoiceHeader date={data?.created_at} title={data?.title ?? undefined} />
-          <Button size="icon" variant="ghost">
-            <CircleEllipsis size={32} />
-          </Button>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <MotiPressable>
+                <CircleEllipsis size={26} />
+              </MotiPressable>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Content>
+              <DropdownMenu.Item key="cars">
+                <DropdownMenu.ItemIcon
+                  ios={{
+                    name: 'pencil', // required
+                    pointSize: 26,
+                    weight: 'semibold',
+                    scale: 'medium',
+                    // can also be a color string. Requires iOS 15+
+                    hierarchicalColor: {
+                      dark: navTheme.primary,
+                      light: navTheme.primary,
+                    },
+                  }}
+                />
+                <DropdownMenu.ItemTitle>{t('rename')}</DropdownMenu.ItemTitle>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </View>
         {showTranscript.value ? (
           <VoiceTranscript voiceId={voiceId} currentTime={playerStatus.currentTime} />

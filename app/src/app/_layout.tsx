@@ -17,6 +17,7 @@ import { PortalHost } from '@rn-primitives/portal';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/components/toast/Toast';
+import * as SystemUI from 'expo-system-ui';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -28,6 +29,8 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
   fonts: DarkTheme.fonts,
 };
+
+SystemUI.setBackgroundColorAsync('black');
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
