@@ -1,13 +1,21 @@
-import re
+import os
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlmodel import desc, select
 
-from app.ai import generate_summary
+from app.ai import create_note_embedding, generate_note_summary
+from app.config import VOICE_STORAGE_PATH
 from app.core.db import SessionDep
-from app.core.models import NoteCreate, NoteSchema, NoteUpdate, SummarySchema
+from app.core.models import (
+    NoteCreate,
+    NoteSchema,
+    NoteUpdate,
+    SummarySchema,
+    VoiceRecordingSchema,
+)
 from app.core.security import CurrentUserDep
+from app.utils import parse_description, parse_title
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
@@ -47,7 +55,12 @@ def create_note(
 
 
 @router.patch("/{note_id}")
-def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSchema:
+def update_note(
+    note_id: str,
+    note: NoteUpdate,
+    session: SessionDep,
+    background_tasks: BackgroundTasks,
+) -> NoteSchema:
     db_note = session.get(NoteSchema, note_id)
     if not db_note:
         raise HTTPException(status_code=404, detail="Hero not found")
@@ -64,6 +77,10 @@ def update_note(note_id: str, note: NoteUpdate, session: SessionDep) -> NoteSche
     session.commit()
     session.refresh(db_note)
 
+    background_tasks.add_task(
+        create_note_embedding, db_note.id, db_note.user_id, db_note.content
+    )
+
     return db_note
 
 
@@ -73,62 +90,67 @@ def delete_note(note_id: str, session: SessionDep) -> dict[str, str]:
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
 
+    file_paths = [
+        f"{VOICE_STORAGE_PATH}/{voice_file.file_name}"
+        for voice_file in db_note.voice_recordings
+    ]
+
     session.delete(db_note)
     session.commit()
+
+    for file_path in file_paths:
+        try:
+            os.remove(file_path)
+        except FileNotFoundError:
+            pass
 
     return {"message": "Note deleted"}
 
 
-@router.post("/summary/{note_id}")
-def create_summary(note_id: uuid.UUID, session: SessionDep) -> SummarySchema:
+@router.get("/summary/{note_id}")
+def get_summary(note_id: uuid.UUID, session: SessionDep) -> SummarySchema:
     db_note = session.get(NoteSchema, note_id)
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
 
-    summary = generate_summary(db_note.content)
+    last_summary = session.exec(
+        select(SummarySchema)
+        .where(SummarySchema.note_id == note_id)
+        .order_by(desc(SummarySchema.created_at))
+    ).first()
 
-    db_summary = SummarySchema(note_id=note_id, summary_text=summary)
+    if last_summary:
+        return last_summary
+
+    return create_note_summary(db_note, session)
+
+
+@router.post("/summary/{note_id}")
+def generate_new_summary(note_id: uuid.UUID, session: SessionDep) -> SummarySchema:
+    db_note = session.get(NoteSchema, note_id)
+    if not db_note:
+        raise HTTPException(status_code=404, detail="Note not found")
+
+    return create_note_summary(db_note, session)
+
+
+def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
+    recordings = session.exec(
+        select(VoiceRecordingSchema).where(VoiceRecordingSchema.note_id == note.id)
+    ).all()
+
+    transcriptions = [
+        f"Recording title: {recording.title}\\nTranscription: {recording.transcription}"
+        for recording in recordings
+    ]
+    transcription_context = "\\n\\n".join(transcriptions)
+
+    summary = generate_note_summary(note.content, transcription_context)
+
+    db_summary = SummarySchema(note_id=note.id, summary_text=summary)
 
     session.add(db_summary)
     session.commit()
     session.refresh(db_summary)
 
     return db_summary
-
-
-@router.get("/summary/{note_id}")
-def get_summaries(note_id: uuid.UUID, session: SessionDep) -> list[SummarySchema]:
-    statement = select(SummarySchema).where(SummarySchema.note_id == note_id)
-    results = session.exec(statement).all()
-
-    return list(results)
-
-
-def parse_title(text: str) -> str:
-    pattern = r"<h1>(.*?)</h1>"
-    match = re.search(pattern, text)
-
-    title = match.group(1) if match else ""
-
-    return title or "New note"
-
-
-def parse_description(text: str) -> str:
-    # Find end of h1 tag
-    h1_pattern = r"</h1>"
-    h1_match = re.search(h1_pattern, text)
-    if not h1_match:
-        return ""
-
-    # Get all text after h1
-    end_pos = h1_match.end()
-    remaining_text = text[end_pos:]
-
-    # Remove all HTML tags
-    clean_text = re.sub(r"<[^>]+>", " ", remaining_text)
-
-    # Normalize spaces - replace multiple spaces with single space
-    normalized_text = re.sub(r"\s+", " ", clean_text)
-
-    # Clean up whitespace and truncate
-    return normalized_text.strip()[:30]

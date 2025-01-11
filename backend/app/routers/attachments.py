@@ -11,6 +11,7 @@ from app.core.models import (
     VoiceRecordingSchema,
     VoiceRecordingUpdate,
     VoiceTranscriptionResponse,
+    WordSchema,
 )
 
 router = APIRouter(prefix="/attachments", tags=["attachments"])
@@ -26,7 +27,9 @@ def get_voice_transcription(
 
     return VoiceTranscriptionResponse(
         transcription=voice_db.transcription,
-        words=voice_db.words,
+        words=[WordSchema(**word) for word in voice_db.words]
+        if voice_db.words
+        else None,
         status=voice_db.status,
     )
 

@@ -70,22 +70,22 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["notes"],
       }),
-      createSummaryApiNotesSummaryNoteIdPost: build.mutation<
-        CreateSummaryApiNotesSummaryNoteIdPostApiResponse,
-        CreateSummaryApiNotesSummaryNoteIdPostApiArg
+      getSummaryApiNotesSummaryNoteIdGet: build.query<
+        GetSummaryApiNotesSummaryNoteIdGetApiResponse,
+        GetSummaryApiNotesSummaryNoteIdGetApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/notes/summary/${queryArg.noteId}` }),
+        providesTags: ["notes"],
+      }),
+      generateNewSummaryApiNotesSummaryNoteIdPost: build.mutation<
+        GenerateNewSummaryApiNotesSummaryNoteIdPostApiResponse,
+        GenerateNewSummaryApiNotesSummaryNoteIdPostApiArg
       >({
         query: (queryArg) => ({
           url: `/api/notes/summary/${queryArg.noteId}`,
           method: "POST",
         }),
         invalidatesTags: ["notes"],
-      }),
-      getSummariesApiNotesSummaryNoteIdGet: build.query<
-        GetSummariesApiNotesSummaryNoteIdGetApiResponse,
-        GetSummariesApiNotesSummaryNoteIdGetApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/notes/summary/${queryArg.noteId}` }),
-        providesTags: ["notes"],
       }),
       getVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGet:
         build.query<
@@ -148,6 +148,9 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["attachments"],
       }),
+      readRootGet: build.query<ReadRootGetApiResponse, ReadRootGetApiArg>({
+        query: () => ({ url: `/` }),
+      }),
     }),
     overrideExisting: false,
   });
@@ -186,14 +189,14 @@ export type DeleteNoteApiNotesNoteIdDeleteApiResponse =
 export type DeleteNoteApiNotesNoteIdDeleteApiArg = {
   noteId: string;
 };
-export type CreateSummaryApiNotesSummaryNoteIdPostApiResponse =
+export type GetSummaryApiNotesSummaryNoteIdGetApiResponse =
   /** status 200 Successful Response */ SummarySchema;
-export type CreateSummaryApiNotesSummaryNoteIdPostApiArg = {
+export type GetSummaryApiNotesSummaryNoteIdGetApiArg = {
   noteId: string;
 };
-export type GetSummariesApiNotesSummaryNoteIdGetApiResponse =
-  /** status 200 Successful Response */ SummarySchema[];
-export type GetSummariesApiNotesSummaryNoteIdGetApiArg = {
+export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiResponse =
+  /** status 200 Successful Response */ SummarySchema;
+export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiArg = {
   noteId: string;
 };
 export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse =
@@ -230,6 +233,8 @@ export type UploadVoiceApiAttachmentsUploadVoiceNoteIdPostApiArg = {
   noteId: string;
   bodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost: BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost;
 };
+export type ReadRootGetApiResponse = /** status 200 Successful Response */ any;
+export type ReadRootGetApiArg = void;
 export type Token = {
   access_token: string;
   token_type: string;
@@ -295,7 +300,7 @@ export type VoiceRecordingSchema = {
   title?: string | null;
   file_name: string;
   transcription?: string | null;
-  words?: WordSchema[] | null;
+  words?: object[] | null;
   status?: "new" | "processing" | "done" | "failed";
 };
 export type VoiceRecordingUpdate = {
@@ -312,12 +317,13 @@ export const {
   useReadNoteApiNotesNoteIdGetQuery,
   useUpdateNoteApiNotesNoteIdPatchMutation,
   useDeleteNoteApiNotesNoteIdDeleteMutation,
-  useCreateSummaryApiNotesSummaryNoteIdPostMutation,
-  useGetSummariesApiNotesSummaryNoteIdGetQuery,
+  useGetSummaryApiNotesSummaryNoteIdGetQuery,
+  useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation,
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
   useCreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostMutation,
   useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
   useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,
+  useReadRootGetQuery,
 } = injectedRtkApi;

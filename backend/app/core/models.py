@@ -43,9 +43,15 @@ class NoteSchema(UUIDModel, TimestampModel, table=True):
     description: str | None
 
     user: UserSchema | None = Relationship(back_populates="notes")
-    attachments: List["AttachmentSchema"] = Relationship(back_populates="note")
-    voice_recordings: List["VoiceRecordingSchema"] = Relationship(back_populates="note")
-    summaries: List["SummarySchema"] = Relationship(back_populates="note")
+    # attachments: List["AttachmentSchema"] = Relationship(
+    #     back_populates="note", cascade_delete=True
+    # )
+    voice_recordings: List["VoiceRecordingSchema"] = Relationship(
+        back_populates="note", cascade_delete=True
+    )
+    summaries: List["SummarySchema"] = Relationship(
+        back_populates="note", cascade_delete=True
+    )
 
 
 class NoteCreate(SQLModel):
@@ -66,7 +72,7 @@ class AttachmentSchema(UUIDModel, TimestampModel, table=True):
     type: Literal["image", "document"] = Field(sa_type=String)
     summary: str | None = None
 
-    note: NoteSchema = Relationship(back_populates="attachments")
+    # note: NoteSchema = Relationship(back_populates="attachments")
 
 
 # Voice
@@ -83,7 +89,7 @@ class VoiceRecordingSchema(UUIDModel, TimestampModel, table=True):
     title: str | None = None
     file_name: str
     transcription: Optional[str] = None
-    words: Optional[list[WordSchema]] = Field(sa_column=Column(JSON), default=[])
+    words: Optional[list[dict]] = Field(sa_column=Column(JSON), default=[])
     status: Literal["new", "processing", "done", "failed"] = Field(
         sa_type=String, default="new"
     )

@@ -74,6 +74,8 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
 
   useEffect(() => {
     if (content) {
+      // console.log(JSON.stringify(content));
+
       onContentChange?.(content);
     }
   }, [content]);

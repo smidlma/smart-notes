@@ -104,7 +104,7 @@ export const VoiceRecorder = ({ noteId }: Props) => {
 
   return (
     <>
-      <View className="flex-grow px-6  pt-6">
+      <View className="px-6 pt-6 h-screen-safe">
         <VoiceHeader />
         <DurationTimer player={audioRecorder} />
         <VoiceRecorderControls

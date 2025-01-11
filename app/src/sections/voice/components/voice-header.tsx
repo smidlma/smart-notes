@@ -21,15 +21,7 @@ export const VoiceHeader = ({ title = 'New recording', date = new Date() }: Prop
           justifyContent: 'flex-end',
           flexDirection: 'row',
         }}
-      >
-        {/* <IconButton
-          style={{ marginTop: 4 }}
-          size={28}
-          icon={({ size, color }) => (
-            <Ionicons name="ellipsis-horizontal-circle" size={size} color={color} />
-          )}
-        /> */}
-      </View>
+      ></View>
     </View>
   );
 };
