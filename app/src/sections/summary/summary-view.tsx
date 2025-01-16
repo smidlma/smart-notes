@@ -1,57 +1,73 @@
-import { Button } from '@/components/ui/button';
-import { Text } from '@/components/ui/text';
-import { H1 } from '@/components/ui/typography';
-import { useLocales } from '@/locales';
-import { BookOpen } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import Markdown from '@ronradtke/react-native-markdown-display';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import { alpha } from '@/utils/alpha';
-import { useCreateSummaryApiNotesSummaryNoteIdPostMutation } from '@/services/api';
-import Toast from 'react-native-toast-message';
+import {
+  useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation,
+  useGetSummaryApiNotesSummaryNoteIdGetQuery,
+} from '@/services/api';
+import { QueryComponentWrapper } from '@/services/components';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import Markdown from '@ronradtke/react-native-markdown-display';
+import { useLocales } from '@/locales';
+import { fToNow } from '@/utils/format-time';
+import { useColorScheme } from '@/lib/useColorScheme';
+import { NAV_THEME } from '@/lib/constants';
+import { BlurView } from 'expo-blur';
 
 type Props = { noteId: string };
 
 export const SummaryView = ({ noteId }: Props) => {
   const { t } = useLocales();
+  const { colorScheme } = useColorScheme();
 
-  const [summary, setSummary] = useState<string | null | undefined>(null);
-
-  const [generateSummary, { isLoading }] = useCreateSummaryApiNotesSummaryNoteIdPostMutation();
-
-  const handleGenerateSummary = async () => {
-    try {
-      const result = await generateSummary({ noteId }).unwrap();
-
-      setSummary(result?.summary_text);
-    } catch (e) {
-      console.log(e);
-
-      Toast.show({ type: 'error', text1: t('error'), text2: (e as Error).message });
+  const { data: recentSummary, status: summaryStatus } = useGetSummaryApiNotesSummaryNoteIdGetQuery(
+    {
+      noteId,
     }
+  );
+
+  const [generateNewSummary, { status: generationStatus }] =
+    useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation();
+
+  const handleNewSummary = async () => {
+    await generateNewSummary({ noteId });
   };
 
   return (
-    <View className="h-full">
-      <H1>{t('summary')}</H1>
-      <ScrollView className="flex-grow">
-        {!summary && !isLoading && (
-          <View className="min-h-full justify-center items-center">
-            <BookOpen size={76} />
-          </View>
-        )}
-        {summary && <Markdown style={{ body: { color: '#fff' } }}>{summary}</Markdown>}
-        {isLoading && <LoadingSkeleton />}
-      </ScrollView>
+    <QueryComponentWrapper statuses={[summaryStatus, generationStatus]}>
+      <View className="flex-1">
+        <ScrollView
+          contentContainerClassName="flex-grow"
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          <Markdown
+            style={{
+              body: {
+                fontSize: 16,
+                color: NAV_THEME[colorScheme].text,
+                paddingHorizontal: 16,
+                paddingBottom: 112,
+              },
+            }}
+          >
+            {recentSummary?.summary_text ?? ''}
+          </Markdown>
+        </ScrollView>
 
-      <View style={{ paddingBottom: 72 }}>
-        <Button onPress={handleGenerateSummary} disabled={isLoading}>
-          <Text>{t('generate')}</Text>
-        </Button>
+        <View className="gap-2 justify-end" style={{ ...StyleSheet.absoluteFillObject }}>
+          <BlurView intensity={50} className="pb-8 pt-4 px-12">
+            <Button onPress={handleNewSummary}>
+              <Text>{t('regenerate')}</Text>
+            </Button>
+            <Text className="text-muted-foreground text-sm self-center">
+              {t('last_generated')}: {fToNow(recentSummary?.created_at)}
+            </Text>
+          </BlurView>
+        </View>
       </View>
-    </View>
+    </QueryComponentWrapper>
   );
 };
 

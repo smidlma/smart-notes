@@ -31,4 +31,5 @@ export const editorBasicCSS = (colorScheme: 'light' | 'dark') => `
       font-family: sans-serif;
       background-color: ${NAV_THEME[colorScheme].background};
     }
+    
 `;

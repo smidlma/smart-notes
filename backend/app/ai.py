@@ -1,6 +1,7 @@
 import itertools
 import uuid
 
+from assemblyai import SpeechModel, TranscriptionConfig
 from langchain_community.document_loaders import AssemblyAIAudioTranscriptLoader
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
@@ -16,7 +17,7 @@ def generate_note_summary(note_context: str, audio_context: str) -> str:
     messages = [
         (
             "system",
-            "Write a concise and structured summary of the following notes and following audio transcription:\\n\\n{note_context}\\n\\n{audio_context}",
+            "Write a concise and structured summary of the following notes and following audio transcription, if no transcription is given ignore that part. Also do not leave your comments:\\n\\n{note_context}\\n\\n{audio_context}",
         ),
     ]
 
@@ -47,7 +48,8 @@ def process_audio_file(
     session.refresh(db_voice)
 
     try:
-        loader = AssemblyAIAudioTranscriptLoader(file_path=file_path)
+        config = TranscriptionConfig(speech_model=SpeechModel.nano)
+        loader = AssemblyAIAudioTranscriptLoader(file_path=file_path, config=config)
         docs = loader.load()
 
         # Not optimal for large files cuz its in memory
@@ -161,24 +163,25 @@ async def create_note_embedding(id: uuid.UUID, user_id: uuid.UUID, content: str)
     html_splitter = HTMLHeaderTextSplitter(headers_to_split_on)
     html_header_splits = html_splitter.split_text(content)
 
-    documents = list(
-        map(
-            lambda doc: Document(
-                page_content=doc.page_content,
-                metadata={
-                    **doc.metadata,
-                    "note_id": str(id),
-                    "user_id": str(user_id),
-                },
-            ),
-            html_header_splits,
+    if len(html_header_splits) > 0:
+        documents = list(
+            map(
+                lambda doc: Document(
+                    page_content=doc.page_content,
+                    metadata={
+                        **doc.metadata,
+                        "note_id": str(id),
+                        "user_id": str(user_id),
+                    },
+                ),
+                html_header_splits,
+            )
         )
-    )
 
-    uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
+        uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
 
-    vector_store = get_chroma_collection(collection_name="note_embeddings")
+        vector_store = get_chroma_collection(collection_name="note_embeddings")
 
-    vector_store.delete(where={"note_id": str(id)})
+        vector_store.delete(where={"note_id": str(id)})
 
-    vector_store.add_documents(documents=documents, ids=uuids)
+        vector_store.add_documents(documents=documents, ids=uuids)

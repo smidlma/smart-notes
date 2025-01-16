@@ -3,7 +3,7 @@
   "notes": "Notes",
   "delete": "Delete",
   "new_note": "New Note",
-  "delete_note": "Delete note: {{name}}",
+  "delete_note": "{{name}}",
   "delete_note_description": "Do you want to permanently delete this note?",
   "create_note_error": "Failed to create note",
   "connection_error": "Unable to connect to the server",
@@ -14,5 +14,8 @@
   "cancel": "Cancel",
   "save_and_leave": "Save and leave",
   "copy_transcript": "Copy transcript",
-  "copied_transcript": "Transcript copied"
+  "copied_transcript": "Transcript copied",
+  "last_generated": "Last generated",
+  "regenerate": "Regenerate",
+  "confirm": "Confirm"
 }

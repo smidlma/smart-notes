@@ -63,8 +63,10 @@ export default function StackLayout() {
       <Stack.Screen
         name="note/summary"
         options={{
-          headerShown: false,
-          presentation: 'modal',
+          title: t('summary'),
+          headerLargeTitle: true,
+          headerBlurEffect: 'regular',
+          headerTransparent: true,
         }}
       />
       <Stack.Screen name="note/voice/[noteId, voiceId]" options={{ headerTitle: t('voice') }} />

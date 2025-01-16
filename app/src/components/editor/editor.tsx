@@ -85,11 +85,6 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
       <View style={styles.fullScreen}>
         <RichText editor={editor} showsVerticalScrollIndicator={false} />
       </View>
-      {/* <View style={{ width: '100%', height: 120, backgroundColor: '#78CD' }}>
-        <Button onPress={() => editor.setReact('React component')}>
-          <Text>Set react component</Text>
-        </Button>
-      </View> */}
       <KeyboardAvoidingView
         keyboardVerticalOffset={keyboardVerticalOffset}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -116,7 +111,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    paddingHorizontal: 26,
+    paddingHorizontal: 16,
   },
   keyboardAvoidingView: {
     position: 'absolute',

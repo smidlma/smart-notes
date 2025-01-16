@@ -63,23 +63,23 @@ def update_note(
 ) -> NoteSchema:
     db_note = session.get(NoteSchema, note_id)
     if not db_note:
-        raise HTTPException(status_code=404, detail="Hero not found")
+        raise HTTPException(status_code=404, detail="Note not found")
 
-    if note.content:
+    if note.content and note.content != db_note.content:
         note.title = parse_title(note.content)
         note.description = parse_description(note.content)
 
-    note_data = note.model_dump(exclude_unset=True)
+        note_data = note.model_dump(exclude_unset=True)
 
-    db_note.sqlmodel_update(note_data)
+        db_note.sqlmodel_update(note_data)
 
-    session.add(db_note)
-    session.commit()
-    session.refresh(db_note)
+        session.add(db_note)
+        session.commit()
+        session.refresh(db_note)
 
-    background_tasks.add_task(
-        create_note_embedding, db_note.id, db_note.user_id, db_note.content
-    )
+        background_tasks.add_task(
+            create_note_embedding, db_note.id, db_note.user_id, db_note.content
+        )
 
     return db_note
 
