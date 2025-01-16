@@ -5,7 +5,7 @@ import {
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
 } from '@/services/api';
 import { QueryComponentWrapper } from '@/services/components';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 
@@ -14,6 +14,7 @@ type Props = { voiceId: string; currentTime: number };
 export const VoiceTranscript = ({ voiceId, currentTime }: Props) => {
   const dispatch = useDispatch();
   const shouldPool = useBoolean(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const { data, status } = useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery(
     {
@@ -31,8 +32,22 @@ export const VoiceTranscript = ({ voiceId, currentTime }: Props) => {
     }
   }, [data]);
 
+  // useEffect(() => {
+  //   if (scrollViewRef.current && data?.words) {
+  //     const currentWordIndex = data.words.findIndex(
+  //       ({ start, end }) => currentTime >= start && currentTime <= end
+  //     );
+  //     if (currentWordIndex !== -1) {
+  //       scrollViewRef.current.scrollTo({
+  //         y: currentWordIndex * 4,
+  //         animated: true,
+  //       });
+  //     }
+  //   }
+  // }, [currentTime, data?.words]);
+
   const renderTranscription = (
-    <ScrollView className="flex-1">
+    <ScrollView ref={scrollViewRef} className="flex-1">
       <View className="px-8 gap-1 flex-row flex-wrap">
         {data?.words?.map(({ start, end, word }) => (
           <Text

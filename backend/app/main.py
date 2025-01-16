@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.db import SessionDep, create_db_and_tables, get_chroma_collection
 from app.core.security import global_security
-from app.routers import attachments, notes, token, users
+from app.routers import attachments, notes, search, token, users
 
 load_dotenv()
 
@@ -24,9 +24,8 @@ app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 router.include_router(token.router)
 router.include_router(users.router)
 router.include_router(notes.router, dependencies=[Depends(global_security)])
-router.include_router(
-    attachments.router,
-)
+router.include_router(attachments.router)
+router.include_router(search.router)
 app.include_router(router)
 
 

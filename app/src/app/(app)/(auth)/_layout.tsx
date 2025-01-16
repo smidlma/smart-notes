@@ -47,9 +47,6 @@ export default function StackLayout() {
           headerLargeTitle: true,
           headerBlurEffect: 'regular',
           headerTransparent: true,
-          headerSearchBarOptions: {
-            placeholder: 'Search..',
-          },
         }}
       />
       <Stack.Screen

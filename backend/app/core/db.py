@@ -1,15 +1,15 @@
 import os
 from typing import Annotated
 
+import chromadb
 from fastapi import Depends
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from sqlmodel import Session, SQLModel, create_engine
 
-import chromadb
-
 SQLALCHEMY_DATABASE_URL = "postgresql://smidlma:smidlma@localhost:5432/smartnotes"
-
+NOTES_COLLECTION_NAME = "note_embeddings"
+VOICE_COLLECTION_NAME = "voice_embeddings"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

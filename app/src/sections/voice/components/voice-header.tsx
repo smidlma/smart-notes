@@ -9,7 +9,7 @@ type Props = {
 
 export const VoiceHeader = ({ title = 'New recording', date = new Date() }: Props) => {
   return (
-    <View className="flex-row">
+    <View>
       <View style={{ width: 40 }} />
       <View style={{ gap: 4, alignItems: 'center', flexGrow: 1 }}>
         <H3>{title}</H3>

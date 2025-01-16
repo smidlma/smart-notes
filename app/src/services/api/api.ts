@@ -1,5 +1,11 @@
-import { emptyApi as api } from './empty-api';
-export const addTagTypes = ['token', 'users', 'notes', 'attachments'] as const;
+import { emptyApi as api } from "./empty-api";
+export const addTagTypes = [
+  "token",
+  "users",
+  "notes",
+  "attachments",
+  "search",
+] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
     addTagTypes,
@@ -12,24 +18,24 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/token/`,
-          method: 'POST',
+          method: "POST",
           body: queryArg.tokenRequest,
         }),
-        invalidatesTags: ['token'],
+        invalidatesTags: ["token"],
       }),
       getUserDetailApiUsersGet: build.query<
         GetUserDetailApiUsersGetApiResponse,
         GetUserDetailApiUsersGetApiArg
       >({
         query: () => ({ url: `/api/users/` }),
-        providesTags: ['users'],
+        providesTags: ["users"],
       }),
       readNotesApiNotesGet: build.query<
         ReadNotesApiNotesGetApiResponse,
         ReadNotesApiNotesGetApiArg
       >({
         query: () => ({ url: `/api/notes/` }),
-        providesTags: ['notes'],
+        providesTags: ["notes"],
       }),
       createNoteApiNotesPost: build.mutation<
         CreateNoteApiNotesPostApiResponse,
@@ -37,17 +43,17 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/`,
-          method: 'POST',
+          method: "POST",
           body: queryArg.noteCreate,
         }),
-        invalidatesTags: ['notes'],
+        invalidatesTags: ["notes"],
       }),
       readNoteApiNotesNoteIdGet: build.query<
         ReadNoteApiNotesNoteIdGetApiResponse,
         ReadNoteApiNotesNoteIdGetApiArg
       >({
         query: (queryArg) => ({ url: `/api/notes/${queryArg.noteId}` }),
-        providesTags: ['notes'],
+        providesTags: ["notes"],
       }),
       updateNoteApiNotesNoteIdPatch: build.mutation<
         UpdateNoteApiNotesNoteIdPatchApiResponse,
@@ -55,10 +61,10 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/${queryArg.noteId}`,
-          method: 'PATCH',
+          method: "PATCH",
           body: queryArg.noteUpdate,
         }),
-        invalidatesTags: ['notes'],
+        invalidatesTags: ["notes"],
       }),
       deleteNoteApiNotesNoteIdDelete: build.mutation<
         DeleteNoteApiNotesNoteIdDeleteApiResponse,
@@ -66,16 +72,16 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/${queryArg.noteId}`,
-          method: 'DELETE',
+          method: "DELETE",
         }),
-        invalidatesTags: ['notes'],
+        invalidatesTags: ["notes"],
       }),
       getSummaryApiNotesSummaryNoteIdGet: build.query<
         GetSummaryApiNotesSummaryNoteIdGetApiResponse,
         GetSummaryApiNotesSummaryNoteIdGetApiArg
       >({
         query: (queryArg) => ({ url: `/api/notes/summary/${queryArg.noteId}` }),
-        providesTags: ['notes'],
+        providesTags: ["notes"],
       }),
       generateNewSummaryApiNotesSummaryNoteIdPost: build.mutation<
         GenerateNewSummaryApiNotesSummaryNoteIdPostApiResponse,
@@ -83,48 +89,9 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/notes/summary/${queryArg.noteId}`,
-          method: 'POST',
+          method: "POST",
         }),
-        invalidatesTags: ['notes'],
-      }),
-      getVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGet: build.query<
-        GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse,
-        GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/attachments/voice/${queryArg.voiceId}/transcription`,
-        }),
-        providesTags: ['attachments'],
-      }),
-      createVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPost: build.mutation<
-        CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiResponse,
-        CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/attachments/voice/${queryArg.voiceId}/transcription`,
-          method: 'POST',
-        }),
-        invalidatesTags: ['attachments'],
-      }),
-      getVoiceRecordingApiAttachmentsVoiceVoiceIdGet: build.query<
-        GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse,
-        GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/attachments/voice/${queryArg.voiceId}`,
-        }),
-        providesTags: ['attachments'],
-      }),
-      updateVoiceRecordingApiAttachmentsVoiceVoiceIdPut: build.mutation<
-        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiResponse,
-        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/attachments/voice/${queryArg.voiceId}`,
-          method: 'PUT',
-          body: queryArg.voiceRecordingUpdate,
-        }),
-        invalidatesTags: ['attachments'],
+        invalidatesTags: ["notes"],
       }),
       getVoiceRecordingsApiAttachmentsNoteIdVoiceGet: build.query<
         GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse,
@@ -133,7 +100,27 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/attachments/${queryArg.noteId}/voice`,
         }),
-        providesTags: ['attachments'],
+        providesTags: ["attachments"],
+      }),
+      getVoiceRecordingApiAttachmentsVoiceVoiceIdGet: build.query<
+        GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse,
+        GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/voice/${queryArg.voiceId}`,
+        }),
+        providesTags: ["attachments"],
+      }),
+      updateVoiceRecordingApiAttachmentsVoiceVoiceIdPut: build.mutation<
+        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiResponse,
+        UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/voice/${queryArg.voiceId}`,
+          method: "PUT",
+          body: queryArg.voiceRecordingUpdate,
+        }),
+        invalidatesTags: ["attachments"],
       }),
       uploadVoiceApiAttachmentsUploadVoiceNoteIdPost: build.mutation<
         UploadVoiceApiAttachmentsUploadVoiceNoteIdPostApiResponse,
@@ -141,10 +128,32 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/attachments/upload/voice/${queryArg.noteId}`,
-          method: 'POST',
+          method: "POST",
           body: queryArg.bodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost,
         }),
-        invalidatesTags: ['attachments'],
+        invalidatesTags: ["attachments"],
+      }),
+      getVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGet:
+        build.query<
+          GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse,
+          GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg
+        >({
+          query: (queryArg) => ({
+            url: `/api/attachments/voice/${queryArg.voiceId}/transcription`,
+          }),
+          providesTags: ["attachments"],
+        }),
+      searchNotesApiSearchGet: build.query<
+        SearchNotesApiSearchGetApiResponse,
+        SearchNotesApiSearchGetApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/search/`,
+          params: {
+            query: queryArg.query,
+          },
+        }),
+        providesTags: ["search"],
       }),
       readRootGet: build.query<ReadRootGetApiResponse, ReadRootGetApiArg>({
         query: () => ({ url: `/` }),
@@ -153,19 +162,24 @@ const injectedRtkApi = api
     overrideExisting: false,
   });
 export { injectedRtkApi as api };
-export type OpenIdLoginApiTokenPostApiResponse = /** status 200 Successful Response */ Token | null;
+export type OpenIdLoginApiTokenPostApiResponse =
+  /** status 200 Successful Response */ Token | null;
 export type OpenIdLoginApiTokenPostApiArg = {
   tokenRequest: TokenRequest;
 };
-export type GetUserDetailApiUsersGetApiResponse = /** status 200 Successful Response */ UserSchema;
+export type GetUserDetailApiUsersGetApiResponse =
+  /** status 200 Successful Response */ UserSchema;
 export type GetUserDetailApiUsersGetApiArg = void;
-export type ReadNotesApiNotesGetApiResponse = /** status 200 Successful Response */ NoteSchema[];
+export type ReadNotesApiNotesGetApiResponse =
+  /** status 200 Successful Response */ NoteSchema[];
 export type ReadNotesApiNotesGetApiArg = void;
-export type CreateNoteApiNotesPostApiResponse = /** status 200 Successful Response */ NoteSchema;
+export type CreateNoteApiNotesPostApiResponse =
+  /** status 200 Successful Response */ NoteSchema;
 export type CreateNoteApiNotesPostApiArg = {
   noteCreate: NoteCreate;
 };
-export type ReadNoteApiNotesNoteIdGetApiResponse = /** status 200 Successful Response */ NoteSchema;
+export type ReadNoteApiNotesNoteIdGetApiResponse =
+  /** status 200 Successful Response */ NoteSchema;
 export type ReadNoteApiNotesNoteIdGetApiArg = {
   noteId: string;
 };
@@ -175,9 +189,10 @@ export type UpdateNoteApiNotesNoteIdPatchApiArg = {
   noteId: string;
   noteUpdate: NoteUpdate;
 };
-export type DeleteNoteApiNotesNoteIdDeleteApiResponse = /** status 200 Successful Response */ {
-  [key: string]: string;
-};
+export type DeleteNoteApiNotesNoteIdDeleteApiResponse =
+  /** status 200 Successful Response */ {
+    [key: string]: string;
+  };
 export type DeleteNoteApiNotesNoteIdDeleteApiArg = {
   noteId: string;
 };
@@ -191,15 +206,10 @@ export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiResponse =
 export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiArg = {
   noteId: string;
 };
-export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse =
-  /** status 200 Successful Response */ VoiceTranscriptionResponse;
-export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg = {
-  voiceId: string;
-};
-export type CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiResponse =
-  /** status 200 Successful Response */ VoiceTranscriptionResponse;
-export type CreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostApiArg = {
-  voiceId: string;
+export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse =
+  /** status 200 Successful Response */ VoiceRecordingSchema[];
+export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiArg = {
+  noteId: string;
 };
 export type GetVoiceRecordingApiAttachmentsVoiceVoiceIdGetApiResponse =
   /** status 200 Successful Response */ VoiceRecordingSchema;
@@ -212,16 +222,22 @@ export type UpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutApiArg = {
   voiceId: string;
   voiceRecordingUpdate: VoiceRecordingUpdate;
 };
-export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse =
-  /** status 200 Successful Response */ VoiceRecordingSchema[];
-export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiArg = {
-  noteId: string;
-};
 export type UploadVoiceApiAttachmentsUploadVoiceNoteIdPostApiResponse =
   /** status 200 Successful Response */ VoiceRecordingSchema;
 export type UploadVoiceApiAttachmentsUploadVoiceNoteIdPostApiArg = {
   noteId: string;
   bodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost: BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost;
+};
+export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiResponse =
+  /** status 200 Successful Response */ VoiceTranscriptionResponse;
+export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg =
+  {
+    voiceId: string;
+  };
+export type SearchNotesApiSearchGetApiResponse =
+  /** status 200 Successful Response */ GlobalSearchResponse;
+export type SearchNotesApiSearchGetApiArg = {
+  query: string;
 };
 export type ReadRootGetApiResponse = /** status 200 Successful Response */ any;
 export type ReadRootGetApiArg = void;
@@ -272,16 +288,6 @@ export type SummarySchema = {
   note_id: string;
   summary_text?: string | null;
 };
-export type WordSchema = {
-  word: string;
-  start: number;
-  end: number;
-};
-export type VoiceTranscriptionResponse = {
-  transcription?: string | null;
-  words?: WordSchema[] | null;
-  status: 'new' | 'processing' | 'done' | 'failed';
-};
 export type VoiceRecordingSchema = {
   created_at?: string;
   updated_at?: string;
@@ -291,13 +297,50 @@ export type VoiceRecordingSchema = {
   file_name: string;
   transcription?: string | null;
   words?: object[] | null;
-  status?: 'new' | 'processing' | 'done' | 'failed';
+  status?: "new" | "processing" | "done" | "failed";
 };
 export type VoiceRecordingUpdate = {
   title: string;
 };
 export type BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost = {
   file: Blob;
+};
+export type WordSchema = {
+  word: string;
+  start: number;
+  end: number;
+};
+export type VoiceTranscriptionResponse = {
+  transcription?: string | null;
+  words?: WordSchema[] | null;
+  status: "new" | "processing" | "done" | "failed";
+};
+export type NoteSearchResponse = {
+  type: "note";
+  title: string;
+  search_match_text: string;
+  score: number;
+  created_at: string;
+  updated_at: string;
+  note_id: string;
+  description?: string | null;
+};
+export type VoiceSearchResponse = {
+  type: "voice";
+  title: string;
+  search_match_text: string;
+  score: number;
+  created_at: string;
+  updated_at: string;
+  note_id: string;
+  voice_id: string;
+  file_name: string;
+  time_start: number;
+  time_end: number;
+};
+export type GlobalSearchResponse = {
+  results: (NoteSearchResponse | VoiceSearchResponse)[];
+  total: number;
 };
 export const {
   useOpenIdLoginApiTokenPostMutation,
@@ -309,11 +352,11 @@ export const {
   useDeleteNoteApiNotesNoteIdDeleteMutation,
   useGetSummaryApiNotesSummaryNoteIdGetQuery,
   useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation,
-  useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
-  useCreateVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionPostMutation,
+  useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
   useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,
-  useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,
+  useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
+  useSearchNotesApiSearchGetQuery,
   useReadRootGetQuery,
 } = injectedRtkApi;

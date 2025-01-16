@@ -35,7 +35,10 @@ def generate_note_summary(note_context: str, audio_context: str) -> str:
 
 
 def process_audio_file(
-    file_path: str, session: SessionDep, voice_id: uuid.UUID
+    file_path: str,
+    session: SessionDep,
+    voice_id: uuid.UUID,
+    user_id: uuid.UUID,
 ) -> None:
     db_voice = session.get(VoiceRecordingSchema, voice_id)
 
@@ -85,7 +88,7 @@ def process_audio_file(
         session.commit()
         session.refresh(db_voice)
 
-        create_voice_embedding(merged_words, voice_id)
+        create_voice_embedding(merged_words, voice_id, user_id)
 
     except Exception:
         db_voice.sqlmodel_update({"status": "failed"})
@@ -127,16 +130,15 @@ def transcript_to_chunks(words: list[dict], time_window: int = 5000):
     return chunks
 
 
-def create_voice_embedding(words: list[dict], voice_id: uuid.UUID):
+def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid.UUID):
     chunks = transcript_to_chunks(words, 5000)
-
-    # print(chunks)
 
     documents = list(
         map(
             lambda chunk: Document(
                 page_content=chunk["content"],
                 metadata={
+                    "user_id": str(user_id),
                     "voice_id": str(voice_id),
                     "start": chunk["start"],
                     "end": chunk["end"],

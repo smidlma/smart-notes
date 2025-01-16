@@ -129,3 +129,33 @@ class TokenData(BaseModel):
 
 class TokenRequest(BaseModel):
     id_token: str
+
+
+# Search
+class CommonSearchResponse(SQLModel):
+    type: Literal["note", "voice"]
+    title: str
+    search_match_text: str
+    score: float
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+
+class NoteSearchResponse(CommonSearchResponse):
+    note_id: uuid.UUID
+    description: str | None = None
+    type: Literal["note"]
+
+
+class VoiceSearchResponse(CommonSearchResponse):
+    note_id: uuid.UUID
+    voice_id: uuid.UUID
+    file_name: str
+    time_start: float
+    time_end: float
+    type: Literal["voice"]
+
+
+class GlobalSearchResponse(SQLModel):
+    results: List[NoteSearchResponse | VoiceSearchResponse]
+    total: int

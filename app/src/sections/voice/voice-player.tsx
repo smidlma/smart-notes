@@ -80,8 +80,8 @@ export const VoicePlayer = ({ voiceId }: Props) => {
       firstFetchLoadingOnly
       isFetchingFirstTime={isLoading}
     >
-      <View className="flex-grow pb-14 gap-10 pt-6">
-        <View className="flex-row justify-between px-6">
+      <View className="pb-14 gap-10 pt-6 flex-1 ">
+        <View className="flex-row justify-between px-6 ">
           <View className="flex-1" />
           <View className="flex-grow">
             <VoiceHeader date={data?.created_at} title={data?.title ?? undefined} />
@@ -161,6 +161,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
           <View className="flex-1">
             <Button
               size="icon"
+              className="p-6 rounded-xl"
               variant={showTranscript.value ? 'default' : 'ghost'}
               onPress={() => {
                 showTranscript.onToggle();
