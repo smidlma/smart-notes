@@ -1,12 +1,13 @@
 import { EditorContent } from '@tiptap/react';
 import { useTenTap, TenTapStartKit } from '@10play/tentap-editor';
-import ReactComponent from './extensions/extension';
+import VoiceNode from './extensions/voice-node/voice-node-extension';
+import { VoiceBridgeWeb } from './bridges/voice-bridge-web';
 
 export const AdvancedEditor = () => {
   const editor = useTenTap({
-    bridges: [...TenTapStartKit],
+    bridges: [...TenTapStartKit, VoiceBridgeWeb],
     tiptapOptions: {
-      extensions: [ReactComponent],
+      extensions: [VoiceNode],
     },
   });
 

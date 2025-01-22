@@ -67,7 +67,7 @@ def parse_title(text: str) -> str:
 
     title = match.group(1) if match else ""
 
-    return title or "New note"
+    return remove_html_tags(title) or "New note"
 
 
 def parse_description(text: str) -> str:
@@ -82,10 +82,14 @@ def parse_description(text: str) -> str:
     remaining_text = text[end_pos:]
 
     # Remove all HTML tags
-    clean_text = re.sub(r"<[^>]+>", " ", remaining_text)
+    clean_text = remove_html_tags(remaining_text)
 
     # Normalize spaces - replace multiple spaces with single space
     normalized_text = re.sub(r"\s+", " ", clean_text)
 
     # Clean up whitespace and truncate
     return normalized_text.strip()[:30]
+
+
+def remove_html_tags(text: str) -> str:
+    return re.sub(r"<[^>]+>", " ", text)

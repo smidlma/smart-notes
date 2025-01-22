@@ -24,6 +24,7 @@ def get_chroma_collection(collection_name: str) -> Chroma:
         collection_name=collection_name,
         embedding_function=embeddings,
         create_collection_if_not_exists=True,
+        collection_metadata={"hnsw:space": "cosine"},
     )
 
     return vector_store_from_client

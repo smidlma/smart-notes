@@ -1,23 +1,33 @@
 import { MotiPressable } from '@/components/moti-pressable/moti-pressable';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { NoteSearchResponse, VoiceSearchResponse } from '@/services/api';
+import { fMilliseconds } from '@/utils/format-time';
 import { router } from 'expo-router';
 import { AudioLines, Notebook } from 'lucide-react-native';
 import { View } from 'react-native';
 
 export const SearchItem = (props: NoteSearchResponse | VoiceSearchResponse) => {
   if (props.type === 'voice') {
-    const { voice_id, note_id, title, type } = props;
+    const { voice_id, note_id, title, type, time_start, search_match_text } = props;
 
     const handlePress = () => {
       router.push({
         pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
-        params: { noteId: note_id, voiceId: voice_id },
+        params: { noteId: note_id, voiceId: voice_id, timeStart: time_start },
       });
     };
 
-    return <PressableSearchItem onPress={handlePress} title={title} type={type} />;
+    return (
+      <PressableSearchItem
+        onPress={handlePress}
+        title={title}
+        type={type}
+        FooterComponent={
+          <Text>{`At time: ${fMilliseconds(time_start)}, ${search_match_text}`}</Text>
+        }
+      />
+    );
   }
 
   const handlePress = () => {
@@ -34,9 +44,10 @@ type Props = {
   onPress: VoidFunction;
   type: 'note' | 'voice';
   title: string;
+  FooterComponent?: React.ReactNode;
 };
 
-const PressableSearchItem = ({ onPress, title, type }: Props) => {
+const PressableSearchItem = ({ onPress, title, type, FooterComponent }: Props) => {
   return (
     <MotiPressable onPress={onPress}>
       <Card>
@@ -46,6 +57,7 @@ const PressableSearchItem = ({ onPress, title, type }: Props) => {
             <Text>{title}</Text>
           </View>
         </CardContent>
+        {FooterComponent && <CardFooter>{FooterComponent}</CardFooter>}
       </Card>
     </MotiPressable>
   );

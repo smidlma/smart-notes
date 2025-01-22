@@ -18,5 +18,6 @@
   "last_generated": "Last generated",
   "regenerate": "Regenerate",
   "confirm": "Confirm",
-  "initiate_search": "Let's find what you're looking for!"
+  "initiate_search": "Let's find what you're looking for!",
+  "sign_in_google": "Sign in with Google"
 }

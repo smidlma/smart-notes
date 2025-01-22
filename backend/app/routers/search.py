@@ -1,3 +1,5 @@
+import logging
+from functools import reduce
 from typing import Tuple
 
 from fastapi import APIRouter
@@ -26,14 +28,14 @@ def search_notes(
     query: str, user: CurrentUserDep, session: SessionDep
 ) -> GlobalSearchResponse:
     vector_store = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
-    results_notes = vector_store.similarity_search_with_score(
+    results_notes = vector_store.similarity_search_with_relevance_scores(
         query=query,
         k=4,
         filter={"user_id": str(user.id)},
     )
 
     vector_store = get_chroma_collection(collection_name=VOICE_COLLECTION_NAME)
-    results_voice = vector_store.similarity_search_with_score(
+    results_voice = vector_store.similarity_search_with_relevance_scores(
         query=query,
         filter={"user_id": str(user.id)},
     )
@@ -42,8 +44,19 @@ def search_notes(
         *map(lambda doc: doc_to_note_resp(doc, session), results_notes),
         *map(lambda doc: doc_to_voice_resp(doc, session), results_voice),
     ]
-    search_results = filter(lambda x: x is not None, search_results)
-    search_results = sorted(search_results, key=lambda x: x.score)
+
+    search_results = list(filter(lambda x: x is not None, search_results))
+    dynamic_threshold = reduce(
+        lambda x, y: x + y, map(lambda x: x.score, search_results)
+    ) / len(search_results)
+    search_results = list(
+        filter(lambda x: x.score >= dynamic_threshold, search_results)
+    )
+    search_results = sorted(search_results, key=lambda x: x.score, reverse=True)
+    logging.info(f"Dynamic threshold: {dynamic_threshold}")
+    logging.info(
+        f"Search results: {list(map(lambda x: {'title': x.title, 'score': x.score, 'type': x.type}, search_results))}"
+    )
 
     return GlobalSearchResponse(results=list(search_results), total=len(search_results))
 

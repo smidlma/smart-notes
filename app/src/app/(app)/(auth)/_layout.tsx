@@ -53,7 +53,7 @@ export default function StackLayout() {
         name="note/[id]"
         options={{
           headerShown: true,
-          headerTitle: t('note'),
+          headerTitle: '',
           headerBackTitle: t('back'),
         }}
       />

@@ -1,3 +1,6 @@
+import logging
+import socket
+
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -7,6 +10,7 @@ from app.core.security import global_security
 from app.routers import attachments, notes, search, token, users
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
@@ -17,6 +21,9 @@ router = APIRouter(prefix="/api")
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    logging.info(f"Local IP address: {local_ip}")
 
 
 app.mount("/storage", StaticFiles(directory="storage"), name="storage")
@@ -70,4 +77,5 @@ def read_root(session: SessionDep):
 
     for res in results:
         print(f"* {res.page_content} [{res.metadata}]")
+    pass
     pass

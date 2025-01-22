@@ -9,7 +9,7 @@ export default defineConfig({
   root: 'editor-web', // This should be the directory of your index.html
   build: {
     outDir: 'build',
-    emptyOutDir: true,
+    emptyOutDir: false,
   },
   resolve: {
     alias: [

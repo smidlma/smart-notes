@@ -1,5 +1,3 @@
-import { NAV_THEME } from '@/lib/constants';
-
 export const baseEditorCSS = `
    * {
       font-family: sans-serif;
@@ -29,7 +27,6 @@ export const baseEditorCSS = `
 export const editorBasicCSS = (colorScheme: 'light' | 'dark') => `
   * {
       font-family: sans-serif;
-      background-color: ${NAV_THEME[colorScheme].background};
+      background-color: transparent;
     }
-    
-`;
+ `;

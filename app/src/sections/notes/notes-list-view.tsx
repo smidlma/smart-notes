@@ -7,10 +7,11 @@ import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { SearchBarProps } from 'react-native-screens';
 import { SmartSearchList } from './smart-search-list';
+import { QueryComponentWrapper } from '@/services/components';
 
 export const NotesListView = () => {
   const navigation = useNavigation();
-  const { data: notes } = useReadNotesApiNotesGetQuery();
+  const { data: notes, status, isLoading } = useReadNotesApiNotesGetQuery();
   const [search, setSearch] = useState('');
 
   const showSmartSearch = useBoolean(false);
@@ -34,23 +35,29 @@ export const NotesListView = () => {
   return showSmartSearch.value ? (
     <SmartSearchList search={search} />
   ) : (
-    <Animated.FlatList
-      style={{ paddingTop: 16 }}
-      contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
-      keyboardDismissMode="on-drag"
-      contentInsetAdjustmentBehavior="automatic"
-      data={notes}
-      keyExtractor={(item) => item.id!}
-      itemLayoutAnimation={LinearTransition}
-      renderItem={({ item }) => (
-        <NoteItem
-          date={item.updated_at!}
-          description={item.description ?? ''}
-          id={item.id!}
-          title={item.title}
-          onPress={() => handleOpenNote(item.id!)}
-        />
-      )}
-    />
+    <QueryComponentWrapper
+      statuses={[status]}
+      firstFetchLoadingOnly
+      isFetchingFirstTime={isLoading}
+    >
+      <Animated.FlatList
+        style={{ paddingTop: 16 }}
+        contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+        keyboardDismissMode="on-drag"
+        contentInsetAdjustmentBehavior="automatic"
+        data={notes}
+        keyExtractor={(item) => item.id!}
+        itemLayoutAnimation={LinearTransition}
+        renderItem={({ item }) => (
+          <NoteItem
+            date={item.updated_at!}
+            description={item.description ?? ''}
+            id={item.id!}
+            title={item.title}
+            onPress={() => handleOpenNote(item.id!)}
+          />
+        )}
+      />
+    </QueryComponentWrapper>
   );
 };

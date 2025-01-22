@@ -15,11 +15,14 @@ import {
 import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useEditorConfig } from './hooks/use-editor-config';
-import { CounterBridge } from './tiptap/counter-bridge';
+import { VoiceBridge } from './bridges/voice-bridge';
 import { EditorToolbar } from './editor-toolbar';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { editorHtml } from '../../../editor-web/build/editorHtml';
+import { Button } from '../ui/button';
+import { Text } from '../ui/text';
 
 type Props = {
   initialContent?: string;
@@ -36,11 +39,11 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
 
   const editor = useEditorBridge({
     initialContent,
-    // customSource: editorHtml,
+    customSource: editorHtml,
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(editorCSS).extendExtension({ content: 'heading block+' }),
-      CounterBridge,
+      VoiceBridge,
       PlaceholderBridge.configureExtension({
         showOnlyCurrent: false,
         placeholder: 'Enter a Title',
@@ -83,6 +86,18 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
   return (
     <SafeAreaView style={styles.fullScreen} ref={rootRef}>
       <View style={styles.fullScreen}>
+        <Button
+          onPress={() =>
+            editor.setVoiceNode({
+              title: 'Voice message',
+              duration: '00:20:00',
+              createdAt: 'today',
+              transcript: 'Hello from React Native',
+            })
+          }
+        >
+          <Text>Click</Text>
+        </Button>
         <RichText editor={editor} showsVerticalScrollIndicator={false} />
       </View>
       <KeyboardAvoidingView
@@ -111,7 +126,7 @@ export const Editor = ({ initialContent, onContentChange }: Props) => {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   keyboardAvoidingView: {
     position: 'absolute',

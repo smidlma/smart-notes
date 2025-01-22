@@ -9,10 +9,11 @@ import {
 import * as SecureStore from 'expo-secure-store';
 import { ACCESS_TOKEN_KEY } from './types';
 import { isValidToken } from './utils';
-import { useOpenIdLoginApiTokenPostMutation, UserSchema } from '@/services/api';
+import { api, useOpenIdLoginApiTokenPostMutation, UserSchema } from '@/services/api';
 import { useLazyGetUserDetailApiUsersGetQuery } from '@/services/api/custom-endpoints';
 import Toast from 'react-native-toast-message';
 import { t } from 'i18next';
+import { useDispatch } from 'react-redux';
 
 export type AuthUserType = null | UserSchema;
 
@@ -80,6 +81,7 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const dispatchReduxApi = useDispatch();
 
   const [getUserDetail] = useLazyGetUserDetailApiUsersGetQuery();
 
@@ -190,6 +192,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     dispatch({
       type: Types.LOGOUT,
     });
+    dispatchReduxApi(api.util.resetApiState());
   }, []);
 
   // ----------------------------------------------------------------------

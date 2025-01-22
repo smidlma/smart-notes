@@ -19,7 +19,7 @@ import { Captions, CircleEllipsis } from 'lucide-react-native';
 import { useBoolean } from '@/hooks';
 import { VoiceTranscript } from './components/voice-transcript';
 import { useLocales } from '@/locales';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as DropdownMenu from 'zeego/dropdown-menu';
 import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
@@ -29,6 +29,8 @@ type Props = {
 };
 
 export const VoicePlayer = ({ voiceId }: Props) => {
+  const { timeStart } = useLocalSearchParams();
+
   const { t } = useLocales();
   const { navTheme, colorScheme } = useColorScheme();
   const showTranscript = useBoolean(false);
@@ -51,6 +53,10 @@ export const VoicePlayer = ({ voiceId }: Props) => {
         audioPlayer.replace({
           uri,
         });
+
+        if (timeStart) {
+          audioPlayer.seekTo(Number(timeStart));
+        }
       }
     };
 
