@@ -37,13 +37,17 @@ export const VoiceRecorder = ({ noteId }: Props) => {
   usePreventRemove(isRecording.value || isUploading.value || !isNewRecording.value, () => {
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: [t('cancel'), t('save_and_leave')],
-        destructiveButtonIndex: 1,
+        options: [t('cancel'), t('save_and_leave'), t('discard')],
+        destructiveButtonIndex: 2,
         cancelButtonIndex: 0,
       },
       async (buttonIndex) => {
         if (buttonIndex === 1) {
           await saveRecording();
+        }
+        if (buttonIndex === 2) {
+          await discardRecording();
+          router.back();
         }
       }
     );
@@ -54,6 +58,12 @@ export const VoiceRecorder = ({ noteId }: Props) => {
   const audioRecorder = useAudioRecorder({
     ...RecordingPresets.HIGH_QUALITY,
   });
+
+  const discardRecording = async () => {
+    isRecording.onFalse();
+    isNewRecording.onTrue();
+    await audioRecorder.stop();
+  };
 
   const record = () => {
     audioRecorder.record();

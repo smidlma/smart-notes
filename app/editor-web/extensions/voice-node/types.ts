@@ -1,4 +1,5 @@
 export type VoiceNodeProps = {
+  id: string;
   title: string;
   duration: string;
   createdAt: string;
@@ -23,5 +24,5 @@ export type AudioMessage =
     }
   | {
       type: AudioEditorActionType.OpenVoice;
-      payload: {};
+      payload: { id: string };
     };

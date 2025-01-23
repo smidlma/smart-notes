@@ -5,7 +5,7 @@ type InputValue = Date | string | number | null | undefined;
 export const fDate = (date: InputValue, newFormat?: string) => {
   const fm = newFormat || 'dd MMM yyyy';
 
-  return date ? format(new Date(), fm) : '';
+  return date ? format(new Date(date), fm) : '';
 };
 
 export const fDateTime = (date: InputValue, newFormat?: string) => {

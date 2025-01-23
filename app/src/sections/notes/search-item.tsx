@@ -37,7 +37,14 @@ export const SearchItem = (props: NoteSearchResponse | VoiceSearchResponse) => {
     });
   };
 
-  return <PressableSearchItem onPress={handlePress} title={props.title} type={props.type} />;
+  return (
+    <PressableSearchItem
+      onPress={handlePress}
+      title={props.title}
+      type={props.type}
+      FooterComponent={<Text>{`${props.search_match_text}`}</Text>}
+    />
+  );
 };
 
 type Props = {

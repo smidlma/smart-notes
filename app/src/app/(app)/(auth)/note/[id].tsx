@@ -42,7 +42,7 @@ const EditorScreen = () => {
         </View>
       ),
     });
-  }, [id, navigation]);
+  }, [id, navigation, showAttachments.onToggle]);
 
   return (
     <>

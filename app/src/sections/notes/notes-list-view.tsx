@@ -26,7 +26,7 @@ export const NotesListView = () => {
           setSearch(event.nativeEvent.text),
       } as SearchBarProps,
     });
-  }, [navigation]);
+  }, [navigation, showSmartSearch.onFalse, showSmartSearch.onTrue]);
 
   const handleOpenNote = (id: string) => {
     router.push({ pathname: '/(app)/(auth)/note/[id]', params: { id } });
@@ -50,7 +50,7 @@ export const NotesListView = () => {
         itemLayoutAnimation={LinearTransition}
         renderItem={({ item }) => (
           <NoteItem
-            date={item.updated_at!}
+            date={item.updated_at ?? ''}
             description={item.description ?? ''}
             id={item.id!}
             title={item.title}

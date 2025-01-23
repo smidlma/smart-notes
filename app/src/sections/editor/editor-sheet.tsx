@@ -1,14 +1,16 @@
 import { BottomSheet, BottomSheetRef } from '@/components/bottom-sheet/bottom-sheet';
 import { MotiPressable } from '@/components/moti-pressable/moti-pressable';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import {
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   VoiceRecordingSchema,
 } from '@/services/api';
+import { fDateTime } from '@/utils/format-time';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import { AudioLines } from 'lucide-react-native';
+import { AudioLines, FileSymlink } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 
@@ -49,9 +51,16 @@ export const EditorSheet = ({ id, isOpen, onClose }: Props) => {
       >
         <Card>
           <CardContent className="py-3 pl-3">
-            <View className="flex-row items-center gap-2">
+            <View className="flex-row items-center gap-4">
               <AudioLines size={26} />
-              <Text>Recording: {item.id}</Text>
+              <View className="flex-grow">
+                <Text>{item.title}</Text>
+                <Text className="text-sm">{fDateTime(item.created_at)}</Text>
+              </View>
+              <Button size="default" variant="ghost">
+                <FileSymlink />
+                {/* <Text>Attach</Text> */}
+              </Button>
             </View>
           </CardContent>
         </Card>

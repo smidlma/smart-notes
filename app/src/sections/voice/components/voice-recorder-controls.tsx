@@ -4,6 +4,7 @@ import { Text } from '@/components/ui/text';
 import { Captions } from 'lucide-react-native';
 import { MotiPressable } from '@/components/moti-pressable/moti-pressable';
 import { useLocales } from '@/locales';
+import { Mic, CircleStop } from '@/lib/icons/';
 
 type Props = {
   onStart: () => void;
@@ -36,9 +37,19 @@ export const VoiceRecorderControls = ({
         )}
       </View>
 
-      <Button onPress={isRecording ? onPause : onStart}>
-        <Text>{isRecording ? 'Stop' : 'Start'}</Text>
+      {/* <MotiView
+        from={{ scale: 1 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'timing', duration: 1000, loop: true }}
+      > */}
+      <Button onPress={isRecording ? onPause : onStart} size="icon" className="p-10 rounded-full ">
+        {isRecording ? (
+          <CircleStop size={48} className="text-destructive" />
+        ) : (
+          <Mic size={40} className="text-primary-foreground" />
+        )}
       </Button>
+      {/* </MotiView> */}
 
       <View className="flex-1 items-end">
         <Button variant="ghost" onPress={onFinish} disabled={isNewRecording || isRecording}>

@@ -5,3 +5,5 @@ export * from './trash2';
 export * from './check-square';
 export * from './play';
 export * from './pause';
+export * from './mic';
+export * from './circle-stop';
