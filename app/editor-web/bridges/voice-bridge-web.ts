@@ -18,14 +18,12 @@ export const VoiceBridgeWeb = new BridgeExtension<
   AudioMessage
 >({
   onBridgeMessage: (editor, message, _sendMessageBack) => {
-    console.log('WebView REACT', message);
-
     if (message.type === AudioEditorActionType.SetVoice) {
       editor
         .chain()
         .insertContentAt(editor.state.selection.head, {
           type: VoiceNodeName,
-          attrs: { ...message.payload },
+          attrs: message.payload,
         })
         .focus()
         .run();

@@ -42,7 +42,7 @@ export const QueryComponentWrapper = ({
     return (
       <>
         {LoadingSkeleton || (
-          <View className="flex-1 justify-center items-center bg">
+          <View className="h-screen-safe justify-center items-center">
             <ActivityIndicator size="large" style={{ paddingBottom: height }} />
           </View>
         )}

@@ -5,6 +5,7 @@ import {
   VoiceEditorInstance,
   VoiceEditorState,
 } from '@/../editor-web/extensions/voice-node/types';
+import { router } from 'expo-router';
 
 declare module '@10play/tentap-editor' {
   interface BridgeState extends VoiceEditorState {}
@@ -13,9 +14,12 @@ declare module '@10play/tentap-editor' {
 
 export const VoiceBridge = new BridgeExtension<VoiceEditorState, VoiceEditorInstance, AudioMessage>(
   {
-    onEditorMessage(message: any, _editorBridge) {
+    onEditorMessage(message: AudioMessage, _editorBridge) {
       if (message.type === AudioEditorActionType.OpenVoice) {
-        console.log('message', message);
+        router.push({
+          pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
+          params: { voiceId: message.payload.voiceId, noteId: message.payload.noteId },
+        });
 
         return true;
       }
@@ -25,8 +29,6 @@ export const VoiceBridge = new BridgeExtension<VoiceEditorState, VoiceEditorInst
     extendEditorInstance: (sendBridgeMessage) => {
       return {
         setVoiceNode: (props) => {
-          console.log('title sending', props);
-
           sendBridgeMessage({
             type: AudioEditorActionType.SetVoice,
             payload: props,

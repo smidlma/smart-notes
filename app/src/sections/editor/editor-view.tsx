@@ -1,26 +1,57 @@
 import { Editor } from '@/components/editor';
-import {
-  useReadNoteApiNotesNoteIdGetQuery,
-  useUpdateNoteApiNotesNoteIdPatchMutation,
-} from '@/services/api';
+import { MotiPressable } from '@/components/moti-pressable/moti-pressable';
+import { useBoolean } from '@/hooks';
+
 import { QueryComponentWrapper } from '@/services/components';
-import { useCallback } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { AudioLines, Paperclip, WandSparkles } from 'lucide-react-native';
+import { useEffect } from 'react';
 import { View } from 'react-native';
+import { EditorSheet } from './editor-sheet';
+import { useEditor } from '@/components/editor/hooks/use-editor';
 
 type Props = {
   id: string;
 };
 
 export const EditorView = ({ id }: Props) => {
-  const { data, status, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId: id });
-  const [updateNote] = useUpdateNoteApiNotesNoteIdPatchMutation();
+  const navigation = useNavigation();
 
-  const handleContentChange = useCallback(
-    async (content: string) => {
-      await updateNote({ noteId: id, noteUpdate: { content } }).unwrap();
-    },
-    [id, updateNote]
-  );
+  const showAttachments = useBoolean(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View className="flex-row gap-4">
+          <MotiPressable
+            onPress={() =>
+              router.push({ pathname: '/(app)/(auth)/note/summary', params: { id: id } })
+            }
+          >
+            <WandSparkles />
+          </MotiPressable>
+          <MotiPressable
+            onPress={() =>
+              router.push({
+                pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
+                params: { noteId: id, voiceId: '' },
+              })
+            }
+          >
+            <AudioLines />
+          </MotiPressable>
+
+          <MotiPressable onPress={showAttachments.onToggle}>
+            <Paperclip />
+          </MotiPressable>
+        </View>
+      ),
+    });
+  }, [id, navigation, showAttachments.onToggle]);
+
+  const { editor, status, isLoading, handleAttachVoice } = useEditor({
+    noteId: id,
+  });
 
   return (
     <View className="flex-grow">
@@ -29,7 +60,13 @@ export const EditorView = ({ id }: Props) => {
         firstFetchLoadingOnly
         isFetchingFirstTime={isLoading}
       >
-        <Editor onContentChange={handleContentChange} initialContent={data?.content} />
+        <Editor editor={editor} />
+        <EditorSheet
+          onLinkVoice={handleAttachVoice}
+          id={id as string}
+          isOpen={showAttachments.value}
+          onClose={showAttachments.onFalse}
+        />
       </QueryComponentWrapper>
     </View>
   );

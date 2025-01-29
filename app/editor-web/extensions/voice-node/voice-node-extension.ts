@@ -1,8 +1,15 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { VoiceNode, VoiceNodeName } from './voice-node';
+import { VoiceNodeProps } from './types';
 
-const DefaultAttributes = {
+const DefaultAttributes: { [K in keyof VoiceNodeProps]: { default: string } } = {
+  noteId: {
+    default: '',
+  },
+  voiceId: {
+    default: '',
+  },
   title: {
     default: '',
   },

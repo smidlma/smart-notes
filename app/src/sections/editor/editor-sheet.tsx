@@ -7,16 +7,22 @@ import {
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   VoiceRecordingSchema,
 } from '@/services/api';
-import { fDateTime } from '@/utils/format-time';
+import { fDateTime, fMilliseconds } from '@/utils/format-time';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import { AudioLines, FileSymlink } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
+import { VoiceNodeProps } from '../../../editor-web/extensions/voice-node/types';
 
-type Props = { id: string; isOpen: boolean; onClose: VoidFunction };
+type Props = {
+  id: string;
+  isOpen: boolean;
+  onClose: VoidFunction;
+  onLinkVoice: (props: VoiceNodeProps) => void;
+};
 
-export const EditorSheet = ({ id, isOpen, onClose }: Props) => {
+export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
   const { data } = useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery({ noteId: id });
 
   const sheetRef = useRef<BottomSheetRef>(null);
@@ -57,9 +63,21 @@ export const EditorSheet = ({ id, isOpen, onClose }: Props) => {
                 <Text>{item.title}</Text>
                 <Text className="text-sm">{fDateTime(item.created_at)}</Text>
               </View>
-              <Button size="default" variant="ghost">
+              <Button
+                size="default"
+                variant="ghost"
+                onPress={() =>
+                  onLinkVoice({
+                    noteId: item.note_id ?? '',
+                    voiceId: item.id ?? '',
+                    title: item.title ?? '',
+                    createdAt: fDateTime(item.created_at) ?? '',
+                    duration: fMilliseconds(item.duration ?? 0),
+                    transcript: '',
+                  })
+                }
+              >
                 <FileSymlink />
-                {/* <Text>Attach</Text> */}
               </Button>
             </View>
           </CardContent>

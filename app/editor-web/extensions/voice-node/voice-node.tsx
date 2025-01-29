@@ -6,20 +6,20 @@ import { AudioEditorActionType, VoiceNodeProps } from './types';
 export const VoiceNodeName = 'voice-node';
 
 export const VoiceNode = (props: NodeViewProps) => {
-  const { title, duration, createdAt, transcript, id } = props.node.attrs as VoiceNodeProps;
+  const { title, duration, createdAt, voiceId, noteId } = props.node.attrs as VoiceNodeProps;
 
   const handleClick = () => {
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
         type: AudioEditorActionType.OpenVoice,
-        payload: { id },
+        payload: { voiceId, noteId },
       })
     );
   };
 
   return (
     <NodeViewWrapper>
-      <div className={VoiceNodeName} onClick={handleClick}>
+      <div className={VoiceNodeName}>
         <div
           style={{
             display: 'flex',
@@ -29,16 +29,16 @@ export const VoiceNode = (props: NodeViewProps) => {
           }}
         >
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700 }}>{title}</div>
-            <div>{createdAt}</div>
-            <div>{duration}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, userSelect: 'none' }}>{title}</div>
+            <div style={{ userSelect: 'none' }}>{createdAt}</div>
+            <div style={{ userSelect: 'none' }}>{duration}</div>
           </div>
           <div>
-            <div className="voice-node-play">Play</div>
+            <div className="voice-node-play" onClick={handleClick} style={{ userSelect: 'none' }}>
+              Play
+            </div>
           </div>
         </div>
-        <div style={{ paddingTop: 8 }}>transcript</div>
-        <div>{transcript}</div>
       </div>
     </NodeViewWrapper>
   );

@@ -1,21 +1,17 @@
-import { ColorKeyboard, CustomKeyboard, RichText } from '@10play/tentap-editor';
+import { ColorKeyboard, CustomKeyboard, EditorBridge, RichText } from '@10play/tentap-editor';
 import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet } from 'react-native';
 import { useRef, useState } from 'react';
 import { EditorToolbar } from './editor-toolbar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useEditor } from './hooks/use-editor';
 
 type Props = {
-  initialContent?: string;
-  onContentChange?: (content: string) => void;
+  editor: EditorBridge;
 };
 
-export const Editor = ({ initialContent, onContentChange }: Props) => {
+export const Editor = ({ editor }: Props) => {
   const { top } = useSafeAreaInsets();
   const headerHeight = 38;
   const keyboardVerticalOffset = headerHeight + top;
-
-  const { editor } = useEditor({ initialContent, onContentChange });
 
   const rootRef = useRef(null);
 

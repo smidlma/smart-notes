@@ -66,7 +66,10 @@ export default function StackLayout() {
           headerTransparent: true,
         }}
       />
-      <Stack.Screen name="note/voice/[noteId, voiceId]" options={{ headerTitle: t('voice') }} />
+      <Stack.Screen
+        name="note/voice/[noteId, voiceId]"
+        options={{ headerTitle: t('voice_recorder') }}
+      />
     </Stack>
   );
 }

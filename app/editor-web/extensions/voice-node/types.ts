@@ -1,5 +1,6 @@
 export type VoiceNodeProps = {
-  id: string;
+  noteId: string;
+  voiceId: string;
   title: string;
   duration: string;
   createdAt: string;
@@ -9,7 +10,7 @@ export type VoiceNodeProps = {
 export type VoiceEditorState = {};
 
 export type VoiceEditorInstance = {
-  setVoiceNode: (title: VoiceNodeProps) => void;
+  setVoiceNode: (props: VoiceNodeProps) => void;
 };
 
 export enum AudioEditorActionType {
@@ -24,5 +25,5 @@ export type AudioMessage =
     }
   | {
       type: AudioEditorActionType.OpenVoice;
-      payload: { id: string };
+      payload: { voiceId: string; noteId: string };
     };

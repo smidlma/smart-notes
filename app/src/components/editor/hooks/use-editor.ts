@@ -14,19 +14,26 @@ import { editorHtml } from '../../../../editor-web/build/editorHtml';
 import { VoiceBridge } from '../bridges/voice-bridge';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import {
+  useReadNoteApiNotesNoteIdGetQuery,
+  useUpdateNoteApiNotesNoteIdPatchMutation,
+} from '@/services/api';
+import { VoiceNodeProps } from '../../../../editor-web/extensions/voice-node/types';
 
 type Props = {
-  initialContent?: string;
-  onContentChange?: (content: string) => void;
+  noteId: string;
 };
 
-export const useEditor = ({ initialContent, onContentChange }: Props) => {
+export const useEditor = ({ noteId }: Props) => {
+  const { data, status, isLoading } = useReadNoteApiNotesNoteIdGetQuery({ noteId });
+  const [updateNote] = useUpdateNoteApiNotesNoteIdPatchMutation();
+
   const { editorCSS } = useEditorConfig();
   const { colorScheme } = useColorScheme();
 
   const editor = useEditorBridge({
-    initialContent,
+    initialContent: data?.content,
     customSource: editorHtml,
     bridgeExtensions: [
       ...TenTapStartKit,
@@ -95,10 +102,23 @@ export const useEditor = ({ initialContent, onContentChange }: Props) => {
   const content = useEditorContent(editor, { type: 'html', debounceInterval: 100 });
 
   useEffect(() => {
-    if (content) {
-      onContentChange?.(content);
-    }
-  }, [content]);
+    const updateNoteContent = async () => {
+      if (content) {
+        await updateNote({ noteId, noteUpdate: { content } }).unwrap();
+      }
+    };
 
-  return { editor };
+    updateNoteContent();
+  }, [content, noteId, updateNote]);
+
+  const handleAttachVoice = useCallback(
+    ({ voiceId, createdAt, duration, title, transcript, noteId }: VoiceNodeProps) => {
+      console.log('voiceId', voiceId);
+
+      editor.setVoiceNode({ voiceId, createdAt, duration, title, transcript, noteId });
+    },
+    [editor]
+  );
+
+  return { editor, status, isLoading, handleAttachVoice };
 };

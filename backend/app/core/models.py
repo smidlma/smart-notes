@@ -93,12 +93,14 @@ class VoiceRecordingSchema(UUIDModel, TimestampModel, table=True):
     status: Literal["new", "processing", "done", "failed"] = Field(
         sa_type=String, default="new"
     )
+    duration: float | None = None
 
     note: NoteSchema = Relationship(back_populates="voice_recordings")
 
 
 class VoiceRecordingUpdate(SQLModel):
-    title: str
+    title: str | None = None
+    duration: float | None = None
 
 
 class VoiceTranscriptionResponse(SQLModel):

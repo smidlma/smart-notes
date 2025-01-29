@@ -298,9 +298,11 @@ export type VoiceRecordingSchema = {
   transcription?: string | null;
   words?: object[] | null;
   status?: "new" | "processing" | "done" | "failed";
+  duration?: number | null;
 };
 export type VoiceRecordingUpdate = {
-  title: string;
+  title?: string | null;
+  duration?: number | null;
 };
 export type BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost = {
   file: Blob;

@@ -61,7 +61,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
     };
 
     initAudio();
-  }, [audioPlayer, voiceId, data]);
+  }, [audioPlayer, voiceId, data, timeStart]);
 
   useEffect(() => {
     if (playerStatus) {
@@ -86,7 +86,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
       firstFetchLoadingOnly
       isFetchingFirstTime={isLoading}
     >
-      <View className="pb-14 gap-10 pt-6 flex-1 ">
+      <View className="pb-14 gap-10 pt-6 h-screen-safe ">
         <View className="flex-row justify-between px-6 ">
           <View className="flex-1" />
           <View className="flex-grow">

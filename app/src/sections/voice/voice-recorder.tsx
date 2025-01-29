@@ -14,7 +14,11 @@ import { VoiceRecorderControls } from './components/voice-recorder-controls';
 import { uploadHandler } from '@/utils/upload';
 import { Text } from '@/components/ui/text';
 import { useDispatch } from 'react-redux';
-import { api, VoiceRecordingSchema } from '@/services/api';
+import {
+  api,
+  useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,
+  VoiceRecordingSchema,
+} from '@/services/api';
 import React from 'react';
 import { LoadingOverlay } from '@/components/loading-overlay/loading-overlay';
 import { router } from 'expo-router';
@@ -28,6 +32,8 @@ type Props = {
 
 export const VoiceRecorder = ({ noteId }: Props) => {
   const { t } = useLocales();
+
+  const [updateVoice] = useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation();
 
   const isDoneRecording = useBoolean(false);
   const isRecording = useBoolean(false);
@@ -77,27 +83,40 @@ export const VoiceRecorder = ({ noteId }: Props) => {
   };
 
   const saveRecording = async () => {
+    const time = audioRecorder.currentTime ?? 0;
     await audioRecorder.stop();
     isRecording.onFalse();
     isDoneRecording.onTrue();
     if (audioRecorder.uri) {
       isUploading.onTrue();
 
-      const result = await uploadHandler<VoiceRecordingSchema>({
-        fileUri: audioRecorder.uri,
-        type: 'voice',
-        pathParam: noteId,
-      });
-
-      isUploading.onFalse();
-
-      dispatch(api.util.invalidateTags(['attachments']));
-
-      if (result?.id) {
-        router.push({
-          pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
-          params: { voiceId: result.id, noteId },
+      try {
+        const result = await uploadHandler<VoiceRecordingSchema>({
+          fileUri: audioRecorder.uri,
+          type: 'voice',
+          pathParam: noteId,
         });
+
+        await updateVoice({
+          voiceId: result?.id ?? '',
+          voiceRecordingUpdate: {
+            duration: time,
+            title: 'New recording',
+          },
+        }).unwrap();
+
+        isUploading.onFalse();
+
+        dispatch(api.util.invalidateTags(['attachments']));
+
+        if (result?.id) {
+          router.push({
+            pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
+            params: { voiceId: result.id, noteId },
+          });
+        }
+      } catch (e) {
+        console.log(e);
       }
     }
   };

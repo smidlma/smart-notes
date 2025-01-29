@@ -1,4 +1,5 @@
 import itertools
+import logging
 import uuid
 
 from assemblyai import SpeechModel, TranscriptionConfig
@@ -51,9 +52,17 @@ def process_audio_file(
     session.refresh(db_voice)
 
     try:
-        config = TranscriptionConfig(speech_model=SpeechModel.nano)
-        loader = AssemblyAIAudioTranscriptLoader(file_path=file_path, config=config)
+        config = TranscriptionConfig(
+            speech_model=SpeechModel.nano,
+            language_detection=True,
+        )
+        loader = AssemblyAIAudioTranscriptLoader(
+            file_path=file_path,
+            config=config,
+        )
         docs = loader.load()
+
+        logging.info(f"Transcription: {docs}")
 
         # Not optimal for large files cuz its in memory
         transcriptions = []
@@ -90,7 +99,8 @@ def process_audio_file(
 
         create_voice_embedding(merged_words, voice_id, user_id)
 
-    except Exception:
+    except Exception as e:
+        logging.error(f"Failed to create transcript {e}")
         db_voice.sqlmodel_update({"status": "failed"})
         session.add(db_voice)
         session.commit()
@@ -132,6 +142,8 @@ def transcript_to_chunks(words: list[dict], time_window: int = 5000):
 
 def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid.UUID):
     chunks = transcript_to_chunks(words, 5000)
+    if len(chunks) == 0:
+        return
 
     documents = list(
         map(

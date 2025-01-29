@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 import aiofiles
@@ -48,6 +49,7 @@ def update_voice_recording(
     if not voice_db:
         raise HTTPException(status_code=404, detail="Note not found")
 
+    logging.info(voice_update)
     voice_data = voice_update.model_dump(exclude_unset=True)
     voice_db.sqlmodel_update(voice_data)
     session.add(voice_db)
@@ -87,12 +89,22 @@ async def upload_voice(
 
 @router.get("/voice/{voice_id}/transcription")
 def get_voice_transcription(
-    voice_id: uuid.UUID, session: SessionDep
+    voice_id: uuid.UUID,
+    session: SessionDep,
+    background_tasks: BackgroundTasks,
+    user: CurrentUserDep,
 ) -> VoiceTranscriptionResponse:
     voice_db = session.get(VoiceRecordingSchema, voice_id)
     if not voice_db:
         raise HTTPException(status_code=404, detail="Note not found")
 
+    if voice_db.status == "failed":
+        out_file_path = f"{VOICE_STORAGE_PATH}/{voice_db.file_name}"
+        background_tasks.add_task(
+            process_audio_file, out_file_path, session, voice_db.id, user.id
+        )
+
+    logging.info(voice_db)
     return VoiceTranscriptionResponse(
         transcription=voice_db.transcription,
         words=[WordSchema(**word) for word in voice_db.words]
