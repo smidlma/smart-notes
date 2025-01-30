@@ -169,9 +169,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
               size="icon"
               className="p-6 rounded-xl"
               variant={showTranscript.value ? 'default' : 'ghost'}
-              onPress={() => {
-                showTranscript.onToggle();
-              }}
+              onPress={showTranscript.onToggle}
             >
               <Captions size={32} />
             </Button>

@@ -48,7 +48,7 @@ export const ConfirmationSheet = forwardRef<ActionConfirmationRef, Props>(
           handleIndicatorStyle={{ backgroundColor: NAV_THEME[colorScheme].primary }}
         >
           <BottomSheetView className="min-h-72 px-4 bg-card">
-            <H3>{title}</H3>
+            <H3 numberOfLines={1}>{title}</H3>
             <Text>{description}</Text>
             <View className="flex-grow" />
             <View className="gap-4 pb-14">

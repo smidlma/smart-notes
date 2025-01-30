@@ -10,10 +10,12 @@ import {
 import { fDateTime, fMilliseconds } from '@/utils/format-time';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import { AudioLines, FileSymlink } from 'lucide-react-native';
+import { AudioLines, FileSymlink, Scroll } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 import { VoiceNodeProps } from '../../../editor-web/extensions/voice-node/types';
+import { useLocales } from '@/locales';
+import { H3 } from '@/components/ui/typography';
 
 type Props = {
   id: string;
@@ -23,11 +25,12 @@ type Props = {
 };
 
 export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
+  const { t } = useLocales();
   const { data } = useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery({ noteId: id });
 
   const sheetRef = useRef<BottomSheetRef>(null);
 
-  const snapPoints = useMemo(() => ['20%', '50%', '70%'], []);
+  const snapPoints = useMemo(() => ['30%', '50%', '70%'], []);
 
   useEffect(() => {
     if (isOpen) {
@@ -97,9 +100,15 @@ export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
       <BottomSheetFlatList
         className="px-4"
         contentContainerStyle={{ gap: 8, paddingBottom: 32 }}
-        ListHeaderComponent={<Text className="text-2xl font-bold">Attachments</Text>}
+        ListHeaderComponent={<Text className="text-2xl font-bold">{t('attachments')}</Text>}
         data={data}
         keyExtractor={(i) => i.id!}
+        ListEmptyComponent={
+          <View className="items-center justify-center pt-7">
+            <Scroll size={64} />
+            <H3>{t('no_attachments')}</H3>
+          </View>
+        }
         renderItem={renderItem}
       />
     </BottomSheet>

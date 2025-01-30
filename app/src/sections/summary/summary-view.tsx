@@ -1,6 +1,3 @@
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import { alpha } from '@/utils/alpha';
 import {
   useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation,
   useGetSummaryApiNotesSummaryNoteIdGetQuery,
@@ -68,25 +65,5 @@ export const SummaryView = ({ noteId }: Props) => {
         </View>
       </View>
     </QueryComponentWrapper>
-  );
-};
-
-const LoadingSkeleton = () => {
-  const gradient = [
-    alpha('hsl(0 0% 100%)', 0.1),
-    alpha('hsl(0 0% 100%)', 0.5),
-    alpha('hsl(0 0% 100%)', 0.1),
-  ];
-
-  return (
-    <MotiView className="gap-4">
-      <Skeleton width="30%" height={20} radius={16} colors={gradient} />
-      <Skeleton width="80%" height={20} radius="round" colors={gradient} />
-      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
-      <Skeleton width="60%" height={20} radius="round" colors={gradient} />
-      <Skeleton width="60%" height={20} radius="round" colors={gradient} />
-      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
-      <Skeleton width="100%" height={20} radius="round" colors={gradient} />
-    </MotiView>
   );
 };

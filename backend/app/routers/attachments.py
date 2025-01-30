@@ -104,7 +104,6 @@ def get_voice_transcription(
             process_audio_file, out_file_path, session, voice_db.id, user.id
         )
 
-    logging.info(voice_db)
     return VoiceTranscriptionResponse(
         transcription=voice_db.transcription,
         words=[WordSchema(**word) for word in voice_db.words]

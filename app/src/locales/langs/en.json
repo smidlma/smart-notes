@@ -21,5 +21,15 @@
   "initiate_search": "Let's find what you're looking for!",
   "sign_in_google": "Sign in with Google",
   "discard": "Discard",
-  "voice_recorder": "Voice Recorder"
+  "voice_recorder": "Voice Recorder",
+  "today": "Today",
+  "previous_7_days": "Previous 7 Days",
+  "previous_30_days": "Previous 30 Days",
+  "older": "Older",
+  "processing": "Working on it...",
+  "failed_transcript": "Failed to generate transcript",
+  "retry": "Retry",
+  "back": "Back",
+  "attachments": "Attachments",
+  "no_attachments": "No attachments"
 }

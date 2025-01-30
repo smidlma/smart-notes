@@ -5,7 +5,7 @@ import { useBoolean } from '@/hooks';
 import { QueryComponentWrapper } from '@/services/components';
 import { router, useNavigation } from 'expo-router';
 import { AudioLines, Paperclip, WandSparkles } from 'lucide-react-native';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { View } from 'react-native';
 import { EditorSheet } from './editor-sheet';
 import { useEditor } from '@/components/editor/hooks/use-editor';
@@ -18,6 +18,15 @@ export const EditorView = ({ id }: Props) => {
   const navigation = useNavigation();
 
   const showAttachments = useBoolean(false);
+
+  const { editor, status, isLoading, handleAttachVoice } = useEditor({
+    noteId: id,
+  });
+
+  const handleShowAttachments = useCallback(() => {
+    showAttachments.onToggle();
+    editor.blur();
+  }, [showAttachments, editor]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -41,17 +50,13 @@ export const EditorView = ({ id }: Props) => {
             <AudioLines />
           </MotiPressable>
 
-          <MotiPressable onPress={showAttachments.onToggle}>
+          <MotiPressable onPress={handleShowAttachments}>
             <Paperclip />
           </MotiPressable>
         </View>
       ),
     });
-  }, [id, navigation, showAttachments.onToggle]);
-
-  const { editor, status, isLoading, handleAttachVoice } = useEditor({
-    noteId: id,
-  });
+  }, [id, navigation, handleShowAttachments]);
 
   return (
     <View className="flex-grow">

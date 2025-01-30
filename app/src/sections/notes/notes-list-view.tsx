@@ -2,17 +2,21 @@ import { useBoolean } from '@/hooks';
 import { NoteItem } from './note-item';
 import { useReadNotesApiNotesGetQuery } from '@/services/api';
 import { router, useNavigation } from 'expo-router';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
 import { SearchBarProps } from 'react-native-screens';
 import { SmartSearchList } from './smart-search-list';
 import { QueryComponentWrapper } from '@/services/components';
+import { SectionList } from 'react-native';
+import { H3 } from '@/components/ui/typography';
+import { getSectionsByDate } from './utils';
 
 export const NotesListView = () => {
   const navigation = useNavigation();
   const { data: notes, status, isLoading } = useReadNotesApiNotesGetQuery();
   const [search, setSearch] = useState('');
+
+  const sections = useMemo(() => getSectionsByDate(notes), [notes]);
 
   const showSmartSearch = useBoolean(false);
 
@@ -40,23 +44,24 @@ export const NotesListView = () => {
       firstFetchLoadingOnly
       isFetchingFirstTime={isLoading}
     >
-      <Animated.FlatList
+      <SectionList
         style={{ paddingTop: 16 }}
         contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
         keyboardDismissMode="on-drag"
         contentInsetAdjustmentBehavior="automatic"
-        data={notes}
+        sections={sections}
         keyExtractor={(item) => item.id!}
-        itemLayoutAnimation={LinearTransition}
+        // itemLayoutAnimation={LinearTransition}
         renderItem={({ item }) => (
           <NoteItem
-            date={item.updated_at ?? ''}
+            date={item?.updated_at ?? ''}
             description={item.description ?? ''}
             id={item.id!}
             title={item.title}
             onPress={() => handleOpenNote(item.id!)}
           />
         )}
+        renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}
       />
     </QueryComponentWrapper>
   );
