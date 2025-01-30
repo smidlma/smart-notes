@@ -39,6 +39,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you pick the images."
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

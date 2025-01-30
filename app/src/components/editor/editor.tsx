@@ -6,9 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   editor: EditorBridge;
+  noteId: string;
 };
 
-export const Editor = ({ editor }: Props) => {
+export const Editor = ({ editor, noteId }: Props) => {
   const { top } = useSafeAreaInsets();
   const headerHeight = 38;
   const keyboardVerticalOffset = headerHeight + top;
@@ -19,18 +20,6 @@ export const Editor = ({ editor }: Props) => {
 
   return (
     <SafeAreaView style={styles.fullScreen} ref={rootRef}>
-      {/* <Button
-          onPress={() =>
-            editor.setVoiceNode({
-              title: 'Voice message',
-              duration: '00:20:00',
-              createdAt: 'today',
-              transcript: 'Hello from React Native',
-            })
-          }
-        >
-          <Text>Click</Text>
-        </Button> */}
       <RichText
         editor={editor}
         showsVerticalScrollIndicator={false}
@@ -42,6 +31,7 @@ export const Editor = ({ editor }: Props) => {
         style={styles.keyboardAvoidingView}
       >
         <EditorToolbar
+          noteId={noteId}
           editor={editor}
           activeKeyboard={activeKeyboard}
           setActiveKeyboard={setActiveKeyboard}

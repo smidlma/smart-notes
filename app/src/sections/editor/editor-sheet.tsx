@@ -75,7 +75,7 @@ export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
                     voiceId: item.id ?? '',
                     title: item.title ?? '',
                     createdAt: fDateTime(item.created_at) ?? '',
-                    duration: fMilliseconds(item.duration ?? 0),
+                    duration: fMilliseconds((item.duration ?? 0) * 1000),
                     transcript: '',
                   })
                 }

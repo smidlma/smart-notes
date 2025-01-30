@@ -43,9 +43,9 @@ class NoteSchema(UUIDModel, TimestampModel, table=True):
     description: str | None
 
     user: UserSchema | None = Relationship(back_populates="notes")
-    # attachments: List["AttachmentSchema"] = Relationship(
-    #     back_populates="note", cascade_delete=True
-    # )
+    attachments: List["AttachmentSchema"] = Relationship(
+        back_populates="note", cascade_delete=True
+    )
     voice_recordings: List["VoiceRecordingSchema"] = Relationship(
         back_populates="note", cascade_delete=True
     )
@@ -72,7 +72,7 @@ class AttachmentSchema(UUIDModel, TimestampModel, table=True):
     type: Literal["image", "document"] = Field(sa_type=String)
     summary: str | None = None
 
-    # note: NoteSchema = Relationship(back_populates="attachments")
+    note: NoteSchema = Relationship(back_populates="attachments")
 
 
 # Voice

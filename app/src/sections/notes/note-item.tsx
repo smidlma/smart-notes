@@ -10,7 +10,6 @@ import ReanimatedSwipeable, {
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { FadeOut, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { Trash2 } from '@/lib/icons';
-import Animated from 'react-native-reanimated';
 import {
   ActionConfirmationRef,
   ConfirmationSheet,
@@ -43,7 +42,7 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
   };
 
   return (
-    <Animated.View exiting={FadeOut}>
+    <Reanimated.View exiting={FadeOut}>
       <Card className="overflow-hidden">
         <ReanimatedSwipeable
           ref={swipeableRef}
@@ -79,7 +78,7 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
         onConfirm={handleDeleteNote}
         onCancel={handleCancel}
       />
-    </Animated.View>
+    </Reanimated.View>
   );
 };
 

@@ -52,9 +52,17 @@ export const useEditor = ({ noteId }: Props) => {
             height: 0;
             }
             `),
-      ImageBridge.configureCSS(`.ProseMirror-selectednode {
+      ImageBridge.configureCSS(
+        `.ProseMirror-selectednode {
               outline: 1px solid ${NAV_THEME[colorScheme].primary} !important;
-              }`),
+              }
+              img{
+                width: 280px;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+              }`
+      ),
     ],
 
     theme: {
@@ -112,10 +120,16 @@ export const useEditor = ({ noteId }: Props) => {
   }, [content, noteId, updateNote]);
 
   const handleAttachVoice = useCallback(
-    ({ voiceId, createdAt, duration, title, transcript, noteId }: VoiceNodeProps) => {
-      console.log('voiceId', voiceId);
-
+    ({
+      voiceId,
+      createdAt,
+      duration,
+      title,
+      transcript = '',
+      noteId,
+    }: Omit<VoiceNodeProps, 'transcript'> & { transcript?: string }) => {
       editor.setVoiceNode({ voiceId, createdAt, duration, title, transcript, noteId });
+      editor.blur();
     },
     [editor]
   );

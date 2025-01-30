@@ -65,7 +65,7 @@ export const EditorView = ({ id }: Props) => {
         firstFetchLoadingOnly
         isFetchingFirstTime={isLoading}
       >
-        <Editor editor={editor} />
+        <Editor editor={editor} noteId={id} />
         <EditorSheet
           onLinkVoice={handleAttachVoice}
           id={id as string}

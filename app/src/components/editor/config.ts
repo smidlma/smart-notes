@@ -44,4 +44,9 @@ export const editorBasicCSS = (colorScheme: 'light' | 'dark') => `
       border-radius: 16px;
       cursor: pointer;
     }
+
+    .my-custom-class{
+      width: 320px;
+      height: 240px;
+    }
  `;

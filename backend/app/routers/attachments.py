@@ -1,4 +1,3 @@
-import logging
 import uuid
 
 import aiofiles
@@ -6,9 +5,10 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from sqlmodel import select
 
 from app.ai import process_audio_file
-from app.config import VOICE_STORAGE_PATH
+from app.config import IMAGE_STORAGE_PATH, VOICE_STORAGE_PATH
 from app.core.db import SessionDep
 from app.core.models import (
+    AttachmentSchema,
     VoiceRecordingSchema,
     VoiceRecordingUpdate,
     VoiceTranscriptionResponse,
@@ -49,7 +49,6 @@ def update_voice_recording(
     if not voice_db:
         raise HTTPException(status_code=404, detail="Note not found")
 
-    logging.info(voice_update)
     voice_data = voice_update.model_dump(exclude_unset=True)
     voice_db.sqlmodel_update(voice_data)
     session.add(voice_db)
@@ -111,3 +110,28 @@ def get_voice_transcription(
         else None,
         status=voice_db.status,
     )
+
+
+@router.post("/upload/image/{note_id}")
+async def upload_image(
+    note_id: uuid.UUID,
+    file: UploadFile,
+    session: SessionDep,
+    user: CurrentUserDep,
+) -> AttachmentSchema:
+    file_name = file.filename
+
+    out_file_path = f"{IMAGE_STORAGE_PATH}/{file_name}"
+
+    async with aiofiles.open(out_file_path, "wb") as out_file:
+        while content := await file.read(1024):  # async read chunk
+            await out_file.write(content)  # async write chunk
+
+    db_image = AttachmentSchema(
+        note_id=note_id, file_name=file_name or "unknown", type="image"
+    )
+    session.add(db_image)
+    session.commit()
+    session.refresh(db_image)
+
+    return db_image

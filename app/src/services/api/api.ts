@@ -136,6 +136,17 @@ const injectedRtkApi = api
         }),
         providesTags: ['attachments'],
       }),
+      uploadImageApiAttachmentsUploadImageNoteIdPost: build.mutation<
+        UploadImageApiAttachmentsUploadImageNoteIdPostApiResponse,
+        UploadImageApiAttachmentsUploadImageNoteIdPostApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/upload/image/${queryArg.noteId}`,
+          method: 'POST',
+          body: queryArg.bodyUploadImageApiAttachmentsUploadImageNoteIdPost,
+        }),
+        invalidatesTags: ['attachments'],
+      }),
       searchNotesApiSearchGet: build.query<
         SearchNotesApiSearchGetApiResponse,
         SearchNotesApiSearchGetApiArg
@@ -220,6 +231,12 @@ export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiRe
 export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiArg = {
   voiceId: string;
 };
+export type UploadImageApiAttachmentsUploadImageNoteIdPostApiResponse =
+  /** status 200 Successful Response */ AttachmentSchema;
+export type UploadImageApiAttachmentsUploadImageNoteIdPostApiArg = {
+  noteId: string;
+  bodyUploadImageApiAttachmentsUploadImageNoteIdPost: BodyUploadImageApiAttachmentsUploadImageNoteIdPost;
+};
 export type SearchNotesApiSearchGetApiResponse =
   /** status 200 Successful Response */ GlobalSearchResponse;
 export type SearchNotesApiSearchGetApiArg = {
@@ -251,7 +268,7 @@ export type UserSchema = {
   family_name: string;
 };
 export type NoteSchema = {
-  updated_at?: string;
+  created_at?: string;
   updated_at?: string;
   id?: string;
   user_id?: string | null;
@@ -303,6 +320,18 @@ export type VoiceTranscriptionResponse = {
   words?: WordSchema[] | null;
   status: 'new' | 'processing' | 'done' | 'failed';
 };
+export type AttachmentSchema = {
+  created_at?: string;
+  updated_at?: string;
+  id?: string;
+  note_id: string;
+  file_name: string;
+  type: 'image' | 'document';
+  summary?: string | null;
+};
+export type BodyUploadImageApiAttachmentsUploadImageNoteIdPost = {
+  file: Blob;
+};
 export type NoteSearchResponse = {
   type: 'note';
   title: string;
@@ -345,6 +374,7 @@ export const {
   useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
+  useUploadImageApiAttachmentsUploadImageNoteIdPostMutation,
   useSearchNotesApiSearchGetQuery,
   useReadRootGetQuery,
 } = injectedRtkApi;
