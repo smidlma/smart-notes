@@ -5,6 +5,7 @@ export const MotiPressable = ({ onPress, ...props }: MotiPressableProps) => {
   return (
     <Pressable
       {...props}
+      // style={[{ ...(props.disabled && { opacity: 0.5 }) }, props.style]}
       onPress={onPress}
       animate={useMemo(
         () =>

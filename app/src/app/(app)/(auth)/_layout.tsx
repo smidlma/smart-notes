@@ -28,7 +28,7 @@ export default function StackLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: t('app_name'),
+          title: t('all_notes'),
           headerRight: () => (
             <Pressable onPress={handleCreatePress}>
               <NotebookPen size={24} />
@@ -61,14 +61,11 @@ export default function StackLayout() {
         name="note/summary"
         options={{
           title: t('summary'),
-          headerLargeTitle: true,
-          headerBlurEffect: 'regular',
-          headerTransparent: true,
         }}
       />
       <Stack.Screen
         name="note/voice/[noteId, voiceId]"
-        options={{ headerTitle: t('voice_recorder') }}
+        options={{ headerTitle: t('voice_recorder'), presentation: 'modal' }}
       />
     </Stack>
   );

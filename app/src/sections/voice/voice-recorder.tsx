@@ -133,7 +133,7 @@ export const VoiceRecorder = ({ noteId }: Props) => {
 
   return (
     <>
-      <View className="px-6 pt-6 h-screen-safe">
+      <View className="px-6 pb-6 pt-6 h-screen-safe">
         <VoiceHeader />
         <DurationTimer player={audioRecorder} />
         <VoiceRecorderControls

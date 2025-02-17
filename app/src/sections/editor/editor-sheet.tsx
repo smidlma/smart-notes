@@ -10,7 +10,7 @@ import {
 import { fDateTime, fMilliseconds } from '@/utils/format-time';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import { AudioLines, FileSymlink, Scroll } from 'lucide-react-native';
+import { AudioLines, Scroll } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 import { VoiceNodeProps } from '../../../editor-web/extensions/voice-node/types';
@@ -67,8 +67,7 @@ export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
                 <Text className="text-sm">{fDateTime(item.created_at)}</Text>
               </View>
               <Button
-                size="default"
-                variant="ghost"
+                size="sm"
                 onPress={() =>
                   onLinkVoice({
                     noteId: item.note_id ?? '',
@@ -80,7 +79,7 @@ export const EditorSheet = ({ id, isOpen, onClose, onLinkVoice }: Props) => {
                   })
                 }
               >
-                <FileSymlink />
+                <Text>attach</Text>
               </Button>
             </View>
           </CardContent>

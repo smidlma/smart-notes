@@ -4,11 +4,22 @@ import { useBoolean } from '@/hooks';
 
 import { QueryComponentWrapper } from '@/services/components';
 import { router, useNavigation } from 'expo-router';
-import { AudioLines, Paperclip, WandSparkles } from 'lucide-react-native';
+import {
+  AudioLines,
+  ChevronLeft,
+  Paperclip,
+  Redo2,
+  Undo2,
+  WandSparkles,
+} from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { View } from 'react-native';
 import { EditorSheet } from './editor-sheet';
 import { useEditor } from '@/components/editor/hooks/use-editor';
+import { Text } from '@/components/ui/text';
+import { useLocales } from '@/locales';
+import { Button } from '@/components/ui/button';
+import { useBridgeState } from '@10play/tentap-editor';
 
 type Props = {
   id: string;
@@ -16,12 +27,15 @@ type Props = {
 
 export const EditorView = ({ id }: Props) => {
   const navigation = useNavigation();
+  const { t } = useLocales();
 
   const showAttachments = useBoolean(false);
 
   const { editor, status, isLoading, handleAttachVoice } = useEditor({
     noteId: id,
   });
+
+  const editorState = useBridgeState(editor);
 
   const handleShowAttachments = useCallback(() => {
     showAttachments.onToggle();
@@ -30,6 +44,40 @@ export const EditorView = ({ id }: Props) => {
 
   useEffect(() => {
     navigation.setOptions({
+      headerLeft: () => (
+        <View className="flex-row gap-6 items-center">
+          <MotiPressable onPress={router.back}>
+            <View className="flex-row justify-center items-center">
+              <ChevronLeft />
+              <Text className="text-xl text-primary">{t('back')}</Text>
+            </View>
+          </MotiPressable>
+          {(editorState.canUndo || editorState.canRedo) && (
+            <View className="flex-row gap-2 items-center">
+              <MotiPressable>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={!editorState.canUndo}
+                  onPress={editor.undo}
+                >
+                  <Undo2 />
+                </Button>
+              </MotiPressable>
+              <MotiPressable>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={!editorState.canRedo}
+                  onPress={editor.redo}
+                >
+                  <Redo2 />
+                </Button>
+              </MotiPressable>
+            </View>
+          )}
+        </View>
+      ),
       headerRight: () => (
         <View className="flex-row gap-4">
           <MotiPressable
@@ -56,7 +104,7 @@ export const EditorView = ({ id }: Props) => {
         </View>
       ),
     });
-  }, [id, navigation, handleShowAttachments]);
+  }, [id, navigation, handleShowAttachments, editorState, editor, t]);
 
   return (
     <View className="flex-grow">

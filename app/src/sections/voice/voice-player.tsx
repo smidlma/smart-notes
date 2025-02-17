@@ -55,7 +55,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
         });
 
         if (timeStart) {
-          audioPlayer.seekTo(Number(timeStart));
+          audioPlayer.seekTo(Number(timeStart) / 1000);
         }
       }
     };
@@ -140,7 +140,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
           </View>
         </View>
         {showTranscript.value ? (
-          <VoiceTranscript voiceId={voiceId} currentTime={playerStatus.currentTime} />
+          <VoiceTranscript voiceId={voiceId} currentTime={playerStatus.currentTime * 1000} />
         ) : (
           <DurationTimer player={audioPlayer} />
         )}
@@ -158,7 +158,7 @@ export const VoicePlayer = ({ voiceId }: Props) => {
             minimumValue={useSharedValue(0)}
             maximumValue={duration}
             renderThumb={() => null}
-            bubble={(value) => fMilliseconds(value)}
+            bubble={(value) => fMilliseconds(value * 1000)}
             onSlidingComplete={handleSeekTo}
           />
         </View>
@@ -208,8 +208,10 @@ const DurationTimer = ({ player }: { player: AudioPlayer }) => {
 
   return (
     <View className="flex-grow justify-center pb-52">
-      <Text className="self-center text-7xl">{fMilliseconds(status.currentTime ?? 0)}</Text>
-      <H4 className="self-center">Duration: {fMilliseconds(status.duration ?? 0)}</H4>
+      <Text className="self-center text-7xl">
+        {fMilliseconds((status.currentTime ?? 0) * 1000)}
+      </Text>
+      <H4 className="self-center">Duration: {fMilliseconds((status.duration ?? 0) * 1000)}</H4>
     </View>
   );
 };

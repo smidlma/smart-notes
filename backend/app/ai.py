@@ -18,7 +18,7 @@ def generate_note_summary(note_context: str, audio_context: str) -> str:
     messages = [
         (
             "system",
-            "Write a concise and structured summary of the following notes and following audio transcription, if no transcription is given ignore that part. Also do not leave your comments:\\n\\n{note_context}\\n\\n{audio_context}",
+            "Write a concise and structured summary in same language of the following notes and following audio transcription, if no transcription is given ignore that part. Also do not leave your comments:\\n\\n{note_context}\\n\\n{audio_context}",
         ),
     ]
 
