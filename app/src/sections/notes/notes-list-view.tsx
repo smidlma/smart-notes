@@ -59,6 +59,7 @@ export const NotesListView = () => {
             id={item.id!}
             title={item.title}
             onPress={() => handleOpenNote(item.id!)}
+            content={item.content}
           />
         )}
         renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}

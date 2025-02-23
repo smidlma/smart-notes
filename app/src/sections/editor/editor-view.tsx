@@ -20,6 +20,8 @@ import { Text } from '@/components/ui/text';
 import { useLocales } from '@/locales';
 import { Button } from '@/components/ui/button';
 import { useBridgeState } from '@10play/tentap-editor';
+import { Share } from '@/lib/icons';
+import { sharePdfFile } from '@/utils/share';
 
 type Props = {
   id: string;
@@ -41,6 +43,11 @@ export const EditorView = ({ id }: Props) => {
     showAttachments.onToggle();
     editor.blur();
   }, [showAttachments, editor]);
+
+  const handleSharePdf = useCallback(async () => {
+    const content = await editor.getHTML();
+    await sharePdfFile(content);
+  }, [editor]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -80,6 +87,9 @@ export const EditorView = ({ id }: Props) => {
       ),
       headerRight: () => (
         <View className="flex-row gap-4">
+          <MotiPressable onPress={handleSharePdf}>
+            <Share />
+          </MotiPressable>
           <MotiPressable
             onPress={() =>
               router.push({ pathname: '/(app)/(auth)/note/summary', params: { id: id } })
@@ -104,7 +114,7 @@ export const EditorView = ({ id }: Props) => {
         </View>
       ),
     });
-  }, [id, navigation, handleShowAttachments, editorState, editor, t]);
+  }, [id, navigation, handleShowAttachments, editorState, editor, t, handleSharePdf]);
 
   return (
     <View className="flex-grow">

@@ -9,20 +9,23 @@ import ReanimatedSwipeable, {
   SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { FadeOut, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
-import { Trash2 } from '@/lib/icons';
+import { Share, Trash2 } from '@/lib/icons';
 import {
   ActionConfirmationRef,
   ConfirmationSheet,
 } from '@/components/confirmation-sheet/confirmation-sheet';
+import { View } from 'react-native';
+import { sharePdfFile } from '@/utils/share';
 type Props = {
   id: string;
   title: string;
   description?: string;
   date: string | Date;
+  content: string;
   onPress: VoidFunction;
 };
 
-export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
+export const NoteItem = ({ id, title, date, description, content, onPress }: Props) => {
   const [deleteNote] = useDeleteNoteApiNotesNoteIdDeleteMutation();
 
   const actionConfirmationRef = useRef<ActionConfirmationRef>(null);
@@ -41,6 +44,10 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
     swipeableRef.current?.close();
   };
 
+  const handleSharePdf = async () => {
+    await sharePdfFile(content);
+  };
+
   return (
     <Reanimated.View exiting={FadeOut}>
       <Card className="overflow-hidden">
@@ -51,11 +58,14 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
           rightThreshold={40}
           overshootRight={false}
           renderRightActions={(_prog, drag) => (
-            <RightAction
-              drag={drag}
-              onPress={() => actionConfirmationRef.current?.open()}
-              titleKey="delete"
-            />
+            <View className="flex-row">
+              <RightAction
+                drag={drag}
+                onDelete={actionConfirmationRef.current?.open}
+                onShare={handleSharePdf}
+                titleKey="delete"
+              />
+            </View>
           )}
         >
           <Pressable onPress={onPress}>
@@ -85,31 +95,39 @@ export const NoteItem = ({ id, title, date, description, onPress }: Props) => {
 type ActionProps = {
   drag: SharedValue<number>;
   titleKey: string;
-  onPress: VoidFunction;
+  onDelete?: VoidFunction;
+  onShare: VoidFunction;
   defaultWidth?: number;
   defaultOffset?: number;
 };
 const RightAction = ({
   drag,
-  onPress,
-
+  onDelete,
+  onShare,
   defaultWidth = 64,
   defaultOffset = 0,
 }: ActionProps) => {
   const styleAnimation = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: drag.value + defaultWidth - defaultOffset }],
+      transform: [{ translateX: drag.value + defaultWidth * 2 - defaultOffset }],
     };
   });
 
   return (
     <Reanimated.View
       style={[styleAnimation]}
-      className="bg-destructive justify-center rounded-r-2xl"
+      className="justify-center items-center rounded-r-2xl flex-row"
     >
-      <Pressable onPress={onPress}>
-        <Trash2 width={defaultWidth} height={28} className="text-primary" />
-      </Pressable>
+      <View className="bg-background h-full items-center justify-center">
+        <Pressable onPress={onShare}>
+          <Share width={defaultWidth} height={28} className="text-primary" />
+        </Pressable>
+      </View>
+      <View className="bg-destructive h-full items-center justify-center">
+        <Pressable onPress={onDelete}>
+          <Trash2 width={defaultWidth} height={28} className="text-primary " />
+        </Pressable>
+      </View>
     </Reanimated.View>
   );
 };

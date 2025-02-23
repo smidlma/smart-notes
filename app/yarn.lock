@@ -5536,6 +5536,11 @@ expo-modules-core@2.2.2:
   dependencies:
     invariant "^2.2.4"
 
+expo-print@~14.0.3:
+  version "14.0.3"
+  resolved "https://registry.npmjs.org/expo-print/-/expo-print-14.0.3.tgz#86bb712dc5d79655ba4fff600cb0ef98ae5b0499"
+  integrity sha512-VEGl7SX3q2Z3ZKwvxtOBAlXm9yDX8Jodewr+kouQcg2EaV0ciAH9rqLwRWZhAtEETpVdEG53ow7IAmwJU7jInA==
+
 expo-router@~4.0.17:
   version "4.0.17"
   resolved "https://registry.npmjs.org/expo-router/-/expo-router-4.0.17.tgz#8cecc68f189fd93d69b239986f63e040ee15f63a"
@@ -5559,6 +5564,11 @@ expo-secure-store@~14.0.1:
   version "14.0.1"
   resolved "https://registry.npmjs.org/expo-secure-store/-/expo-secure-store-14.0.1.tgz#8953d5966430f5ff262f4d99e7551205870078d7"
   integrity sha512-QUS+j4+UG4jRQalgnpmTvvrFnMVLqPiUZRzYPnG3+JrZ5kwVW2w6YS3WWerPoR7C6g3y/a2htRxRSylsDs+TaQ==
+
+expo-sharing@~13.0.1:
+  version "13.0.1"
+  resolved "https://registry.npmjs.org/expo-sharing/-/expo-sharing-13.0.1.tgz#f5221ce44190a12649a6639e619d83e318c768a1"
+  integrity sha512-qych3Nw65wlFcnzE/gRrsdtvmdV0uF4U4qVMZBJYPG90vYyWh2QM9rp1gVu0KWOBc7N8CC2dSVYn4/BXqJy6Xw==
 
 expo-splash-screen@~0.29.22:
   version "0.29.22"

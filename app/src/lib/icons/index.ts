@@ -7,3 +7,4 @@ export * from './play';
 export * from './pause';
 export * from './mic';
 export * from './circle-stop';
+export * from './share';

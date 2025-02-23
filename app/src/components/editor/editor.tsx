@@ -44,6 +44,14 @@ export const Editor = ({ editor, noteId }: Props) => {
           editor={editor}
         />
       </KeyboardAvoidingView>
+
+      {/* <View className="gap-2 justify-end" style={{ ...StyleSheet.absoluteFillObject }}>
+        <BlurView intensity={50} className="pb-8 pt-4 px-12">
+          <Button>
+            <Text>regenerate</Text>
+          </Button>
+        </BlurView>
+      </View> */}
     </SafeAreaView>
   );
 };
