@@ -8,10 +8,32 @@ from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import GoogleGenerativeAI
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from sqlmodel import select
 
 from app.core.db import SessionDep, get_chroma_collection
-from app.core.models import VoiceRecordingSchema, WordSchema
+from app.core.models import NoteSchema, SummarySchema, VoiceRecordingSchema, WordSchema
 from app.utils import debounced
+
+
+def generate_quick_recap(note_context: list[str]) -> str:
+    """Stream a structured markdown recap from a list of notes."""
+
+    prompt_template = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "Write a quick structured markdown recap of the following notes in the same language. Highlight important parts or dates you will find. Do not leave your comments:\n\n{note_context}",
+            )
+        ]
+    )
+
+    prompt = prompt_template.invoke({"note_context": "\n\n".join(note_context)})
+
+    model = GoogleGenerativeAI(model="gemini-exp-1206")
+
+    result = model.invoke(prompt)
+
+    return result
 
 
 def generate_note_summary(note_context: str, audio_context: str) -> str:
@@ -33,6 +55,28 @@ def generate_note_summary(note_context: str, audio_context: str) -> str:
     result = model.invoke(prompt)
 
     return result
+
+
+def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
+    recordings = session.exec(
+        select(VoiceRecordingSchema).where(VoiceRecordingSchema.note_id == note.id)
+    ).all()
+
+    transcriptions = [
+        f"Recording title: {recording.title}\\nTranscription: {recording.transcription}"
+        for recording in recordings
+    ]
+    transcription_context = "\\n\\n".join(transcriptions)
+
+    summary = generate_note_summary(note.content, transcription_context)
+
+    db_summary = SummarySchema(note_id=note.id, summary_text=summary)
+
+    session.add(db_summary)
+    session.commit()
+    session.refresh(db_summary)
+
+    return db_summary
 
 
 def process_audio_file(

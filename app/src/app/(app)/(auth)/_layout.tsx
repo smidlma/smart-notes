@@ -67,6 +67,11 @@ export default function StackLayout() {
         name="note/voice/[noteId, voiceId]"
         options={{ headerTitle: t('voice_recorder'), presentation: 'modal' }}
       />
+
+      <Stack.Screen
+        name="recap/[...ids]"
+        options={{ headerTitle: t('quick_recap'), presentation: 'modal' }}
+      />
     </Stack>
   );
 }

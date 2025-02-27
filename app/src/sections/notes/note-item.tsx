@@ -46,6 +46,7 @@ export const NoteItem = ({ id, title, date, description, content, onPress }: Pro
 
   const handleSharePdf = async () => {
     await sharePdfFile(content);
+    swipeableRef.current?.close();
   };
 
   return (

@@ -87,6 +87,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['notes'],
       }),
+      streamQuickRecapApiNotesQuickRecapPost: build.mutation<
+        StreamQuickRecapApiNotesQuickRecapPostApiResponse,
+        StreamQuickRecapApiNotesQuickRecapPostApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/notes/quick-recap`,
+          method: 'POST',
+          body: queryArg.notesIds,
+        }),
+        invalidatesTags: ['notes'],
+      }),
       getVoiceRecordingsApiAttachmentsNoteIdVoiceGet: build.query<
         GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse,
         GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiArg
@@ -203,6 +214,11 @@ export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiResponse =
   /** status 200 Successful Response */ SummarySchema;
 export type GenerateNewSummaryApiNotesSummaryNoteIdPostApiArg = {
   noteId: string;
+};
+export type StreamQuickRecapApiNotesQuickRecapPostApiResponse =
+  /** status 200 Successful Response */ string;
+export type StreamQuickRecapApiNotesQuickRecapPostApiArg = {
+  notesIds: string[];
 };
 export type GetVoiceRecordingsApiAttachmentsNoteIdVoiceGetApiResponse =
   /** status 200 Successful Response */ VoiceRecordingSchema[];
@@ -369,6 +385,7 @@ export const {
   useDeleteNoteApiNotesNoteIdDeleteMutation,
   useGetSummaryApiNotesSummaryNoteIdGetQuery,
   useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation,
+  useStreamQuickRecapApiNotesQuickRecapPostMutation,
   useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery,
   useGetVoiceRecordingApiAttachmentsVoiceVoiceIdGetQuery,
   useUpdateVoiceRecordingApiAttachmentsVoiceVoiceIdPutMutation,

@@ -2,18 +2,12 @@ import os
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from sqlmodel import desc, select
+from sqlmodel import col, desc, select
 
-from app.ai import create_note_embedding, generate_note_summary
+from app.ai import create_note_embedding, create_note_summary, generate_quick_recap
 from app.config import VOICE_STORAGE_PATH
 from app.core.db import SessionDep
-from app.core.models import (
-    NoteCreate,
-    NoteSchema,
-    NoteUpdate,
-    SummarySchema,
-    VoiceRecordingSchema,
-)
+from app.core.models import NoteCreate, NoteSchema, NoteUpdate, SummarySchema
 from app.core.security import CurrentUserDep
 from app.utils import parse_description, parse_title
 
@@ -134,23 +128,12 @@ def generate_new_summary(note_id: uuid.UUID, session: SessionDep) -> SummarySche
     return create_note_summary(db_note, session)
 
 
-def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
-    recordings = session.exec(
-        select(VoiceRecordingSchema).where(VoiceRecordingSchema.note_id == note.id)
+@router.post("/quick-recap")
+async def stream_quick_recap(notes_ids: list[uuid.UUID], session: SessionDep) -> str:
+    db_notes = session.exec(
+        select(NoteSchema).where(col(NoteSchema.id).in_(notes_ids))
     ).all()
 
-    transcriptions = [
-        f"Recording title: {recording.title}\\nTranscription: {recording.transcription}"
-        for recording in recordings
-    ]
-    transcription_context = "\\n\\n".join(transcriptions)
+    notes_content = [note.content for note in db_notes]
 
-    summary = generate_note_summary(note.content, transcription_context)
-
-    db_summary = SummarySchema(note_id=note.id, summary_text=summary)
-
-    session.add(db_summary)
-    session.commit()
-    session.refresh(db_summary)
-
-    return db_summary
+    return generate_quick_recap(notes_content)

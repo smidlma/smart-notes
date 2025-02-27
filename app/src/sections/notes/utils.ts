@@ -2,32 +2,74 @@ import { NoteSchema } from '@/services/api';
 import { isAfter, isBefore, startOfToday, subDays } from 'date-fns';
 import i18next from 'i18next';
 
-export const getSectionsByDate = (notes?: NoteSchema[]) => {
+export const getTodayNotes = (notes?: NoteSchema[]) => {
+  if (!notes) return [];
+
+  const today = startOfToday();
+
+  return notes.filter((note) => isAfter(new Date(note?.updated_at ?? ''), today));
+};
+
+export const getLast7DaysNotes = (notes?: NoteSchema[]) => {
+  if (!notes) return [];
+
+  const today = startOfToday();
+  const sevenDaysAgo = subDays(today, 7);
+
+  return notes.filter(
+    (note) =>
+      isAfter(new Date(note?.updated_at ?? ''), sevenDaysAgo) &&
+      isBefore(new Date(note?.updated_at ?? ''), today)
+  );
+};
+
+export const getLast30DaysNotes = (notes?: NoteSchema[]) => {
   if (!notes) return [];
 
   const today = startOfToday();
   const sevenDaysAgo = subDays(today, 7);
   const thirtyDaysAgo = subDays(today, 30);
 
-  const todayNotes = notes.filter((note) => isAfter(new Date(note?.updated_at ?? ''), today));
-  const last7DaysNotes = notes.filter(
-    (note) =>
-      isAfter(new Date(note?.updated_at ?? ''), sevenDaysAgo) &&
-      isBefore(new Date(note?.updated_at ?? ''), today)
-  );
-  const last30DaysNotes = notes.filter(
+  return notes.filter(
     (note) =>
       isAfter(new Date(note?.updated_at ?? ''), thirtyDaysAgo) &&
       isBefore(new Date(note?.updated_at ?? ''), sevenDaysAgo)
   );
-  const olderNotes = notes.filter((note) =>
-    isBefore(new Date(note?.updated_at ?? ''), thirtyDaysAgo)
-  );
+};
+
+export const getOlderNotes = (notes?: NoteSchema[]) => {
+  if (!notes) return [];
+
+  const thirtyDaysAgo = subDays(startOfToday(), 30);
+
+  return notes.filter((note) => isBefore(new Date(note?.updated_at ?? ''), thirtyDaysAgo));
+};
+
+type Section = {
+  section: string;
+  notes: NoteSchema[];
+};
+
+export const getSectionsByDate = (notes?: NoteSchema[]): (NoteSchema | Section)[] => {
+  if (!notes) return [];
+
+  const todayNotes = getTodayNotes(notes);
+  const last7DaysNotes = getLast7DaysNotes(notes);
+  const last30DaysNotes = getLast30DaysNotes(notes);
+  const olderNotes = getOlderNotes(notes);
 
   return [
-    { title: i18next.t('today'), data: todayNotes },
-    { title: i18next.t('previous_7_days'), data: last7DaysNotes },
-    { title: i18next.t('previous_30_days'), data: last30DaysNotes },
-    { title: i18next.t('older'), data: olderNotes },
-  ].filter((section) => !!section.data.length);
+    ...(todayNotes.length ? [{ section: i18next.t('today'), notes: todayNotes }] : []),
+    ...todayNotes,
+    ...(last7DaysNotes.length
+      ? [{ section: i18next.t('previous_7_days'), notes: last7DaysNotes }]
+      : []),
+    ...last7DaysNotes,
+    ...(last30DaysNotes.length
+      ? [{ section: i18next.t('previous_30_days'), notes: last30DaysNotes }]
+      : []),
+    ...last30DaysNotes,
+    ...(olderNotes.length ? [{ section: i18next.t('older'), notes: olderNotes }] : []),
+    ...olderNotes,
+  ];
 };
