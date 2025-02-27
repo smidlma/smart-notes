@@ -8,3 +8,4 @@ export * from './pause';
 export * from './mic';
 export * from './circle-stop';
 export * from './share';
+export * from './wand2';

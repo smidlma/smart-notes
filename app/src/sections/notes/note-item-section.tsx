@@ -3,8 +3,8 @@ import { Text } from '@/components/ui/text';
 import { H3 } from '@/components/ui/typography';
 import { NoteSchema } from '@/services/api';
 import { router } from 'expo-router';
-import { Wand2 } from 'lucide-react-native';
 import { View } from 'react-native';
+import { Wand2 } from '@/lib/icons';
 
 type Props = { section: string; notes: NoteSchema[] };
 
@@ -28,8 +28,8 @@ export const NoteItemSection = ({ section, notes }: Props) => {
         className="flex-row items-center"
         onPress={handleQuickRecap}
       >
-        <Wand2 size={16} />
-        <Text className="pl-2 ">Quick recap</Text>
+        <Wand2 size={16} className="text-primary" />
+        <Text className="pl-2 text-primary">Quick recap</Text>
       </Button>
     </View>
   );

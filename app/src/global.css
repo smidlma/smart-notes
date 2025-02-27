@@ -1,52 +1,47 @@
-/* If you changed the colors in the ~/global.css file, update the ~/lib/constants.ts file with the new colors. Each color has a commented css variable name next to it. */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --primary: 220.47 98.26% 36.08%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 92.99% 56.11%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 220.67 97.83% 36.08%;
+    --background: 0 0% 95%; /* hsl(0, 0%, 95%) - Light gray */
+    --foreground: 222.2 84% 4.9%; /* hsl(222.2, 84%, 4.9%) - Very dark blue */
+    --muted: 210 40% 96.1%; /* hsl(210, 40%, 96.1%) - Very light blue-gray */
+    --muted-foreground: 215.4 16.3% 46.9%; /* hsl(215.4, 16.3%, 46.9%) - Medium gray-blue */
+    --popover: 0 0% 100%; /* hsl(0, 0%, 100%) - White */
+    --popover-foreground: 222.2 84% 4.9%; /* hsl(222.2, 84%, 4.9%) - Very dark blue */
+    --card: 0 0% 95%; /* hsl(0, 0%, 95%) - Light gray */
+    --card-foreground: 222.2 84% 4.9%; /* hsl(222.2, 84%, 4.9%) - Very dark blue */
+    --border: 214.3 31.8% 91.4%; /* hsl(214.3, 31.8%, 91.4%) - Light blue-gray */
+    --input: 214.3 31.8% 91.4%; /* hsl(214.3, 31.8%, 91.4%) - Light blue-gray */
+    --primary: 220.47 98.26% 36.08%; /* hsl(220.47, 98.26%, 36.08%) - Bright blue */
+    --primary-foreground: 210 40% 98%; /* hsl(210, 40%, 98%) - Very pale blue */
+    --secondary: 210 40% 96.1%; /* hsl(210, 40%, 96.1%) - Very light blue-gray */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* hsl(222.2, 47.4%, 11.2%) - Dark blue-gray */
+    --accent: 210 40% 96.1%; /* hsl(210, 40%, 96.1%) - Very light blue-gray */
+    --accent-foreground: 222.2 47.4% 11.2%; /* hsl(222.2, 47.4%, 11.2%) - Dark blue-gray */
+    --destructive: 0 92.99% 56.11%; /* hsl(0, 92.99%, 56.11%) - Bright red */
+    --destructive-foreground: 210 40% 98%; /* hsl(210, 40%, 98%) - Very pale blue */
+    --ring: 220.67 97.83% 36.08%; /* hsl(220.67, 97.83%, 36.08%) - Bright blue */
     --radius: 0.5rem;
   }
 
   .dark:root {
-    --background: 240 13.73% 10%;
-    --foreground: 229.76 31.78% 74.71%;
-    --muted: 232.5 15.44% 18.32%;
-    --muted-foreground: 233.79 11.37% 50%;
-    --popover: 234.55 17.46% 12.35%;
-    --popover-foreground: 234 12.4% 52.55%;
-    --card: 234.55 17.46% 12.35%;
-    --card-foreground: 229.76 31.78% 74.71%;
-    --border: 232.5 15.38% 30.59%;
-    --input: 232 20% 14.71%;
-    --primary: 0 0% 82.75%;
-    --primary-foreground: 0 0% 20%;
-    --secondary: 225.45 71.22% 72.75%;
-    --secondary-foreground: 234.55 17.46% 12.35%;
-    --accent: 234.55 17.83% 9.47%;
-    --accent-foreground: 0 0% 82.75%;
-    --destructive: 1.58 47.5% 52.94%;
-    --destructive-foreground: 210 40% 98.04%;
-    --ring: 225.45 71.22% 72.75%;
+    --background: 240 13.73% 10%; /* hsl(240, 13.73%, 10%) - Dark blue-gray */
+    --foreground: 229.76 31.78% 74.71%; /* hsl(229.76, 31.78%, 74.71%) - Soft blue-gray */
+    --muted: 232.5 15.44% 18.32%; /* hsl(232.5, 15.44%, 18.32%) - Dark muted blue */
+    --muted-foreground: 233.79 11.37% 50%; /* hsl(233.79, 11.37%, 50%) - Medium gray-blue */
+    --popover: 234.55 17.46% 12.35%; /* hsl(234.55, 17.46%, 12.35%) - Dark gray-blue */
+    --popover-foreground: 234 12.4% 52.55%; /* hsl(234, 12.4%, 52.55%) - Muted blue-gray */
+    --card: 234.55 17.46% 12.35%; /* hsl(234.55, 17.46%, 12.35%) - Dark gray-blue */
+    --card-foreground: 229.76 31.78% 74.71%; /* hsl(229.76, 31.78%, 74.71%) - Soft blue-gray */
+    --border: 232.5 15.38% 30.59%; /* hsl(232.5, 15.38%, 30.59%) - Muted blue-gray */
+    --input: 232 20% 14.71%; /* hsl(232, 20%, 14.71%) - Dark blue-gray */
+    --primary: 0 0% 82.75%; /* hsl(0, 0%, 82.75%) - Light gray */
+    --primary-foreground: 0 0% 20%; /* hsl(0, 0%, 20%) - Dark gray */
+    --secondary: 225.45 71.22% 72.75%; /* hsl(225.45, 71.22%, 72.75%) - Soft blue */
+    --secondary-foreground: 234.55 17.46% 12.35%; /* hsl(234.55, 17.46%, 12.35%) - Dark gray-blue */
+    --accent: 234.55 17.83% 9.47%; /* hsl(234.55, 17.83%, 9.47%) - Very dark gray-blue */
+    --accent-foreground: 0 0% 82.75%; /* hsl(0, 0%, 82.75%) - Light gray */
+    --destructive: 1.58 47.5% 52.94%; /* hsl(1.58, 47.5%, 52.94%) - Soft red */
+    --destructive-foreground: 210 40% 98.04%; /* hsl(210, 40%, 98.04%) - Very pale blue */
+    --ring: 225.45 71.22% 72.75%; /* hsl(225.45, 71.22%, 72.75%) - Soft blue */
     --radius: 0.5rem;
   }
 }
