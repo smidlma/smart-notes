@@ -4,8 +4,8 @@ import aiofiles
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from sqlmodel import select
 
-from app.ai import process_audio_file
-from app.config import IMAGE_STORAGE_PATH, VOICE_STORAGE_PATH
+from app.ai import process_audio_file, process_pdf_file
+from app.config import DOCUMENT_STORAGE_PATH, IMAGE_STORAGE_PATH, VOICE_STORAGE_PATH
 from app.core.db import SessionDep
 from app.core.models import (
     AttachmentSchema,
@@ -105,9 +105,9 @@ def get_voice_transcription(
 
     return VoiceTranscriptionResponse(
         transcription=voice_db.transcription,
-        words=[WordSchema(**word) for word in voice_db.words]
-        if voice_db.words
-        else None,
+        words=(
+            [WordSchema(**word) for word in voice_db.words] if voice_db.words else None
+        ),
         status=voice_db.status,
     )
 
@@ -135,3 +135,43 @@ async def upload_image(
     session.refresh(db_image)
 
     return db_image
+
+
+@router.post("/upload/document/{note_id}")
+async def upload_document(
+    note_id: uuid.UUID,
+    file: UploadFile,
+    session: SessionDep,
+    user: CurrentUserDep,
+    background_tasks: BackgroundTasks,
+) -> AttachmentSchema:
+    file_name = file.filename
+
+    if not file_name:
+        raise HTTPException(status_code=400, detail="File name is required")
+
+    # Check if the file is a PDF
+    is_pdf = file_name.lower().endswith(".pdf")
+
+    if not is_pdf:
+        raise HTTPException(status_code=400, detail="Only PDF files are supported")
+
+    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{file_name}"
+
+    async with aiofiles.open(out_file_path, "wb") as out_file:
+        while content := await file.read(1024):  # async read chunk
+            await out_file.write(content)  # async write chunk
+
+    db_document = AttachmentSchema(
+        note_id=note_id, file_name=file_name, type="document"
+    )
+    session.add(db_document)
+    session.commit()
+    session.refresh(db_document)
+
+    # Process the document based on its type
+    background_tasks.add_task(
+        process_pdf_file, out_file_path, session, db_document.id, user.id
+    )
+
+    return db_document

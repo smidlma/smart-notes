@@ -158,6 +158,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['attachments'],
       }),
+      uploadDocumentApiAttachmentsUploadDocumentNoteIdPost: build.mutation<
+        UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiResponse,
+        UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/upload/document/${queryArg.noteId}`,
+          method: 'POST',
+          body: queryArg.bodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost,
+        }),
+        invalidatesTags: ['attachments'],
+      }),
       searchNotesApiSearchGet: build.query<
         SearchNotesApiSearchGetApiResponse,
         SearchNotesApiSearchGetApiArg
@@ -252,6 +263,12 @@ export type UploadImageApiAttachmentsUploadImageNoteIdPostApiResponse =
 export type UploadImageApiAttachmentsUploadImageNoteIdPostApiArg = {
   noteId: string;
   bodyUploadImageApiAttachmentsUploadImageNoteIdPost: BodyUploadImageApiAttachmentsUploadImageNoteIdPost;
+};
+export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiResponse =
+  /** status 200 Successful Response */ AttachmentSchema;
+export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiArg = {
+  noteId: string;
+  bodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost: BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost;
 };
 export type SearchNotesApiSearchGetApiResponse =
   /** status 200 Successful Response */ GlobalSearchResponse;
@@ -348,6 +365,9 @@ export type AttachmentSchema = {
 export type BodyUploadImageApiAttachmentsUploadImageNoteIdPost = {
   file: Blob;
 };
+export type BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost = {
+  file: Blob;
+};
 export type NoteSearchResponse = {
   type: 'note';
   title: string;
@@ -392,6 +412,7 @@ export const {
   useUploadVoiceApiAttachmentsUploadVoiceNoteIdPostMutation,
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
   useUploadImageApiAttachmentsUploadImageNoteIdPostMutation,
+  useUploadDocumentApiAttachmentsUploadDocumentNoteIdPostMutation,
   useSearchNotesApiSearchGetQuery,
   useReadRootGetQuery,
 } = injectedRtkApi;

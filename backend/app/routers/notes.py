@@ -1,5 +1,6 @@
 import os
 import uuid
+from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlmodel import col, desc, select
@@ -9,21 +10,25 @@ from app.config import VOICE_STORAGE_PATH
 from app.core.db import SessionDep
 from app.core.models import NoteCreate, NoteSchema, NoteUpdate, SummarySchema
 from app.core.security import CurrentUserDep
-from app.utils import parse_description, parse_title
+from app.utils import get_logger, parse_description, parse_title
+
+# Get a module-specific logger
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
 
 @router.get("/")
-def read_notes(user: CurrentUserDep, session: SessionDep) -> list[NoteSchema]:
+def read_notes(user: CurrentUserDep, session: SessionDep) -> List[NoteSchema]:
+    logger.info(f"Fetching notes for user: {user.id}")
     statement = (
         select(NoteSchema)
         .where(NoteSchema.user_id == user.id)
-        .order_by(desc(NoteSchema.updated_at))
+        .order_by(desc(col(NoteSchema.created_at)))
     )
-    results = session.exec(statement).all()
-
-    return list(results)
+    notes = session.exec(statement).all()
+    logger.debug(f"Found {len(notes)} notes for user: {user.id}")
+    return list(notes)
 
 
 @router.get("/{note_id}")

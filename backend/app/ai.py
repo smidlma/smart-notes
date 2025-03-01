@@ -2,16 +2,32 @@ import itertools
 import logging
 import uuid
 
+import PyPDF2
 from assemblyai import SpeechModel, TranscriptionConfig
 from langchain_community.document_loaders import AssemblyAIAudioTranscriptLoader
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import GoogleGenerativeAI
-from langchain_text_splitters import HTMLHeaderTextSplitter
+from langchain_text_splitters import (
+    HTMLHeaderTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
 from sqlmodel import select
 
-from app.core.db import SessionDep, get_chroma_collection
-from app.core.models import NoteSchema, SummarySchema, VoiceRecordingSchema, WordSchema
+from app.core.db import (
+    DOCUMENT_COLLECTION_NAME,
+    NOTES_COLLECTION_NAME,
+    VOICE_COLLECTION_NAME,
+    SessionDep,
+    get_chroma_collection,
+)
+from app.core.models import (
+    AttachmentSchema,
+    NoteSchema,
+    SummarySchema,
+    VoiceRecordingSchema,
+    WordSchema,
+)
 from app.utils import debounced
 
 
@@ -206,7 +222,7 @@ def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid
 
     uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
 
-    vector_store = get_chroma_collection(collection_name="voice_embeddings")
+    vector_store = get_chroma_collection(collection_name=VOICE_COLLECTION_NAME)
     vector_store.add_documents(documents=documents, ids=uuids)
 
 
@@ -238,8 +254,100 @@ async def create_note_embedding(id: uuid.UUID, user_id: uuid.UUID, content: str)
 
         uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
 
-        vector_store = get_chroma_collection(collection_name="note_embeddings")
+        vector_store = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
 
         vector_store.delete(where={"note_id": str(id)})
 
         vector_store.add_documents(documents=documents, ids=uuids)
+
+
+def process_pdf_file(
+    file_path: str,
+    session: SessionDep,
+    document_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> None:
+    """
+    Process a PDF file, extract text content with page numbers, and create embeddings.
+
+    Args:
+        file_path: Path to the PDF file
+        session: Database session
+        document_id: UUID of the document in the database
+        user_id: UUID of the user who uploaded the document
+    """
+    db_document = session.get(AttachmentSchema, document_id)
+
+    if not db_document:
+        raise ValueError("Document not found")
+
+    try:
+        # Open the PDF file
+        with open(file_path, "rb") as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            num_pages = len(pdf_reader.pages)
+
+            # Extract text from each page
+            documents = []
+
+            # Create a text splitter for chunking large pages
+            text_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=1000,
+                chunk_overlap=100,
+                length_function=len,
+            )
+
+            for page_num in range(num_pages):
+                page = pdf_reader.pages[page_num]
+                page_text = page.extract_text()
+
+                if not page_text.strip():
+                    continue  # Skip empty pages
+
+                # Split page into chunks if it's too large
+                chunks = text_splitter.split_text(page_text)
+
+                for i, chunk in enumerate(chunks):
+                    # Create a document with page number in metadata
+                    doc = Document(
+                        page_content=chunk,
+                        metadata={
+                            "user_id": str(user_id),
+                            "document_id": str(document_id),
+                            "page_number": page_num + 1,  # 1-indexed page numbers
+                            "chunk_number": i + 1,
+                            "total_pages": num_pages,
+                            "source": db_document.file_name,
+                        },
+                    )
+                    documents.append(doc)
+
+        if documents:
+            # Generate UUIDs for each document chunk
+            uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
+
+            # Store embeddings in the vector database
+            vector_store = get_chroma_collection(
+                collection_name=DOCUMENT_COLLECTION_NAME
+            )
+            vector_store.add_documents(documents=documents, ids=uuids)
+
+            # Update document status in the database
+            db_document.sqlmodel_update({"summary": f"Processed {num_pages} pages"})
+            session.add(db_document)
+            session.commit()
+
+            logging.info(
+                f"Successfully processed PDF with {num_pages} pages and created {len(documents)} embeddings"
+            )
+        else:
+            logging.warning("No text content found in the PDF")
+            db_document.sqlmodel_update({"summary": "No text content found"})
+            session.add(db_document)
+            session.commit()
+
+    except Exception as e:
+        logging.error(f"Failed to process PDF file: {e}")
+        db_document.sqlmodel_update({"summary": f"Processing failed: {str(e)}"})
+        session.add(db_document)
+        session.commit()

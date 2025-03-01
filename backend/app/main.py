@@ -5,12 +5,13 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.config import setup_logging
 from app.core.db import SessionDep, create_db_and_tables, get_chroma_collection
 from app.core.security import global_security
 from app.routers import attachments, notes, search, token, users
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO)
+logger = setup_logging()
 
 app = FastAPI()
 
@@ -23,7 +24,7 @@ def on_startup():
     create_db_and_tables()
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
-    logging.info(f"Local IP address: {local_ip}")
+    logger.info(f"Server starting on host: {hostname}, IP: {local_ip}")
 
 
 app.mount("/storage", StaticFiles(directory="storage"), name="storage")

@@ -10,6 +10,7 @@ from sqlmodel import Session, SQLModel, create_engine
 SQLALCHEMY_DATABASE_URL = "postgresql://smidlma:smidlma@localhost:5432/smartnotes"
 NOTES_COLLECTION_NAME = "note_embeddings"
 VOICE_COLLECTION_NAME = "voice_embeddings"
+DOCUMENT_COLLECTION_NAME = "document_embeddings"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

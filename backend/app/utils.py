@@ -1,8 +1,9 @@
 import asyncio
 import functools
 import inspect
+import logging
 import re
-from typing import Any, Callable, Dict, Hashable, List, Tuple, Union
+from typing import Any, Callable, Dict, Hashable, List, Optional, Tuple, Union
 
 
 def debounced(delay: float, key_args: List[str]):
@@ -93,3 +94,17 @@ def parse_description(text: str) -> str:
 
 def remove_html_tags(text: str) -> str:
     return re.sub(r"<[^>]+>", " ", text)
+
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger with the specified name.
+
+    Args:
+        name: The name of the logger, typically __name__ from the calling module.
+              If None, returns the root logger.
+
+    Returns:
+        A configured logger instance.
+    """
+    return logging.getLogger(name)
