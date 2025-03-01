@@ -5,6 +5,9 @@ import logging
 import re
 from typing import Any, Callable, Dict, Hashable, List, Optional, Tuple, Union
 
+import aiofiles
+from fastapi import HTTPException, UploadFile
+
 
 def debounced(delay: float, key_args: List[str]):
     """
@@ -108,3 +111,45 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
         A configured logger instance.
     """
     return logging.getLogger(name)
+
+
+async def save_uploaded_file(file: UploadFile, storage_path: str) -> Tuple[str, str]:
+    """
+    Save an uploaded file to the specified storage path.
+
+    Args:
+        file: The uploaded file object
+        storage_path: The directory path where the file should be saved
+
+    Returns:
+        The full path to the saved file
+
+    Raises:
+        HTTPException: If the file has no name
+    """
+    logger = get_logger(__name__)
+
+    file_name = file.filename
+
+    if not file_name:
+        logger.error("File upload failed: No filename provided")
+        raise HTTPException(status_code=400, detail="File name is required")
+
+    # Use a default name if none provided and not required
+    if not file_name:
+        file_name = "unnamed_file"
+        logger.warning(f"No filename provided, using default: {file_name}")
+
+    out_file_path = f"{storage_path}/{file_name}"
+    logger.debug(f"Saving uploaded file to: {out_file_path}")
+
+    try:
+        async with aiofiles.open(out_file_path, "wb") as out_file:
+            while content := await file.read(1024):  # async read chunk
+                await out_file.write(content)  # async write chunk
+
+        logger.info(f"File successfully saved: {file_name}")
+        return (file_name, out_file_path)
+    except Exception as e:
+        logger.error(f"Error saving file {file_name}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")

@@ -43,7 +43,10 @@ class NoteSchema(UUIDModel, TimestampModel, table=True):
     description: str | None
 
     user: UserSchema | None = Relationship(back_populates="notes")
-    attachments: List["AttachmentSchema"] = Relationship(
+    images: List["ImageSchema"] = Relationship(
+        back_populates="note", cascade_delete=True
+    )
+    documents: List["DocumentSchema"] = Relationship(
         back_populates="note", cascade_delete=True
     )
     voice_recordings: List["VoiceRecordingSchema"] = Relationship(
@@ -64,15 +67,25 @@ class NoteUpdate(SQLModel):
     description: str | None = None
 
 
-# Attachment
-class AttachmentSchema(UUIDModel, TimestampModel, table=True):
-    __tablename__ = "attachments"  # type: ignore
+# Document
+class DocumentSchema(UUIDModel, TimestampModel, table=True):
+    __tablename__ = "documents"  # type: ignore
     note_id: uuid.UUID = Field(foreign_key="notes.id")
     file_name: str
-    type: Literal["image", "document"] = Field(sa_type=String)
+    content: str
     summary: str | None = None
+    type: Literal["pdf"] = Field(sa_type=String, default="pdf")
 
-    note: NoteSchema = Relationship(back_populates="attachments")
+    note: NoteSchema = Relationship(back_populates="documents")
+
+
+# Image
+class ImageSchema(UUIDModel, TimestampModel, table=True):
+    __tablename__ = "images"  # type: ignore
+    note_id: uuid.UUID = Field(foreign_key="notes.id")
+    file_name: str
+
+    note: NoteSchema = Relationship(back_populates="images")
 
 
 # Voice

@@ -4,18 +4,21 @@ import aiofiles
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from sqlmodel import select
 
-from app.ai import process_audio_file, process_pdf_file
+from app.ai import generate_document_summary, process_audio_file, process_pdf_file
 from app.config import DOCUMENT_STORAGE_PATH, IMAGE_STORAGE_PATH, VOICE_STORAGE_PATH
 from app.core.db import SessionDep
 from app.core.models import (
-    AttachmentSchema,
+    DocumentSchema,
+    ImageSchema,
     VoiceRecordingSchema,
     VoiceRecordingUpdate,
     VoiceTranscriptionResponse,
     WordSchema,
 )
 from app.core.security import CurrentUserDep
+from app.utils import get_logger, save_uploaded_file
 
+logger = get_logger(__name__)
 router = APIRouter(prefix="/attachments", tags=["attachments"])
 
 
@@ -66,23 +69,22 @@ async def upload_voice(
     user: CurrentUserDep,
     background_tasks: BackgroundTasks,
 ) -> VoiceRecordingSchema:
-    file_name = file.filename
+    logger.info(f"Uploading voice recording for note: {note_id}")
 
-    out_file_path = f"{VOICE_STORAGE_PATH}/{file_name}"
+    filename, out_file_path = await save_uploaded_file(file, VOICE_STORAGE_PATH)
 
-    async with aiofiles.open(out_file_path, "wb") as out_file:
-        while content := await file.read(1024):  # async read chunk
-            await out_file.write(content)  # async write chunk
-
-    db_voice = VoiceRecordingSchema(note_id=note_id, file_name=file_name or "unknown")
+    # Create database record
+    db_voice = VoiceRecordingSchema(note_id=note_id, file_name=filename)
     session.add(db_voice)
     session.commit()
     session.refresh(db_voice)
 
+    # Process the audio file in the background
     background_tasks.add_task(
         process_audio_file, out_file_path, session, db_voice.id, user.id
     )
 
+    logger.debug(f"Voice recording uploaded successfully: {db_voice.id}")
     return db_voice
 
 
@@ -118,22 +120,19 @@ async def upload_image(
     file: UploadFile,
     session: SessionDep,
     user: CurrentUserDep,
-) -> AttachmentSchema:
-    file_name = file.filename
+) -> ImageSchema:
+    logger.info(f"Uploading image for note: {note_id}")
 
-    out_file_path = f"{IMAGE_STORAGE_PATH}/{file_name}"
+    # Save the uploaded file - this will raise an exception if filename is missing
+    filename, out_file_path = await save_uploaded_file(file, IMAGE_STORAGE_PATH)
 
-    async with aiofiles.open(out_file_path, "wb") as out_file:
-        while content := await file.read(1024):  # async read chunk
-            await out_file.write(content)  # async write chunk
-
-    db_image = AttachmentSchema(
-        note_id=note_id, file_name=file_name or "unknown", type="image"
-    )
+    # Create database record
+    db_image = ImageSchema(note_id=note_id, file_name=filename)
     session.add(db_image)
     session.commit()
     session.refresh(db_image)
 
+    logger.debug(f"Image uploaded successfully: {db_image.id}")
     return db_image
 
 
@@ -144,34 +143,52 @@ async def upload_document(
     session: SessionDep,
     user: CurrentUserDep,
     background_tasks: BackgroundTasks,
-) -> AttachmentSchema:
-    file_name = file.filename
+) -> DocumentSchema:
+    logger.info(f"Uploading document for note: {note_id}")
 
-    if not file_name:
-        raise HTTPException(status_code=400, detail="File name is required")
+    # This will raise an exception if filename is missing
+    filename, out_file_path = await save_uploaded_file(file, DOCUMENT_STORAGE_PATH)
 
     # Check if the file is a PDF
-    is_pdf = file_name.lower().endswith(".pdf")
-
+    is_pdf = filename.lower().endswith(".pdf")
     if not is_pdf:
+        logger.warning(f"Unsupported file type: {file.filename}")
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
-    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{file_name}"
-
-    async with aiofiles.open(out_file_path, "wb") as out_file:
-        while content := await file.read(1024):  # async read chunk
-            await out_file.write(content)  # async write chunk
-
-    db_document = AttachmentSchema(
-        note_id=note_id, file_name=file_name, type="document"
+    # Create database record with empty content (will be filled by background task)
+    db_document = DocumentSchema(
+        note_id=note_id,
+        file_name=filename,
+        content="",  # Empty content initially, will be filled by the background task
+        type="pdf",
     )
     session.add(db_document)
     session.commit()
     session.refresh(db_document)
 
-    # Process the document based on its type
+    # Get the full file path
+    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{file.filename}"
+
+    # Process the document in the background
     background_tasks.add_task(
         process_pdf_file, out_file_path, session, db_document.id, user.id
     )
 
+    logger.debug(f"Document uploaded successfully: {db_document.id}")
     return db_document
+
+
+@router.get("/document/{document_id}/summary")
+def get_document_summary(document_id: uuid.UUID, session: SessionDep) -> DocumentSchema:
+    document_db = session.get(DocumentSchema, document_id)
+
+    if not document_db:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    summary = generate_document_summary(document_db)
+    document_db.sqlmodel_update({"summary": summary})
+    session.add(document_db)
+    session.commit()
+    session.refresh(document_db)
+
+    return document_db

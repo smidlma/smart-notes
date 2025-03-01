@@ -22,7 +22,7 @@ from app.core.db import (
     get_chroma_collection,
 )
 from app.core.models import (
-    AttachmentSchema,
+    DocumentSchema,
     NoteSchema,
     SummarySchema,
     VoiceRecordingSchema,
@@ -93,6 +93,25 @@ def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
     session.refresh(db_summary)
 
     return db_summary
+
+
+def generate_document_summary(document: DocumentSchema) -> str:
+    messages = [
+        (
+            "system",
+            "Write a concise and structured summary in same language of the following document:\\n\\n{document}",
+        ),
+    ]
+
+    prompt_template = ChatPromptTemplate(messages)
+    prompt = prompt_template.invoke({"document": document})
+
+    model = GoogleGenerativeAI(
+        model="gemini-exp-1206",
+    )
+    result = model.invoke(prompt)
+
+    return result
 
 
 def process_audio_file(
@@ -276,7 +295,7 @@ def process_pdf_file(
         document_id: UUID of the document in the database
         user_id: UUID of the user who uploaded the document
     """
-    db_document = session.get(AttachmentSchema, document_id)
+    db_document = session.get(DocumentSchema, document_id)
 
     if not db_document:
         raise ValueError("Document not found")
@@ -289,6 +308,7 @@ def process_pdf_file(
 
             # Extract text from each page
             documents = []
+            content = ""
 
             # Create a text splitter for chunking large pages
             text_splitter = RecursiveCharacterTextSplitter(
@@ -304,6 +324,7 @@ def process_pdf_file(
                 if not page_text.strip():
                     continue  # Skip empty pages
 
+                content += page_text
                 # Split page into chunks if it's too large
                 chunks = text_splitter.split_text(page_text)
 
@@ -332,8 +353,8 @@ def process_pdf_file(
             )
             vector_store.add_documents(documents=documents, ids=uuids)
 
-            # Update document status in the database
-            db_document.sqlmodel_update({"summary": f"Processed {num_pages} pages"})
+            db_document.sqlmodel_update({"content": content})
+
             session.add(db_document)
             session.commit()
 
@@ -342,7 +363,6 @@ def process_pdf_file(
             )
         else:
             logging.warning("No text content found in the PDF")
-            db_document.sqlmodel_update({"summary": "No text content found"})
             session.add(db_document)
             session.commit()
 
