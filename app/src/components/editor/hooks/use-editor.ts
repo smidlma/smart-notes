@@ -111,13 +111,13 @@ export const useEditor = ({ noteId }: Props) => {
 
   useEffect(() => {
     const updateNoteContent = async () => {
-      if (content) {
+      if (content && content !== data?.content) {
         await updateNote({ noteId, noteUpdate: { content } }).unwrap();
       }
     };
 
     updateNoteContent();
-  }, [content, noteId, updateNote]);
+  }, [content, noteId, updateNote, data?.content]);
 
   const handleAttachVoice = useCallback(
     ({
