@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "smart-notes",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -43,23 +44,24 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-router",
       [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you pick the images."
         }
       ],
-      "expo-router",
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#1D3757",
           "image": "./assets/images/splash-icon.png",
           "dark": {
-            "image": "./assets/images/splash-icon-dark.png",
+            "image": "./assets/images/splash-icon.png",
             "backgroundColor": "#1D3757"
           },
-          "imageWidth": 200
+          "imageWidth": 200,
+          "resizeMode": "contain"
         }
       ],
       [

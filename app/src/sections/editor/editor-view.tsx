@@ -4,14 +4,7 @@ import { useBoolean } from '@/hooks';
 
 import { QueryComponentWrapper } from '@/services/components';
 import { router, useNavigation } from 'expo-router';
-import {
-  AudioLines,
-  ChevronLeft,
-  Paperclip,
-  Redo2,
-  Undo2,
-  WandSparkles,
-} from 'lucide-react-native';
+import { ChevronLeft, Paperclip, Redo2, Undo2 } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { View } from 'react-native';
 import { EditorSheet } from './editor-sheet';
@@ -33,7 +26,7 @@ export const EditorView = ({ id }: Props) => {
 
   const showAttachments = useBoolean(false);
 
-  const { editor, status, isLoading, handleAttachVoice } = useEditor({
+  const { editor, status, isLoading, handleAttachVoice, title } = useEditor({
     noteId: id,
   });
 
@@ -46,7 +39,11 @@ export const EditorView = ({ id }: Props) => {
 
   const handleSharePdf = useCallback(async () => {
     const content = await editor.getHTML();
-    await sharePdfFile(content);
+    await sharePdfFile(content, title ?? 'New note');
+  }, [editor, title]);
+
+  const handleDone = useCallback(() => {
+    editor.blur();
   }, [editor]);
 
   useEffect(() => {
@@ -86,35 +83,24 @@ export const EditorView = ({ id }: Props) => {
         </View>
       ),
       headerRight: () => (
-        <View className="flex-row gap-4">
+        <View className="flex-row gap-6 items-center">
           <MotiPressable onPress={handleSharePdf}>
             <Share />
-          </MotiPressable>
-          <MotiPressable
-            onPress={() =>
-              router.push({ pathname: '/(app)/(auth)/note/summary', params: { id: id } })
-            }
-          >
-            <WandSparkles />
-          </MotiPressable>
-          <MotiPressable
-            onPress={() =>
-              router.push({
-                pathname: '/(app)/(auth)/note/voice/[noteId, voiceId]',
-                params: { noteId: id, voiceId: '' },
-              })
-            }
-          >
-            <AudioLines />
           </MotiPressable>
 
           <MotiPressable onPress={handleShowAttachments}>
             <Paperclip />
           </MotiPressable>
+
+          {editorState.isFocused && (
+            <MotiPressable onPress={handleDone}>
+              <Text className="text-xl">Done</Text>
+            </MotiPressable>
+          )}
         </View>
       ),
     });
-  }, [id, navigation, handleShowAttachments, editorState, editor, t, handleSharePdf]);
+  }, [id, navigation, handleShowAttachments, editorState, editor, t, handleSharePdf, handleDone]);
 
   return (
     <View className="flex-grow">

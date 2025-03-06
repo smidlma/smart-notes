@@ -140,22 +140,22 @@ async def upload_image(
 async def upload_document(
     note_id: uuid.UUID,
     file: UploadFile,
+    name: str,
     session: SessionDep,
     user: CurrentUserDep,
     background_tasks: BackgroundTasks,
 ) -> DocumentSchema:
     logger.info(f"Uploading document for note: {note_id}")
 
-    # This will raise an exception if filename is missing
-    filename, out_file_path = await save_uploaded_file(file, DOCUMENT_STORAGE_PATH)
-
     # Check if the file is a PDF
-    is_pdf = filename.lower().endswith(".pdf")
-    if not is_pdf:
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         logger.warning(f"Unsupported file type: {file.filename}")
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
-    # Create database record with empty content (will be filled by background task)
+    filename, out_file_path = await save_uploaded_file(
+        file, DOCUMENT_STORAGE_PATH, name
+    )
+
     db_document = DocumentSchema(
         note_id=note_id,
         file_name=filename,
@@ -166,10 +166,8 @@ async def upload_document(
     session.commit()
     session.refresh(db_document)
 
-    # Get the full file path
-    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{file.filename}"
+    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{filename}"
 
-    # Process the document in the background
     background_tasks.add_task(
         process_pdf_file, out_file_path, session, db_document.id, user.id
     )

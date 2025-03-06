@@ -63,7 +63,7 @@ export const NotesListView = () => {
               description={item.description ?? ''}
               id={item.id!}
               title={item.title}
-              onPress={() => handleOpenNote(item.id!)}
+              onPress={handleOpenNote}
               content={item.content}
             />
           );

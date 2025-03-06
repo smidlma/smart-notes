@@ -2,7 +2,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { useDeleteNoteApiNotesNoteIdDeleteMutation } from '@/services/api';
 import { fDate } from '@/utils/format-time';
 import { t } from 'i18next';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useRef } from 'react';
 import { Pressable } from 'react-native-gesture-handler';
 import ReanimatedSwipeable, {
@@ -22,7 +22,7 @@ type Props = {
   description?: string;
   date: string | Date;
   content: string;
-  onPress: VoidFunction;
+  onPress: (id: string) => void;
 };
 
 export const NoteItem = ({ id, title, date, description, content, onPress }: Props) => {
@@ -30,6 +30,10 @@ export const NoteItem = ({ id, title, date, description, content, onPress }: Pro
 
   const actionConfirmationRef = useRef<ActionConfirmationRef>(null);
   const swipeableRef = useRef<SwipeableMethods>(null);
+
+  const handleOpenNote = () => {
+    onPress(id);
+  };
 
   const handleDeleteNote = () => {
     try {
@@ -44,10 +48,26 @@ export const NoteItem = ({ id, title, date, description, content, onPress }: Pro
     swipeableRef.current?.close();
   };
 
-  const handleSharePdf = async () => {
-    await sharePdfFile(content);
+  const handleSharePdf = useCallback(async () => {
+    await sharePdfFile(content, title);
     swipeableRef.current?.close();
-  };
+  }, [content, title]);
+
+  const renderSwipeableAction = useCallback(
+    (progressAnimatedValue: SharedValue<number>, dragAnimatedValue: SharedValue<number>) => {
+      return (
+        <View className="flex-row">
+          <RightAction
+            drag={dragAnimatedValue}
+            onDelete={actionConfirmationRef.current?.open}
+            onShare={handleSharePdf}
+            titleKey="delete"
+          />
+        </View>
+      );
+    },
+    [handleSharePdf]
+  );
 
   return (
     <Reanimated.View exiting={FadeOut}>
@@ -58,18 +78,9 @@ export const NoteItem = ({ id, title, date, description, content, onPress }: Pro
           enableTrackpadTwoFingerGesture
           rightThreshold={40}
           overshootRight={false}
-          renderRightActions={(_prog, drag) => (
-            <View className="flex-row">
-              <RightAction
-                drag={drag}
-                onDelete={actionConfirmationRef.current?.open}
-                onShare={handleSharePdf}
-                titleKey="delete"
-              />
-            </View>
-          )}
+          renderRightActions={renderSwipeableAction}
         >
-          <Pressable onPress={onPress}>
+          <Pressable onPress={handleOpenNote}>
             <CardHeader className="py-3">
               <CardTitle className="text-lg" numberOfLines={1}>
                 {title}

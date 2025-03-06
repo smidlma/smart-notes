@@ -9,7 +9,7 @@ import {
 } from '@10play/tentap-editor';
 import * as ImagePicker from 'expo-image-picker';
 import { API_BASE_URL } from '../../../config-global';
-import { AttachmentSchema } from '@/services/api';
+import { ImageSchema } from '@/services/api';
 
 type Props = {
   editor: EditorBridge;
@@ -40,7 +40,7 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
     if (!result.canceled) {
       try {
         const image = result.assets[0];
-        const resp = await uploadHandler<AttachmentSchema>({
+        const resp = await uploadHandler<ImageSchema>({
           fileUri: image.uri,
           type: 'image',
           pathParam: noteId,

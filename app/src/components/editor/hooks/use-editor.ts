@@ -134,5 +134,5 @@ export const useEditor = ({ noteId }: Props) => {
     [editor]
   );
 
-  return { editor, status, isLoading, handleAttachVoice };
+  return { editor, status, isLoading, handleAttachVoice, title: data?.title };
 };

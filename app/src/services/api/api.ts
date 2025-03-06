@@ -169,6 +169,15 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['attachments'],
       }),
+      getDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGet: build.query<
+        GetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetApiResponse,
+        GetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/attachments/document/${queryArg.documentId}/summary`,
+        }),
+        providesTags: ['attachments'],
+      }),
       searchNotesApiSearchGet: build.query<
         SearchNotesApiSearchGetApiResponse,
         SearchNotesApiSearchGetApiArg
@@ -259,16 +268,21 @@ export type GetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetApiAr
   voiceId: string;
 };
 export type UploadImageApiAttachmentsUploadImageNoteIdPostApiResponse =
-  /** status 200 Successful Response */ AttachmentSchema;
+  /** status 200 Successful Response */ ImageSchema;
 export type UploadImageApiAttachmentsUploadImageNoteIdPostApiArg = {
   noteId: string;
   bodyUploadImageApiAttachmentsUploadImageNoteIdPost: BodyUploadImageApiAttachmentsUploadImageNoteIdPost;
 };
 export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiResponse =
-  /** status 200 Successful Response */ AttachmentSchema;
+  /** status 200 Successful Response */ DocumentSchema;
 export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiArg = {
   noteId: string;
   bodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost: BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost;
+};
+export type GetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetApiResponse =
+  /** status 200 Successful Response */ DocumentSchema;
+export type GetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetApiArg = {
+  documentId: string;
 };
 export type SearchNotesApiSearchGetApiResponse =
   /** status 200 Successful Response */ GlobalSearchResponse;
@@ -353,17 +367,25 @@ export type VoiceTranscriptionResponse = {
   words?: WordSchema[] | null;
   status: 'new' | 'processing' | 'done' | 'failed';
 };
-export type AttachmentSchema = {
+export type ImageSchema = {
   created_at?: string;
   updated_at?: string;
   id?: string;
   note_id: string;
   file_name: string;
-  type: 'image' | 'document';
-  summary?: string | null;
 };
 export type BodyUploadImageApiAttachmentsUploadImageNoteIdPost = {
   file: Blob;
+};
+export type DocumentSchema = {
+  created_at?: string;
+  updated_at?: string;
+  id?: string;
+  note_id: string;
+  file_name: string;
+  content: string;
+  summary?: string | null;
+  type?: 'pdf';
 };
 export type BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost = {
   file: Blob;
@@ -391,8 +413,19 @@ export type VoiceSearchResponse = {
   time_start: number;
   time_end: number;
 };
+export type DocumentSearchResponse = {
+  type: 'document';
+  title: string;
+  search_match_text: string;
+  score: number;
+  created_at: string;
+  updated_at: string;
+  document_id: string;
+  file_name: string;
+  page_number: number;
+};
 export type GlobalSearchResponse = {
-  results: (NoteSearchResponse | VoiceSearchResponse)[];
+  results: (NoteSearchResponse | VoiceSearchResponse | DocumentSearchResponse)[];
   total: number;
 };
 export const {
@@ -413,6 +446,7 @@ export const {
   useGetVoiceTranscriptionApiAttachmentsVoiceVoiceIdTranscriptionGetQuery,
   useUploadImageApiAttachmentsUploadImageNoteIdPostMutation,
   useUploadDocumentApiAttachmentsUploadDocumentNoteIdPostMutation,
+  useGetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetQuery,
   useSearchNotesApiSearchGetQuery,
   useReadRootGetQuery,
 } = injectedRtkApi;

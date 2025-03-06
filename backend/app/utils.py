@@ -113,7 +113,9 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     return logging.getLogger(name)
 
 
-async def save_uploaded_file(file: UploadFile, storage_path: str) -> Tuple[str, str]:
+async def save_uploaded_file(
+    file: UploadFile, storage_path: str, new_file_name: Optional[str] = None
+) -> Tuple[str, str]:
     """
     Save an uploaded file to the specified storage path.
 
@@ -131,16 +133,14 @@ async def save_uploaded_file(file: UploadFile, storage_path: str) -> Tuple[str, 
 
     file_name = file.filename
 
-    if not file_name:
+    if not file_name or not new_file_name:
         logger.error("File upload failed: No filename provided")
         raise HTTPException(status_code=400, detail="File name is required")
 
-    # Use a default name if none provided and not required
-    if not file_name:
-        file_name = "unnamed_file"
-        logger.warning(f"No filename provided, using default: {file_name}")
+    if not new_file_name:
+        new_file_name = file_name
 
-    out_file_path = f"{storage_path}/{file_name}"
+    out_file_path = f"{storage_path}/{new_file_name}"
     logger.debug(f"Saving uploaded file to: {out_file_path}")
 
     try:

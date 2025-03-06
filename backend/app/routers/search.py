@@ -6,12 +6,15 @@ from fastapi import APIRouter
 from langchain_core.documents import Document
 
 from app.core.db import (
+    DOCUMENT_COLLECTION_NAME,
     NOTES_COLLECTION_NAME,
     VOICE_COLLECTION_NAME,
     SessionDep,
     get_chroma_collection,
 )
 from app.core.models import (
+    DocumentSchema,
+    DocumentSearchResponse,
     GlobalSearchResponse,
     NoteSchema,
     NoteSearchResponse,
@@ -40,9 +43,16 @@ def search_notes(
         filter={"user_id": str(user.id)},
     )
 
+    vector_store = get_chroma_collection(collection_name=DOCUMENT_COLLECTION_NAME)
+    results_documents = vector_store.similarity_search_with_relevance_scores(
+        query=query,
+        filter={"user_id": str(user.id)},
+    )
+
     search_results = [
         *map(lambda doc: doc_to_note_resp(doc, session), results_notes),
         *map(lambda doc: doc_to_voice_resp(doc, session), results_voice),
+        *map(lambda doc: doc_to_document_resp(doc, session), results_documents),
     ]
 
     search_results = list(filter(lambda x: x is not None, search_results))
@@ -101,4 +111,25 @@ def doc_to_voice_resp(doc_with_score: Tuple[Document, float], session: SessionDe
         search_match_text=doc.page_content,
         created_at=db_voice.created_at,
         updated_at=db_voice.updated_at,
+    )
+
+
+def doc_to_document_resp(doc_with_score: Tuple[Document, float], session: SessionDep):
+    doc, score = doc_with_score
+    metadata = doc.metadata
+    db_document = session.get(DocumentSchema, metadata["document_id"])
+
+    if db_document is None:
+        return None
+
+    return DocumentSearchResponse(
+        type="document",
+        document_id=db_document.id,
+        score=score,
+        file_name=db_document.file_name,
+        page_number=metadata["page_number"],
+        title=db_document.file_name,
+        search_match_text=doc.page_content[:50],
+        created_at=db_document.created_at,
+        updated_at=db_document.updated_at,
     )

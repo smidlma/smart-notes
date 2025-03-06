@@ -5,7 +5,7 @@ import { API_BASE_URL, STORAGE_UPLOAD_URL } from '../../config-global';
 
 type UploadHandlerProps = {
   fileUri: string;
-  type: 'voice' | 'image';
+  type: 'voice' | 'image' | 'document';
   pathParam: string;
   callback?: (params: FileSystem.UploadProgressData) => void;
 };

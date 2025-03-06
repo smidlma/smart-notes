@@ -11,7 +11,7 @@ import {
 import { QueryComponentWrapper } from '@/services/components';
 import { BrainCog, CloudAlert } from 'lucide-react-native';
 import { MotiText } from 'moti';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
@@ -26,7 +26,7 @@ export const VoiceTranscript = ({ voiceId, currentTime = 0 }: Props) => {
 
   const flatListRef = useRef<FlatList>(null);
 
-  const [currentWordIndex, setCurrentWordIndex] = useState(1);
+  // const [currentWordIndex, setCurrentWordIndex] = useState(1);
 
   const shouldAutoScroll = useBoolean(true);
 
@@ -86,7 +86,7 @@ export const VoiceTranscript = ({ voiceId, currentTime = 0 }: Props) => {
       className="px-4"
       data={chunkedWords}
       keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item: words, index }: { item: WordSchema[]; index: number }) => (
+      renderItem={({ item: words }: { item: WordSchema[]; index: number }) => (
         <Text style={{ flexWrap: 'wrap' }}>
           {words.map(({ start, end, word }, idx) => {
             const isCurrent = currentTime >= start && currentTime <= end;

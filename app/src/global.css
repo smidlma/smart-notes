@@ -1,3 +1,8 @@
+/* If you changed the colors in the ~/global.css file, update the ~/lib/constants.ts file with the new colors. Each color has a commented css variable name next to it. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 95%; /* hsl(0, 0%, 95%) - Light gray */

@@ -148,7 +148,7 @@ class TokenRequest(BaseModel):
 
 # Search
 class CommonSearchResponse(SQLModel):
-    type: Literal["note", "voice"]
+    type: Literal["note", "voice", "document"]
     title: str
     search_match_text: str
     score: float
@@ -171,6 +171,13 @@ class VoiceSearchResponse(CommonSearchResponse):
     type: Literal["voice"]
 
 
+class DocumentSearchResponse(CommonSearchResponse):
+    document_id: uuid.UUID
+    file_name: str
+    page_number: int
+    type: Literal["document"]
+
+
 class GlobalSearchResponse(SQLModel):
-    results: List[NoteSearchResponse | VoiceSearchResponse]
+    results: List[NoteSearchResponse | VoiceSearchResponse | DocumentSearchResponse]
     total: int
