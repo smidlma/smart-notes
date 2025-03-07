@@ -9,6 +9,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import { uploadHandler } from '@/utils/upload';
 import { LoadingOverlay } from '../loading-overlay/loading-overlay';
 import { useBoolean } from '@/hooks';
+import { api } from '@/services/api';
+import { useDispatch } from 'react-redux';
 export type TabItem = {
   key: string;
   icon: React.ReactNode;
@@ -25,6 +27,7 @@ export const EditorBottomTab = ({ editor: _, noteId }: Props) => {
   const { t } = useLocales();
 
   const isUploading = useBoolean(false);
+  const dispatch = useDispatch();
 
   const handleDocumentPicker = useCallback(async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -47,8 +50,9 @@ export const EditorBottomTab = ({ editor: _, noteId }: Props) => {
         console.log(progress);
       },
     });
+    dispatch(api.util.invalidateTags(['attachments']));
     isUploading.onFalse();
-  }, [noteId, isUploading]);
+  }, [noteId, isUploading, dispatch]);
 
   const handleVoiceRecorder = useCallback(() => {
     router.push({

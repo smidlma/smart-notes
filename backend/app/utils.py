@@ -133,7 +133,9 @@ async def save_uploaded_file(
 
     file_name = file.filename
 
-    if not file_name or not new_file_name:
+    logger.info(f"Saving uploaded file to: {file_name}")
+
+    if not file_name and not new_file_name:
         logger.error("File upload failed: No filename provided")
         raise HTTPException(status_code=400, detail="File name is required")
 
@@ -149,7 +151,7 @@ async def save_uploaded_file(
                 await out_file.write(content)  # async write chunk
 
         logger.info(f"File successfully saved: {new_file_name}")
-        return (new_file_name, out_file_path)
+        return (new_file_name or "file", out_file_path)
     except Exception as e:
         logger.error(f"Error saving file {file_name}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")

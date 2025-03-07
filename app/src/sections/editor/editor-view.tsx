@@ -7,7 +7,7 @@ import { router, useNavigation } from 'expo-router';
 import { ChevronLeft, Paperclip, Redo2, Undo2 } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
 import { View } from 'react-native';
-import { EditorSheet } from './editor-sheet';
+import { AttachmentsSheet } from './attachments-sheet';
 import { useEditor } from '@/components/editor/hooks/use-editor';
 import { Text } from '@/components/ui/text';
 import { useLocales } from '@/locales';
@@ -110,9 +110,9 @@ export const EditorView = ({ id }: Props) => {
         isFetchingFirstTime={isLoading}
       >
         <Editor editor={editor} noteId={id} />
-        <EditorSheet
+        <AttachmentsSheet
           onLinkVoice={handleAttachVoice}
-          id={id as string}
+          noteId={id as string}
           isOpen={showAttachments.value}
           onClose={showAttachments.onFalse}
         />

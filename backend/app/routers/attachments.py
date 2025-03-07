@@ -61,6 +61,21 @@ def update_voice_recording(
     return voice_db
 
 
+@router.get("/{note_id}/documents")
+def get_documents(note_id: uuid.UUID, session: SessionDep) -> list[DocumentSchema]:
+    statement = select(DocumentSchema).where(DocumentSchema.note_id == note_id)
+    result = session.exec(statement).all()
+    return list(result)
+
+
+@router.get("/document/{document_id}")
+def get_document(document_id: uuid.UUID, session: SessionDep) -> DocumentSchema:
+    document_db = session.get(DocumentSchema, document_id)
+    if not document_db:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return document_db
+
+
 @router.post("/upload/voice/{note_id}")
 async def upload_voice(
     note_id: uuid.UUID,
@@ -71,7 +86,16 @@ async def upload_voice(
 ) -> VoiceRecordingSchema:
     logger.info(f"Uploading voice recording for note: {note_id}")
 
-    filename, out_file_path = await save_uploaded_file(file, VOICE_STORAGE_PATH)
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="File name is required")
+
+    file_extension = file.filename.split(".")[-1]
+
+    new_file_name = f"recording-{note_id}-{uuid.uuid4()}.{file_extension}"
+
+    filename, out_file_path = await save_uploaded_file(
+        file, VOICE_STORAGE_PATH, new_file_name
+    )
 
     # Create database record
     db_voice = VoiceRecordingSchema(note_id=note_id, file_name=filename)

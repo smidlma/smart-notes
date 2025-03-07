@@ -5,6 +5,7 @@ import { AudioLines, BookOpenText, FileText, NotebookPen, Play } from '@/lib';
 import { Text } from '@/components/ui/text';
 import { View } from 'react-native';
 import { fMilliseconds } from '@/utils/format-time';
+import { openPdfFile } from '@/utils/pdf';
 
 export const SearchItemWrapper = (
   props: NoteSearchResponse | VoiceSearchResponse | DocumentSearchResponse
@@ -40,7 +41,9 @@ export const SearchItemWrapper = (
   if (props.type === 'document') {
     const { title, search_match_text, page_number } = props;
 
-    const handlePress = () => {};
+    const handlePress = () => {
+      openPdfFile(title, page_number);
+    };
 
     const rightTitleComponent = (
       <View className="flex-row items-center gap-1">

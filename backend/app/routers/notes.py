@@ -6,7 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlmodel import col, desc, select
 
 from app.ai import create_note_embedding, create_note_summary, generate_quick_recap
-from app.config import VOICE_STORAGE_PATH
+from app.config import DOCUMENT_STORAGE_PATH, IMAGE_STORAGE_PATH, VOICE_STORAGE_PATH
 from app.core.db import SessionDep
 from app.core.models import NoteCreate, NoteSchema, NoteUpdate, SummarySchema
 from app.core.security import CurrentUserDep
@@ -89,10 +89,19 @@ def delete_note(note_id: str, session: SessionDep) -> dict[str, str]:
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
 
-    file_paths = [
+    recordings = [
         f"{VOICE_STORAGE_PATH}/{voice_file.file_name}"
         for voice_file in db_note.voice_recordings
     ]
+
+    documents = [
+        f"{DOCUMENT_STORAGE_PATH}/{document.file_name}"
+        for document in db_note.documents
+    ]
+
+    images = [f"{IMAGE_STORAGE_PATH}/{image.file_name}" for image in db_note.images]
+
+    file_paths = [*recordings, *documents, *images]
 
     session.delete(db_note)
     session.commit()
