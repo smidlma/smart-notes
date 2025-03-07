@@ -36,6 +36,7 @@ export const editorBasicCSS = (colorScheme: 'light' | 'dark') => `
       width: 85%;
       border-radius: 16px;
       padding: 16px;
+      margin-top: 24px;
     }
     .voice-node-play {
       background-color: ${NAV_THEME[colorScheme].primary};

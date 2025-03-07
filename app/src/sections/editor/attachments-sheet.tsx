@@ -17,7 +17,7 @@ import { H3 } from '@/components/ui/typography';
 import { AttachmentItem } from './attachment-item';
 import { AudioLines, FileText, Scroll } from '@/lib';
 import { openPdfFile } from '../../utils/pdf';
-import { fMilliseconds } from '@/utils/format-time';
+import { fDateTime, fMilliseconds } from '@/utils/format-time';
 
 type Props = {
   noteId: string;
@@ -77,8 +77,8 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice }: Props
             onPress={() =>
               onLinkVoice({
                 title: title ?? '',
-                createdAt: created_at ?? '',
-                duration: fMilliseconds(duration ?? 0),
+                createdAt: fDateTime(created_at) ?? '',
+                duration: fMilliseconds((duration ?? 0) * 1000),
                 noteId,
                 transcript: transcription ?? '',
                 voiceId: id ?? '',

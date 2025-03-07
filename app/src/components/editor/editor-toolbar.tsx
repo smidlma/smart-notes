@@ -1,15 +1,14 @@
 import { uploadHandler } from '@/utils/upload';
-import {
-  DEFAULT_TOOLBAR_ITEMS,
-  EditorBridge,
-  Images,
-  Toolbar,
-  useBridgeState,
-  useKeyboard,
-} from '@10play/tentap-editor';
+import { EditorBridge, Images, Toolbar, useBridgeState, useKeyboard } from '@10play/tentap-editor';
 import * as ImagePicker from 'expo-image-picker';
 import { API_BASE_URL } from '../../../config-global';
 import { ImageSchema } from '@/services/api';
+
+enum ToolbarContext {
+  Main,
+  Link,
+  Heading,
+}
 
 type Props = {
   editor: EditorBridge;
@@ -81,17 +80,115 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           active: () => false,
           disabled: () => false,
         },
-        // {
-        //   onPress: () => () => {
-        //     const isActive = activeKeyboard === ColorKeyboard.id;
-        //     if (isActive) editor.focus();
-        //     setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
-        //   },
-        //   active: () => activeKeyboard === ColorKeyboard.id,
-        //   disabled: () => false,
-        //   image: () => Images.palette,
-        // },
-        ...DEFAULT_TOOLBAR_ITEMS,
+        {
+          onPress:
+            ({ setToolbarContext }) =>
+            () =>
+              setToolbarContext(ToolbarContext.Heading),
+          active: () => false,
+          disabled: ({ editorState }) => !editorState.canToggleHeading,
+          image: () => Images.Aa,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleBold(),
+          active: ({ editorState }) => editorState.isBoldActive,
+          disabled: ({ editorState }) => !editorState.canToggleBold,
+          image: () => Images.bold,
+        },
+
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleBulletList(),
+          active: ({ editorState }) => editorState.isBulletListActive,
+          disabled: ({ editorState }) => !editorState.canToggleBulletList,
+          image: () => Images.bulletList,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleTaskList(),
+          active: ({ editorState }) => editorState.isTaskListActive,
+          disabled: ({ editorState }) => !editorState.canToggleTaskList,
+          image: () => Images.checkList,
+        },
+
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleCode(),
+          active: ({ editorState }) => editorState.isCodeActive,
+          disabled: ({ editorState }) => !editorState.canToggleCode,
+          image: () => Images.code,
+        },
+
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleOrderedList(),
+          active: ({ editorState }) => editorState.isOrderedListActive,
+          disabled: ({ editorState }) => !editorState.canToggleOrderedList,
+          image: () => Images.orderedList,
+        },
+
+        {
+          // Regular list items (li) and task list items both use the
+          // same sink command and button just with a different parameter, so we check both states here
+          onPress:
+            ({ editor, editorState }) =>
+            () =>
+              editorState.canSink ? editor.sink() : editor.sinkTaskListItem(),
+          active: () => false,
+          disabled: ({ editorState }) => !editorState.canSink && !editorState.canSinkTaskListItem,
+          image: () => Images.indent,
+        },
+        {
+          // Regular list items (li) and task list items both use the
+          // same lift command and button just with a different parameter, so we check both states here
+          onPress:
+            ({ editor, editorState }) =>
+            () =>
+              editorState.canLift ? editor.lift() : editor.liftTaskListItem(),
+          active: () => false,
+          disabled: ({ editorState }) => !editorState.canLift && !editorState.canLiftTaskListItem,
+          image: () => Images.outdent,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleStrike(),
+          active: ({ editorState }) => editorState.isStrikeActive,
+          disabled: ({ editorState }) => !editorState.canToggleStrike,
+          image: () => Images.strikethrough,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleBlockquote(),
+          active: ({ editorState }) => editorState.isBlockquoteActive,
+          disabled: ({ editorState }) => !editorState.canToggleBlockquote,
+          image: () => Images.quote,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleUnderline(),
+          active: ({ editorState }) => editorState.isUnderlineActive,
+          disabled: ({ editorState }) => !editorState.canToggleUnderline,
+          image: () => Images.underline,
+        },
+
+        // ...DEFAULT_TOOLBAR_ITEMS,
       ]}
     />
   );

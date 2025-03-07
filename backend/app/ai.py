@@ -247,7 +247,7 @@ def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid
 
 @debounced(delay=5.0, key_args=["id", "user_id"])
 async def create_note_embedding(id: uuid.UUID, user_id: uuid.UUID, content: str):
-    print("Creating note embeddings")
+    logging.info("Creating note embeddings")
     headers_to_split_on = [
         ("h1", "H1"),
         ("h2", "H2"),
