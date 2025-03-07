@@ -148,6 +148,7 @@ class TokenRequest(BaseModel):
 
 # Search
 class CommonSearchResponse(SQLModel):
+    id: str
     type: Literal["note", "voice", "document"]
     title: str
     search_match_text: str

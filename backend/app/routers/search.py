@@ -76,10 +76,11 @@ def doc_to_note_resp(doc_with_score: Tuple[Document, float], session: SessionDep
     metadata = doc.metadata
     db_note = session.get(NoteSchema, metadata["note_id"])
 
-    if db_note is None:
+    if db_note is None or doc.id is None:
         return None
 
     return NoteSearchResponse(
+        id=doc.id,
         type="note",
         note_id=db_note.id,
         score=score,
@@ -96,10 +97,11 @@ def doc_to_voice_resp(doc_with_score: Tuple[Document, float], session: SessionDe
     metadata = doc.metadata
     db_voice = session.get(VoiceRecordingSchema, metadata["voice_id"])
 
-    if db_voice is None:
+    if db_voice is None or doc.id is None:
         return None
 
     return VoiceSearchResponse(
+        id=doc.id,
         type="voice",
         note_id=db_voice.note_id,
         voice_id=db_voice.id,
@@ -119,10 +121,11 @@ def doc_to_document_resp(doc_with_score: Tuple[Document, float], session: Sessio
     metadata = doc.metadata
     db_document = session.get(DocumentSchema, metadata["document_id"])
 
-    if db_document is None:
+    if db_document is None or doc.id is None:
         return None
 
     return DocumentSearchResponse(
+        id=doc.id,
         type="document",
         document_id=db_document.id,
         score=score,

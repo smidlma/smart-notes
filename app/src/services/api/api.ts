@@ -166,6 +166,9 @@ const injectedRtkApi = api
           url: `/api/attachments/upload/document/${queryArg.noteId}`,
           method: 'POST',
           body: queryArg.bodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost,
+          params: {
+            name: queryArg.name,
+          },
         }),
         invalidatesTags: ['attachments'],
       }),
@@ -277,6 +280,7 @@ export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiResponse =
   /** status 200 Successful Response */ DocumentSchema;
 export type UploadDocumentApiAttachmentsUploadDocumentNoteIdPostApiArg = {
   noteId: string;
+  name: string;
   bodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost: BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost;
 };
 export type GetDocumentSummaryApiAttachmentsDocumentDocumentIdSummaryGetApiResponse =
@@ -391,6 +395,7 @@ export type BodyUploadDocumentApiAttachmentsUploadDocumentNoteIdPost = {
   file: Blob;
 };
 export type NoteSearchResponse = {
+  id: string;
   type: 'note';
   title: string;
   search_match_text: string;
@@ -401,6 +406,7 @@ export type NoteSearchResponse = {
   description?: string | null;
 };
 export type VoiceSearchResponse = {
+  id: string;
   type: 'voice';
   title: string;
   search_match_text: string;
@@ -414,6 +420,7 @@ export type VoiceSearchResponse = {
   time_end: number;
 };
 export type DocumentSearchResponse = {
+  id: string;
   type: 'document';
   title: string;
   search_match_text: string;

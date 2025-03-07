@@ -56,14 +56,14 @@ export const NoteItem = ({ id, title, date, description, content, onPress }: Pro
   const renderSwipeableAction = useCallback(
     (progressAnimatedValue: SharedValue<number>, dragAnimatedValue: SharedValue<number>) => {
       return (
-        <View className="flex-row">
+        <Reanimated.View className="flex-row">
           <RightAction
             drag={dragAnimatedValue}
             onDelete={actionConfirmationRef.current?.open}
             onShare={handleSharePdf}
             titleKey="delete"
           />
-        </View>
+        </Reanimated.View>
       );
     },
     [handleSharePdf]

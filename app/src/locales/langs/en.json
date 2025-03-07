@@ -34,5 +34,7 @@
   "retry": "Retry",
   "back": "Back",
   "attachments": "Attachments",
-  "no_attachments": "No attachments"
+  "no_attachments": "No attachments",
+  "audio_recordings": "Audio Recordings",
+  "documents": "Documents"
 }

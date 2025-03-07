@@ -1,4 +1,9 @@
-import { NoteSchema } from '@/services/api';
+import {
+  DocumentSearchResponse,
+  NoteSchema,
+  NoteSearchResponse,
+  VoiceSearchResponse,
+} from '@/services/api';
 import { isAfter, isBefore, startOfToday, subDays } from 'date-fns';
 import i18next from 'i18next';
 
@@ -71,5 +76,39 @@ export const getSectionsByDate = (notes?: NoteSchema[]): (NoteSchema | Section)[
     ...last30DaysNotes,
     ...(olderNotes.length ? [{ section: i18next.t('older'), notes: olderNotes }] : []),
     ...olderNotes,
+  ];
+};
+
+export const getSectionByItemType = (
+  items?: NoteSearchResponse[] | VoiceSearchResponse[] | DocumentSearchResponse[]
+) => {
+  if (!items) return [];
+
+  const sections = items.reduce(
+    (acc, item) => {
+      if (item.type === 'note') {
+        acc.notes.push(item);
+      } else if (item.type === 'voice') {
+        acc.voice.push(item);
+      } else if (item.type === 'document') {
+        acc.document.push(item);
+      }
+
+      return acc;
+    },
+    {
+      notes: [] as NoteSearchResponse[],
+      voice: [] as VoiceSearchResponse[],
+      document: [] as DocumentSearchResponse[],
+    }
+  );
+
+  return [
+    ...(sections.notes.length ? [{ section: i18next.t('notes') }] : []),
+    ...sections.notes,
+    ...(sections.voice.length ? [{ section: i18next.t('audio_recordings') }] : []),
+    ...sections.voice,
+    ...(sections.document.length ? [{ section: i18next.t('documents') }] : []),
+    ...sections.document,
   ];
 };
