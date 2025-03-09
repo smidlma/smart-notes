@@ -75,6 +75,7 @@ class DocumentSchema(UUIDModel, TimestampModel, table=True):
     content: str
     summary: str | None = None
     type: Literal["pdf"] = Field(sa_type=String, default="pdf")
+    pages: int | None = None
 
     note: NoteSchema = Relationship(back_populates="documents")
 

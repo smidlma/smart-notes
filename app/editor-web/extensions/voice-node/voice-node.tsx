@@ -1,45 +1,34 @@
-import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
-
+import { NodeViewProps } from '@tiptap/react';
 import React from 'react';
-import { AudioEditorActionType, VoiceNodeProps } from './types';
+import { MediaType, VoiceNodeProps } from './types';
+import { MediaNode } from './media-node';
 
 export const VoiceNodeName = 'voice-node';
 
+// This component is kept for backward compatibility
 export const VoiceNode = (props: NodeViewProps) => {
-  const { title, duration, createdAt, voiceId, noteId } = props.node.attrs as VoiceNodeProps;
+  // Convert the old voice node props to the new format
+  const oldProps = props.node.attrs as VoiceNodeProps;
 
-  const handleClick = () => {
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({
-        type: AudioEditorActionType.OpenVoice,
-        payload: { voiceId, noteId },
-      })
-    );
+  // Create a new props object that matches the MediaNodeProps structure
+  // but maintains the VoiceNodeProps specific fields
+  const mediaProps: VoiceNodeProps = {
+    ...oldProps,
+    id: oldProps.voiceId, // Use voiceId as the generic id
+    mediaType: MediaType.Voice,
+    // Add any missing required fields with defaults
+    description: oldProps.transcript || '',
   };
 
-  return (
-    <NodeViewWrapper>
-      <div className={VoiceNodeName}>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, userSelect: 'none' }}>{title}</div>
-            <div style={{ userSelect: 'none' }}>{createdAt}</div>
-            <div style={{ userSelect: 'none' }}>{duration}</div>
-          </div>
-          <div>
-            <div className="voice-node-play" onClick={handleClick} style={{ userSelect: 'none' }}>
-              Play
-            </div>
-          </div>
-        </div>
-      </div>
-    </NodeViewWrapper>
-  );
+  // Create a modified copy of the props with updated attrs
+  // We'll use a simpler approach to avoid type issues
+  const modifiedProps = { ...props };
+  // @ts-ignore - We're just updating the attrs which is safe
+  modifiedProps.node = {
+    ...props.node,
+    attrs: mediaProps,
+  };
+
+  // Use the MediaNode component with the converted props
+  return <MediaNode {...modifiedProps} />;
 };

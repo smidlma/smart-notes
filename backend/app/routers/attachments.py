@@ -1,6 +1,7 @@
 import uuid
 
 import aiofiles
+import PyPDF2
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from sqlmodel import select
 
@@ -180,17 +181,23 @@ async def upload_document(
         file, DOCUMENT_STORAGE_PATH, name
     )
 
+    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{filename}"
+
+    num_pages = 0
+    with open(out_file_path, "rb") as pdf_file:
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+        num_pages = len(pdf_reader.pages)
+
     db_document = DocumentSchema(
         note_id=note_id,
         file_name=filename,
         content="",  # Empty content initially, will be filled by the background task
         type="pdf",
+        pages=num_pages,
     )
     session.add(db_document)
     session.commit()
     session.refresh(db_document)
-
-    out_file_path = f"{DOCUMENT_STORAGE_PATH}/{filename}"
 
     background_tasks.add_task(
         process_pdf_file, out_file_path, session, db_document.id, user.id

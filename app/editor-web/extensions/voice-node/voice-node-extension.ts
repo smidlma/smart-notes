@@ -1,22 +1,34 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { VoiceNode, VoiceNodeName } from './voice-node';
-import { VoiceNodeProps } from './types';
+import { MediaType, VoiceNodeProps } from './types';
 
-const DefaultAttributes: { [K in keyof VoiceNodeProps]: { default: string } } = {
-  noteId: {
+// Define default attributes for the voice node (for backward compatibility)
+const DefaultAttributes: { [K in keyof VoiceNodeProps]: { default: any } } = {
+  // Generic media node attributes
+  id: {
     default: '',
   },
-  voiceId: {
+  noteId: {
     default: '',
   },
   title: {
     default: '',
   },
-  duration: {
+  description: {
     default: '',
   },
   createdAt: {
+    default: '',
+  },
+  mediaType: {
+    default: MediaType.Voice,
+  },
+  // Voice-specific attributes
+  voiceId: {
+    default: '',
+  },
+  duration: {
     default: '',
   },
   transcript: {

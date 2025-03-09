@@ -11,7 +11,11 @@ import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
-import { VoiceNodeProps } from '../../../editor-web/extensions/voice-node/types';
+import {
+  FileNodeProps,
+  MediaType,
+  VoiceNodeProps,
+} from '../../../editor-web/extensions/voice-node/types';
 import { useLocales } from '@/locales';
 import { H3 } from '@/components/ui/typography';
 import { AttachmentItem } from './attachment-item';
@@ -24,9 +28,10 @@ type Props = {
   isOpen: boolean;
   onClose: VoidFunction;
   onLinkVoice: (props: VoiceNodeProps) => void;
+  onLinkFile: (props: FileNodeProps) => void;
 };
 
-export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice }: Props) => {
+export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice, onLinkFile }: Props) => {
   const { t } = useLocales();
   const { data: recordings } = useGetVoiceRecordingsApiAttachmentsNoteIdVoiceGetQuery({
     noteId,
@@ -76,12 +81,13 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice }: Props
             size="sm"
             onPress={() =>
               onLinkVoice({
+                id: id ?? '',
+                mediaType: MediaType.Voice,
                 title: title ?? '',
                 createdAt: fDateTime(created_at) ?? '',
                 duration: fMilliseconds((duration ?? 0) * 1000),
                 noteId,
                 transcript: transcription ?? '',
-                voiceId: id ?? '',
               })
             }
           >
@@ -94,7 +100,7 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice }: Props
   );
 
   const renderDocumentItem = useCallback(
-    ({ file_name, created_at }: DocumentSchema) => (
+    ({ file_name, created_at, id }: DocumentSchema) => (
       <AttachmentItem
         onPress={() => {
           openPdfFile(file_name);
@@ -102,6 +108,22 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice }: Props
         icon={<FileText size={26} />}
         title={file_name ?? ''}
         date={created_at ?? ''}
+        RightActionComponent={
+          <Button
+            size="sm"
+            onPress={() =>
+              onLinkFile({
+                id: id ?? '',
+                createdAt: fDateTime(created_at) ?? '',
+                title: file_name ?? '',
+                noteId,
+                mediaType: MediaType.File,
+              })
+            }
+          >
+            <Text>attach</Text>
+          </Button>
+        }
       />
     ),
     []

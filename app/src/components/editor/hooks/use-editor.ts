@@ -19,7 +19,12 @@ import {
   useReadNoteApiNotesNoteIdGetQuery,
   useUpdateNoteApiNotesNoteIdPatchMutation,
 } from '@/services/api';
-import { VoiceNodeProps } from '../../../../editor-web/extensions/voice-node/types';
+import {
+  FileNodeProps,
+  MediaType,
+  VoiceNodeProps,
+} from '../../../../editor-web/extensions/voice-node/types';
+import { MediaBridge } from '../bridges/media-bridge';
 
 type Props = {
   noteId: string;
@@ -39,6 +44,7 @@ export const useEditor = ({ noteId }: Props) => {
       ...TenTapStartKit,
       CoreBridge.configureCSS(editorCSS).extendExtension({ content: 'heading block+' }),
       VoiceBridge,
+      MediaBridge,
       PlaceholderBridge.configureExtension({
         showOnlyCurrent: false,
         placeholder: 'Enter a Title',
@@ -121,18 +127,50 @@ export const useEditor = ({ noteId }: Props) => {
 
   const handleAttachVoice = useCallback(
     ({
-      voiceId,
       createdAt,
       duration,
       title,
       transcript = '',
       noteId,
+      id,
     }: Omit<VoiceNodeProps, 'transcript'> & { transcript?: string }) => {
-      editor.setVoiceNode({ voiceId, createdAt, duration, title, transcript, noteId });
+      console.log('handleAttachVoice', {
+        createdAt,
+        duration,
+        title,
+        transcript,
+        noteId,
+        id,
+      });
+
+      editor.addMediaNode({
+        id: id,
+        createdAt,
+        duration,
+        title,
+        transcript,
+        noteId,
+        mediaType: MediaType.Voice,
+      } as VoiceNodeProps);
       editor.blur();
     },
     [editor]
   );
 
-  return { editor, status, isLoading, handleAttachVoice, title: data?.title };
+  const handleAttachFile = useCallback(
+    ({ createdAt, title, noteId, pages, id }: FileNodeProps) => {
+      editor.addMediaNode({
+        id,
+        createdAt,
+        title,
+        noteId,
+        pages,
+        mediaType: MediaType.File,
+      } as FileNodeProps);
+      editor.blur();
+    },
+    [editor]
+  );
+
+  return { editor, status, isLoading, handleAttachVoice, handleAttachFile, title: data?.title };
 };

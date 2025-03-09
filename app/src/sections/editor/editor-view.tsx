@@ -26,7 +26,7 @@ export const EditorView = ({ id }: Props) => {
 
   const showAttachments = useBoolean(false);
 
-  const { editor, status, isLoading, handleAttachVoice, title } = useEditor({
+  const { editor, status, isLoading, handleAttachVoice, handleAttachFile, title } = useEditor({
     noteId: id,
   });
 
@@ -111,6 +111,7 @@ export const EditorView = ({ id }: Props) => {
       >
         <Editor editor={editor} noteId={id} />
         <AttachmentsSheet
+          onLinkFile={handleAttachFile}
           onLinkVoice={handleAttachVoice}
           noteId={id as string}
           isOpen={showAttachments.value}
