@@ -90,6 +90,8 @@ def on_startup():
             logger.info("Embeddings recreated")
 
 
+os.makedirs(f"{os.environ['VIRTUAL_ENV']}/../storage", exist_ok=True)
+
 app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 
 router.include_router(token.router)
