@@ -1,3 +1,4 @@
+import os
 import socket
 
 from dotenv import load_dotenv
@@ -6,7 +7,12 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 
 from app.ai import create_note_embedding_sync, create_voice_embedding, process_pdf_file
-from app.config import DOCUMENT_STORAGE_PATH, setup_logging
+from app.config import (
+    DOCUMENT_STORAGE_PATH,
+    IMAGE_STORAGE_PATH,
+    VOICE_STORAGE_PATH,
+    setup_logging,
+)
 from app.core.db import (
     DOCUMENT_COLLECTION_NAME,
     NOTES_COLLECTION_NAME,
@@ -65,7 +71,14 @@ def reset_and_recreate_embeddings(session: SessionDep):
 
 @app.on_event("startup")
 def on_startup():
+    # Create storage directories if they don't exist
+    os.makedirs(DOCUMENT_STORAGE_PATH, exist_ok=True)
+    os.makedirs(VOICE_STORAGE_PATH, exist_ok=True)
+    os.makedirs(IMAGE_STORAGE_PATH, exist_ok=True)
+
+    # Init DB
     create_db_and_tables()
+
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     logger.info(f"Server starting on host: {hostname}, IP: {local_ip}")
