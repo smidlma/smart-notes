@@ -9,7 +9,6 @@ import {
 } from 'expo-audio';
 import { useEffect } from 'react';
 import { useBoolean } from '@/hooks';
-import { H4 } from '@/components/ui/typography';
 import { VoiceRecorderControls } from './components/voice-recorder-controls';
 import { uploadHandler } from '@/utils/upload';
 import { Text } from '@/components/ui/text';
@@ -150,12 +149,12 @@ export const VoiceRecorder = ({ noteId }: Props) => {
 };
 
 const DurationTimer = ({ player }: { player: AudioRecorder }) => {
-  const { durationMillis, metering } = useAudioRecorderState(player, 500);
+  const { durationMillis } = useAudioRecorderState(player, 500);
 
   return (
     <View className="flex-grow justify-center pb-52">
       <Text className="self-center text-7xl">{fMilliseconds(durationMillis ?? 0)}</Text>
-      <H4 className="self-center">Metering: {metering ?? 0}</H4>
+      {/* <H4 className="self-center">Metering: {metering ?? 0}</H4> */}
     </View>
   );
 };
