@@ -159,13 +159,15 @@ export const useEditor = ({ noteId }: Props) => {
 
   const handleAttachFile = useCallback(
     ({ createdAt, title, noteId, pages, id }: FileNodeProps) => {
+      console.log('handleAttachFile', { createdAt, title, noteId, pages, id });
+
       editor.addMediaNode({
         id,
-        createdAt,
-        title,
         noteId,
-        pages,
+        title,
+        createdAt: createdAt,
         mediaType: MediaType.File,
+        pages: pages,
       } as FileNodeProps);
       editor.blur();
     },

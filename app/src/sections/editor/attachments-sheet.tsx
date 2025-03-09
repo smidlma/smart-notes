@@ -1,5 +1,4 @@
 import { BottomSheet, BottomSheetRef } from '@/components/bottom-sheet/bottom-sheet';
-import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import {
   DocumentSchema,
@@ -76,23 +75,16 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice, onLinkF
         icon={<AudioLines size={26} />}
         title={title ?? ''}
         date={created_at ?? ''}
-        RightActionComponent={
-          <Button
-            size="sm"
-            onPress={() =>
-              onLinkVoice({
-                id: id ?? '',
-                mediaType: MediaType.Voice,
-                title: title ?? '',
-                createdAt: fDateTime(created_at) ?? '',
-                duration: fMilliseconds((duration ?? 0) * 1000),
-                noteId,
-                transcript: transcription ?? '',
-              })
-            }
-          >
-            <Text>attach</Text>
-          </Button>
+        onActionPress={() =>
+          onLinkVoice({
+            id: id ?? '',
+            mediaType: MediaType.Voice,
+            title: title ?? '',
+            createdAt: fDateTime(created_at) ?? '',
+            duration: fMilliseconds((duration ?? 0) * 1000),
+            noteId,
+            transcript: transcription ?? '',
+          })
         }
       />
     ),
@@ -100,7 +92,7 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice, onLinkF
   );
 
   const renderDocumentItem = useCallback(
-    ({ file_name, created_at, id }: DocumentSchema) => (
+    ({ file_name, created_at, id, pages }: DocumentSchema) => (
       <AttachmentItem
         onPress={() => {
           openPdfFile(file_name);
@@ -108,22 +100,16 @@ export const AttachmentsSheet = ({ noteId, isOpen, onClose, onLinkVoice, onLinkF
         icon={<FileText size={26} />}
         title={file_name ?? ''}
         date={created_at ?? ''}
-        RightActionComponent={
-          <Button
-            size="sm"
-            onPress={() =>
-              onLinkFile({
-                id: id ?? '',
-                createdAt: fDateTime(created_at) ?? '',
-                title: file_name ?? '',
-                noteId,
-                mediaType: MediaType.File,
-              })
-            }
-          >
-            <Text>attach</Text>
-          </Button>
-        }
+        onActionPress={() => {
+          onLinkFile({
+            id: id ?? '',
+            createdAt: fDateTime(created_at) ?? '',
+            title: file_name ?? '',
+            noteId,
+            mediaType: MediaType.File,
+            pages: pages ?? undefined,
+          });
+        }}
       />
     ),
     []

@@ -108,6 +108,7 @@
     "react-redux": "^9.1.2",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "^3.4.15",
+    "vexo-analytics": "^1.4.6",
     "zeego": "^3.0.3"
   },
   "devDependencies": {

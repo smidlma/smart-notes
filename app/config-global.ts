@@ -7,6 +7,7 @@ const validateAppEnv = () => {
   const env = {
     API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL || '',
     STORAGE_UPLOAD_URL: process.env.EXPO_PUBLIC_STORAGE_UPLOAD_URL || '',
+    VEXO_API_KEY: process.env.EXPO_PUBLIC_VEXO_API_KEY || '',
   };
 
   const missingVariables = getMissingVariables(env);
@@ -17,6 +18,6 @@ const validateAppEnv = () => {
   return env;
 };
 
-const { API_BASE_URL, STORAGE_UPLOAD_URL } = validateAppEnv();
+const { API_BASE_URL, STORAGE_UPLOAD_URL, VEXO_API_KEY } = validateAppEnv();
 
-export { API_BASE_URL, STORAGE_UPLOAD_URL };
+export { API_BASE_URL, STORAGE_UPLOAD_URL, VEXO_API_KEY };

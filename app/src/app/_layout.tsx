@@ -18,6 +18,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from '@/components/toast/Toast';
 import * as SystemUI from 'expo-system-ui';
+import { vexo } from 'vexo-analytics';
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -43,6 +44,10 @@ SplashScreen.setOptions({
 GoogleSignin.configure({
   iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
 });
+
+if (!__DEV__) {
+  vexo('YOUR_API_KEY');
+}
 
 export default function RootLayout() {
   const { isDarkColorScheme } = useColorScheme();

@@ -410,6 +410,7 @@ export type DocumentSchema = {
   content: string;
   summary?: string | null;
   type?: "pdf";
+  pages?: number | null;
 };
 export type BodyUploadVoiceApiAttachmentsUploadVoiceNoteIdPost = {
   file: Blob;

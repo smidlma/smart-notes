@@ -14,6 +14,7 @@ import { useLazyGetUserDetailApiUsersGetQuery } from '@/services/api/custom-endp
 import Toast from 'react-native-toast-message';
 import { t } from 'i18next';
 import { useDispatch } from 'react-redux';
+import { identifyDevice } from 'vexo-analytics';
 
 export type AuthUserType = null | UserSchema;
 
@@ -96,6 +97,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       if (accessToken && isValidToken(accessToken)) {
         const user = await getUserDetail().unwrap();
 
+        // VEXO Analytics
+        await identifyDevice(user.email);
+
         dispatch({
           type: Types.LOGIN,
           payload: {
@@ -140,6 +144,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, tokenResponse?.access_token || '');
 
           const user = await getUserDetail().unwrap();
+
+          // VEXO Analytics
+          await identifyDevice(user.email);
 
           dispatch({
             type: Types.LOGIN,

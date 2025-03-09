@@ -9,8 +9,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import { uploadHandler } from '@/utils/upload';
 import { LoadingOverlay } from '../loading-overlay/loading-overlay';
 import { useBoolean } from '@/hooks';
-import { api } from '@/services/api';
+import { api, DocumentSchema } from '@/services/api';
 import { useDispatch } from 'react-redux';
+import { FileNodeProps, MediaType } from '../../../editor-web/extensions/voice-node/types';
+import { fDateTime } from '@/utils/format-time';
 export type TabItem = {
   key: string;
   icon: React.ReactNode;
@@ -23,7 +25,7 @@ type Props = {
   editor: EditorBridge;
 };
 
-export const EditorBottomTab = ({ editor: _, noteId }: Props) => {
+export const EditorBottomTab = ({ editor, noteId }: Props) => {
   const { t } = useLocales();
 
   const isUploading = useBoolean(false);
@@ -42,16 +44,31 @@ export const EditorBottomTab = ({ editor: _, noteId }: Props) => {
     const file = result.assets?.[0];
 
     isUploading.onTrue();
-    await uploadHandler({
-      fileUri: file.uri,
-      type: 'document',
-      pathParam: `${noteId}?name=${file.name}`,
-      callback: (progress) => {
-        console.log(progress);
-      },
-    });
-    dispatch(api.util.invalidateTags(['attachments']));
-    isUploading.onFalse();
+    try {
+      const document = await uploadHandler<DocumentSchema>({
+        fileUri: file.uri,
+        type: 'document',
+        pathParam: `${noteId}?name=${file.name}`,
+        callback: (progress) => {
+          console.log(progress);
+        },
+      });
+      dispatch(api.util.invalidateTags(['attachments']));
+      if (document) {
+        editor.addMediaNode({
+          id: document.id ?? '',
+          noteId,
+          title: document.file_name,
+          createdAt: fDateTime(document.created_at),
+          mediaType: MediaType.File,
+          pages: document.pages,
+        } as FileNodeProps);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      isUploading.onFalse();
+    }
   }, [noteId, isUploading, dispatch]);
 
   const handleVoiceRecorder = useCallback(() => {

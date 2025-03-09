@@ -1,6 +1,5 @@
 import { BridgeExtension } from '@10play/tentap-editor';
 import { MediaNodeName } from '../extensions/voice-node/media-node';
-import { VoiceNodeName } from '../extensions/voice-node/voice-node';
 import {
   MediaEditorActionType,
   MediaMessage,
@@ -30,27 +29,17 @@ export const MediaBridgeWeb = new BridgeExtension<
   onBridgeMessage: (editor, message, _sendMessageBack) => {
     // Handle generic media insertion
     if (message.type === MediaEditorActionType.SetMedia) {
+      if (editor.state.selection.head === 0 || editor.state.selection.head === 1) {
+        editor.commands.focus('end');
+      }
       editor
         .chain()
         .insertContentAt(editor.state.selection.head, {
           type: MediaNodeName,
           attrs: message.payload,
         })
-        .focus()
-        .run();
-
-      return true;
-    }
-
-    // Handle voice node insertion (for backward compatibility)
-    if (message.type === MediaEditorActionType.SetVoice) {
-      editor
-        .chain()
-        .insertContentAt(editor.state.selection.head, {
-          type: VoiceNodeName,
-          attrs: message.payload,
-        })
-        .focus()
+        .insertContentAt(editor.state.selection.head, `<p></p>`)
+        .scrollIntoView()
         .run();
 
       return true;
