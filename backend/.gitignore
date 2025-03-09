@@ -1,7 +1,12 @@
+.DS_Store
 .venv
 .env
 __pycache__
-storage
+
+storage/document/**    
+storage/voice/**
+storage/image/**
+
 chromadb
 chroma
 logs
