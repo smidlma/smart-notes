@@ -7,14 +7,20 @@ from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from sqlmodel import Session, SQLModel, create_engine
 
-SQLALCHEMY_DATABASE_URL = "postgresql://smidlma:smidlma@localhost:5432/smartnotes"
+from app.config import ENVIRONMENT, POSTGRES_CONNECTION_STRING, ROOT_DIR
+
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql://smidlma:smidlma@localhost:5432/smartnotes"
+    if POSTGRES_CONNECTION_STRING is None
+    else POSTGRES_CONNECTION_STRING
+)
 NOTES_COLLECTION_NAME = "note_embeddings"
 VOICE_COLLECTION_NAME = "voice_embeddings"
 DOCUMENT_COLLECTION_NAME = "document_embeddings"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-client = chromadb.PersistentClient(path=f"{os.environ['VIRTUAL_ENV']}/../chroma")
+client = chromadb.PersistentClient(path=f"{ROOT_DIR}/chroma")
 
 
 def get_chroma_collection(collection_name: str) -> Chroma:

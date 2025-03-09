@@ -10,6 +10,7 @@ from app.ai import create_note_embedding_sync, create_voice_embedding, process_p
 from app.config import (
     DOCUMENT_STORAGE_PATH,
     IMAGE_STORAGE_PATH,
+    ROOT_DIR,
     VOICE_STORAGE_PATH,
     setup_logging,
 )
@@ -72,7 +73,7 @@ def reset_and_recreate_embeddings(session: SessionDep):
 @app.on_event("startup")
 def on_startup():
     # Create storage directories if they don't exist
-    os.makedirs(f"{os.environ['VIRTUAL_ENV']}/../storage", exist_ok=True)
+    logger.info(f"Creating storage directories: {ROOT_DIR}")
     os.makedirs(DOCUMENT_STORAGE_PATH, exist_ok=True)
     os.makedirs(VOICE_STORAGE_PATH, exist_ok=True)
     os.makedirs(IMAGE_STORAGE_PATH, exist_ok=True)

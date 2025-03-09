@@ -3,14 +3,18 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
+POSTGRES_CONNECTION_STRING = os.getenv("POSTGRES_CONNECTION_STRING")
 CLIENT_ID = os.getenv("CLIENT_ID")
 SECRET_KEY = os.getenv("SECRET_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 ASSEMBLY_AI_API_KEY = os.getenv("ASSEMBLY_AI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPEN_AI_API_KEY")
-VOICE_STORAGE_PATH = f"{os.environ['VIRTUAL_ENV']}/../storage/voice"
-IMAGE_STORAGE_PATH = f"{os.environ['VIRTUAL_ENV']}/../storage/image"
-DOCUMENT_STORAGE_PATH = f"{os.environ['VIRTUAL_ENV']}/../storage/document"
+VOICE_STORAGE_PATH = f"{ROOT_DIR}/storage/voice"
+IMAGE_STORAGE_PATH = f"{ROOT_DIR}/storage/image"
+DOCUMENT_STORAGE_PATH = f"{ROOT_DIR}/storage/document"
 
 # Logging Configuration
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
@@ -18,7 +22,7 @@ LOG_FORMAT = (
     "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
 )
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-LOG_DIR = f"{os.environ['VIRTUAL_ENV']}/../logs"
+LOG_DIR = f"{ROOT_DIR}/logs"
 LOG_FILE = f"{LOG_DIR}/app.log"
 LOG_MAX_SIZE = 10 * 1024 * 1024  # 10 MB
 LOG_BACKUP_COUNT = 5
