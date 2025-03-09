@@ -43,7 +43,7 @@ export const SummaryView = ({ noteId }: Props) => {
             style={{
               body: {
                 fontSize: 16,
-                color: NAV_THEME[colorScheme].text,
+                color: colorScheme === 'light' ? NAV_THEME.light.text : NAV_THEME.dark.primary,
                 paddingHorizontal: 16,
                 paddingBottom: 112,
               },

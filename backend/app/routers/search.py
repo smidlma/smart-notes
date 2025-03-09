@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from functools import reduce
 from typing import Tuple
@@ -27,48 +28,51 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.get("/")
-def search_notes(
+async def search_notes(
     query: str, user: CurrentUserDep, session: SessionDep
 ) -> GlobalSearchResponse:
-    vector_store = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
-    results_notes = vector_store.similarity_search_with_relevance_scores(
-        query=query,
-        k=4,
-        filter={"user_id": str(user.id)},
+    async def search_collection(collection_name):
+        """Helper function to asynchronously fetch search results from a collection"""
+        vector_store = get_chroma_collection(collection_name=collection_name)
+        return vector_store.similarity_search_with_relevance_scores(
+            query=query, filter={"user_id": str(user.id)}
+        )
+
+    # Run all three searches in parallel
+    results_notes, results_voice, results_documents = await asyncio.gather(
+        search_collection(NOTES_COLLECTION_NAME),
+        search_collection(VOICE_COLLECTION_NAME),
+        search_collection(DOCUMENT_COLLECTION_NAME),
     )
 
-    vector_store = get_chroma_collection(collection_name=VOICE_COLLECTION_NAME)
-    results_voice = vector_store.similarity_search_with_relevance_scores(
-        query=query,
-        filter={"user_id": str(user.id)},
-    )
-
-    vector_store = get_chroma_collection(collection_name=DOCUMENT_COLLECTION_NAME)
-    results_documents = vector_store.similarity_search_with_relevance_scores(
-        query=query,
-        filter={"user_id": str(user.id)},
-    )
-
+    # Process results and map them to response format
     search_results = [
         *map(lambda doc: doc_to_note_resp(doc, session), results_notes),
         *map(lambda doc: doc_to_voice_resp(doc, session), results_voice),
         *map(lambda doc: doc_to_document_resp(doc, session), results_documents),
     ]
 
+    # Remove None results (if any failed mapping)
     search_results = list(filter(lambda x: x is not None, search_results))
-    dynamic_threshold = reduce(
-        lambda x, y: x + y, map(lambda x: x.score, search_results)
-    ) / len(search_results)
-    search_results = list(
-        filter(lambda x: x.score >= dynamic_threshold, search_results)
-    )
+
+    # Apply dynamic threshold filtering
+    if search_results:
+        avg_score = sum(x.score for x in search_results) / len(search_results)
+        search_results = [x for x in search_results if x.score >= avg_score]
+
+    # Sort results by score (highest first)
     search_results = sorted(search_results, key=lambda x: x.score, reverse=True)
-    logging.info(f"Dynamic threshold: {dynamic_threshold}")
+
+    # Logging for debugging purposes
+    logging.info(f"Dynamic threshold: {avg_score if search_results else 'No results'}")
     logging.info(
-        f"Search results: {list(map(lambda x: {'title': x.title, 'score': x.score, 'type': x.type}, search_results))}"
+        f"Search results: {[
+            {'title': x.title, 'score': x.score, 'type': x.type} for x in search_results
+        ]}"
     )
 
-    return GlobalSearchResponse(results=list(search_results), total=len(search_results))
+    # Return response
+    return GlobalSearchResponse(results=search_results, total=len(search_results))
 
 
 def doc_to_note_resp(doc_with_score: Tuple[Document, float], session: SessionDep):

@@ -1,12 +1,22 @@
-import logging
 import socket
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session, select
 
-from app.config import setup_logging
-from app.core.db import SessionDep, create_db_and_tables, get_chroma_collection
+from app.ai import create_note_embedding_sync, create_voice_embedding, process_pdf_file
+from app.config import DOCUMENT_STORAGE_PATH, setup_logging
+from app.core.db import (
+    DOCUMENT_COLLECTION_NAME,
+    NOTES_COLLECTION_NAME,
+    VOICE_COLLECTION_NAME,
+    SessionDep,
+    create_db_and_tables,
+    engine,
+    get_chroma_collection,
+)
+from app.core.models import NoteSchema, VoiceRecordingSchema
 from app.core.security import global_security
 from app.routers import attachments, notes, search, token, users
 
@@ -18,6 +28,40 @@ app = FastAPI()
 
 router = APIRouter(prefix="/api")
 
+SHOULD_RECREATE_EMBEDDINGS = False
+
+
+def reset_and_recreate_embeddings(session: SessionDep):
+    vector_store_notes = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
+    vector_store_notes.delete_collection()
+
+    vector_store_voice = get_chroma_collection(collection_name=VOICE_COLLECTION_NAME)
+    vector_store_voice.delete_collection()
+
+    vector_store_documents = get_chroma_collection(
+        collection_name=DOCUMENT_COLLECTION_NAME
+    )
+    vector_store_documents.delete_collection()
+
+    notes = session.exec(select(NoteSchema)).all()
+
+    for note in notes:
+        if note.user_id:
+            create_note_embedding_sync(note.id, note.user_id, note.content)
+            for voice_recording in note.voice_recordings:
+                if voice_recording.words:
+                    create_voice_embedding(
+                        voice_recording.words, voice_recording.id, note.user_id
+                    )
+            for document in note.documents:
+                if document.content:
+                    process_pdf_file(
+                        f"{DOCUMENT_STORAGE_PATH}/{document.file_name}",
+                        session,
+                        document.id,
+                        note.user_id,
+                    )
+
 
 @app.on_event("startup")
 def on_startup():
@@ -25,6 +69,12 @@ def on_startup():
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     logger.info(f"Server starting on host: {hostname}, IP: {local_ip}")
+
+    if SHOULD_RECREATE_EMBEDDINGS:
+        with Session(engine) as session:
+            logger.info("Resetting and recreating embeddings")
+            reset_and_recreate_embeddings(session)
+            logger.info("Embeddings recreated")
 
 
 app.mount("/storage", StaticFiles(directory="storage"), name="storage")
@@ -38,45 +88,5 @@ app.include_router(router)
 
 
 @app.get("/")
-def read_root(session: SessionDep):
-    # voice = session.get(
-    #     VoiceRecordingSchema, uuid.UUID("57cef2a2-4c18-4c73-bb69-c3b4f4370cde")
-    # )
-
-    # voice = session.exec(
-    #     select(VoiceRecordingSchema).where(
-    #         VoiceRecordingSchema.id == "0b774e0c-9284-4e86-8487-cdff2f3278e5"
-    #     )
-    # ).first()
-
-    # # return voice.words
-    # if voice:
-    #     create_voice_embedding(
-    #         voice.words or [], uuid.UUID("0b774e0c-9284-4e86-8487-cdff2f3278e5")
-    #     )
-    # vector_store = get_chroma_collection(collection_name="voice_embeddings")
-    # results = vector_store.similarity_search(
-    #     query="What space and time are",
-    #     k=2,
-    #     filter={"voice_id": "0b774e0c-9284-4e86-8487-cdff2f3278e5"},
-    # )
-
-    # for res in results:
-    #     print(f"* {res.page_content} [{res.metadata}]")
-
-    # note = session.get(NoteSchema, "2a336df2-96b3-425a-b1c6-f9ef9e8e3237")
-
-    # if note:
-    #     create_note_embedding(note)
-
-    vector_store = get_chroma_collection(collection_name="note_embeddings")
-    results = vector_store.similarity_search(
-        query="How cooperate with others",
-        k=1,
-        filter={"user_id": "23576d71-c8ba-48fd-b2a9-b364e8606a4c"},
-    )
-
-    for res in results:
-        print(f"* {res.page_content} [{res.metadata}]")
-    pass
+def read_root():
     pass

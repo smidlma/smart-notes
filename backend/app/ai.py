@@ -1,6 +1,7 @@
 import itertools
 import logging
 import uuid
+from typing import Any
 
 import PyPDF2
 from assemblyai import SpeechModel, TranscriptionConfig
@@ -30,47 +31,74 @@ from app.core.models import (
 )
 from app.utils import debounced
 
+CHAT_MODELS = [
+    "gemini-exp-1206",
+    "gemini-2.0-pro-exp-02-05",
+    "gemini-2.0-flash-lite-001",
+]
 
-def generate_quick_recap(note_context: list[str]) -> str:
-    """Stream a structured markdown recap from a list of notes."""
 
+def ask_ai(
+    prompt_string: str, input: dict[str, str], chat_model: str = CHAT_MODELS[2]
+) -> str:
     prompt_template = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                "Write a quick structured markdown recap of the following notes in the same language. Highlight important parts or dates you will find. Do not leave your comments:\n\n{note_context}",
+                prompt_string,
             )
         ]
     )
+    prompt = prompt_template.invoke(input)
 
-    prompt = prompt_template.invoke({"note_context": "\n\n".join(note_context)})
-
-    model = GoogleGenerativeAI(model="gemini-exp-1206")
+    model = GoogleGenerativeAI(model=chat_model)
 
     result = model.invoke(prompt)
 
     return result
 
 
-def generate_note_summary(note_context: str, audio_context: str) -> str:
-    messages = [
-        (
-            "system",
-            "Write a concise and structured summary in same language of the following notes and following audio transcription, if no transcription is given ignore that part. Also do not leave your comments:\\n\\n{note_context}\\n\\n{audio_context}",
-        ),
-    ]
+def generate_quick_recap(note_context: list[str]) -> str:
 
-    prompt_template = ChatPromptTemplate(messages)
-    prompt = prompt_template.invoke(
-        {"note_context": note_context, "audio_context": audio_context}
+    prompt_string = """
+Generate a concise, structured markdown recap, in the same language as the provided notes, that highlights key information.
+
+**Instructions:**
+
+*   **Purpose:**  Provide a brief overview of the core content of the notes.
+*   **Format:**  Use markdown headings and bullet points for clear organization.
+*   **Emphasis:**  Use bold text to highlight important details and any mentioned dates.
+*   **Exclusion:**  Omit any conversational elements, personal commentary, or extraneous information. Stay strictly factual and focused on the subject matter of the notes.
+
+**Notes:** {note_context}
+    """
+
+    return ask_ai(prompt_string, {"note_context": "\n\n".join(note_context)})
+
+
+def generate_note_summary(
+    note_context: str, audio_context: str, documents_context: str
+) -> str:
+    prompt_string = """
+Synthesize a concise and structured markdown summary, in the same language as the input, integrating information from the following sources.  Prioritize consistency and avoid redundancy.
+
+*   **Notes:** {note_context}
+*   **Audio Transcription:** {audio_context}
+*   **Documents:** {documents_context}
+
+If a particular source (Notes, Audio Transcription, or Documents) is absent, disregard that section and proceed with the available information.
+
+The summary should be well-organized, using headings and bullet points where appropriate, to facilitate quick understanding.  Focus on key themes, arguments, and data points.  Do not include conversational remarks or commentary.
+    """
+
+    return ask_ai(
+        prompt_string,
+        {
+            "note_context": note_context,
+            "audio_context": audio_context,
+            "documents_context": documents_context,
+        },
     )
-
-    model = GoogleGenerativeAI(
-        model="gemini-exp-1206",
-    )
-    result = model.invoke(prompt)
-
-    return result
 
 
 def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
@@ -84,7 +112,20 @@ def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
     ]
     transcription_context = "\\n\\n".join(transcriptions)
 
-    summary = generate_note_summary(note.content, transcription_context)
+    documents = session.exec(
+        select(DocumentSchema).where(DocumentSchema.note_id == note.id)
+    ).all()
+
+    documents_context = "\\n\\n".join(
+        [
+            f"Document title: {document.file_name}\\nContent: {generate_document_summary(document.content)}"
+            for document in documents
+        ]
+    )
+
+    summary = generate_note_summary(
+        note.content, transcription_context, documents_context
+    )
 
     db_summary = SummarySchema(note_id=note.id, summary_text=summary)
 
@@ -95,23 +136,45 @@ def create_note_summary(note: NoteSchema, session: SessionDep) -> SummarySchema:
     return db_summary
 
 
-def generate_document_summary(document: DocumentSchema) -> str:
-    messages = [
-        (
-            "system",
-            "Write a concise and structured summary in same language of the following document:\\n\\n{document}",
-        ),
-    ]
+def generate_document_summary(content: str) -> str:
+    chunk_size = 80000
+    chunk_overlap = 200
 
-    prompt_template = ChatPromptTemplate(messages)
-    prompt = prompt_template.invoke({"document": document})
+    prompt_string = """
+    Summarize the following document concisely and in the same language as the original, formatting the summary in Markdown. 
+    Omit any commentary or self-reference from your response. Document: {document}
+    """
 
-    model = GoogleGenerativeAI(
-        model="gemini-exp-1206",
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+        is_separator_regex=False,
     )
-    result = model.invoke(prompt)
+    chunks = text_splitter.split_text(content)
+    logging.info(f"Splitted into {len(chunks)} chunks")
+    summaries = []
+    for i, chunk in enumerate(chunks):
+        logging.info(f"Summarizing chunk {i+1}/{len(chunks)}")
+        try:
+            summary = ask_ai(prompt_string, {"document": chunk}, CHAT_MODELS[2])
+            summaries.append(summary)
+            logging.info(f"Summary {i+1}: {len(summary)} characters")
+        except Exception as e:
+            logging.error(f"Error summarizing chunk {i+1}: {e}")
 
-    return result
+    combined_summary = "\n".join(summaries)
+
+    if len(chunks) > 1:
+        logging.info("Creating final summary...")
+        final_summary = ask_ai(
+            prompt_string, {"document": combined_summary}, CHAT_MODELS[2]
+        )
+        logging.info("Final Summary created")
+
+        return final_summary
+
+    return combined_summary
 
 
 def process_audio_file(
@@ -220,6 +283,8 @@ def transcript_to_chunks(words: list[dict], time_window: int = 5000):
 
 
 def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid.UUID):
+    logging.info("Creating voice embeddings")
+
     chunks = transcript_to_chunks(words, 5000)
     if len(chunks) == 0:
         return
@@ -248,36 +313,7 @@ def create_voice_embedding(words: list[dict], voice_id: uuid.UUID, user_id: uuid
 @debounced(delay=5.0, key_args=["id", "user_id"])
 async def create_note_embedding(id: uuid.UUID, user_id: uuid.UUID, content: str):
     logging.info("Creating note embeddings")
-    headers_to_split_on = [
-        ("h1", "H1"),
-        ("h2", "H2"),
-        ("h3", "H3"),
-    ]
-    html_splitter = HTMLHeaderTextSplitter(headers_to_split_on)
-    html_header_splits = html_splitter.split_text(content)
-
-    if len(html_header_splits) > 0:
-        documents = list(
-            map(
-                lambda doc: Document(
-                    page_content=doc.page_content,
-                    metadata={
-                        **doc.metadata,
-                        "note_id": str(id),
-                        "user_id": str(user_id),
-                    },
-                ),
-                html_header_splits,
-            )
-        )
-
-        uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
-
-        vector_store = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
-
-        vector_store.delete(where={"note_id": str(id)})
-
-        vector_store.add_documents(documents=documents, ids=uuids)
+    create_note_embedding_sync(id, user_id, content)
 
 
 def process_pdf_file(
@@ -371,3 +407,41 @@ def process_pdf_file(
         db_document.sqlmodel_update({"summary": f"Processing failed: {str(e)}"})
         session.add(db_document)
         session.commit()
+
+
+def create_note_embedding_sync(id: uuid.UUID, user_id: uuid.UUID, content: str):
+    """
+    Synchronous version of create_note_embedding without the debounce decorator.
+    Used for batch processing during startup.
+    """
+    logging.info("Creating note embeddings synchronously")
+    headers_to_split_on = [
+        ("h1", "H1"),
+        ("h2", "H2"),
+        ("h3", "H3"),
+    ]
+    html_splitter = HTMLHeaderTextSplitter(headers_to_split_on)
+    html_header_splits = html_splitter.split_text(content)
+
+    if len(html_header_splits) > 0:
+        documents = list(
+            map(
+                lambda doc: Document(
+                    page_content=doc.page_content,
+                    metadata={
+                        **doc.metadata,
+                        "note_id": str(id),
+                        "user_id": str(user_id),
+                    },
+                ),
+                html_header_splits,
+            )
+        )
+
+        uuids = [str(uuid.uuid4()) for _ in range(len(documents))]
+
+        vector_store = get_chroma_collection(collection_name=NOTES_COLLECTION_NAME)
+
+        vector_store.delete(where={"note_id": str(id)})
+
+        vector_store.add_documents(documents=documents, ids=uuids)

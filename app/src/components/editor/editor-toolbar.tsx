@@ -69,17 +69,7 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           active: () => false,
           disabled: () => false,
         },
-        {
-          onPress:
-            ({ editor }) =>
-            async () => {
-              editor.blur();
-              await handlePickImage();
-            },
-          image: () => require('@/../assets/images/image-plus.png'),
-          active: () => false,
-          disabled: () => false,
-        },
+
         {
           onPress:
             ({ setToolbarContext }) =>
@@ -98,7 +88,15 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           disabled: ({ editorState }) => !editorState.canToggleBold,
           image: () => Images.bold,
         },
-
+        {
+          onPress:
+            ({ editor }) =>
+            () =>
+              editor.toggleTaskList(),
+          active: ({ editorState }) => editorState.isTaskListActive,
+          disabled: ({ editorState }) => !editorState.canToggleTaskList,
+          image: () => Images.checkList,
+        },
         {
           onPress:
             ({ editor }) =>
@@ -112,12 +110,11 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           onPress:
             ({ editor }) =>
             () =>
-              editor.toggleTaskList(),
-          active: ({ editorState }) => editorState.isTaskListActive,
-          disabled: ({ editorState }) => !editorState.canToggleTaskList,
-          image: () => Images.checkList,
+              editor.toggleOrderedList(),
+          active: ({ editorState }) => editorState.isOrderedListActive,
+          disabled: ({ editorState }) => !editorState.canToggleOrderedList,
+          image: () => Images.orderedList,
         },
-
         {
           onPress:
             ({ editor }) =>
@@ -126,16 +123,6 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           active: ({ editorState }) => editorState.isCodeActive,
           disabled: ({ editorState }) => !editorState.canToggleCode,
           image: () => Images.code,
-        },
-
-        {
-          onPress:
-            ({ editor }) =>
-            () =>
-              editor.toggleOrderedList(),
-          active: ({ editorState }) => editorState.isOrderedListActive,
-          disabled: ({ editorState }) => !editorState.canToggleOrderedList,
-          image: () => Images.orderedList,
         },
 
         {
@@ -186,6 +173,17 @@ export const EditorToolbar = ({ activeKeyboard, editor, setActiveKeyboard: _, no
           active: ({ editorState }) => editorState.isUnderlineActive,
           disabled: ({ editorState }) => !editorState.canToggleUnderline,
           image: () => Images.underline,
+        },
+        {
+          onPress:
+            ({ editor }) =>
+            async () => {
+              editor.blur();
+              await handlePickImage();
+            },
+          image: () => require('@/../assets/images/image-plus.png'),
+          active: () => false,
+          disabled: () => false,
         },
 
         // ...DEFAULT_TOOLBAR_ITEMS,

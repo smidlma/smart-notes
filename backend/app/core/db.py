@@ -18,7 +18,7 @@ client = chromadb.PersistentClient(path=f"{os.environ['VIRTUAL_ENV']}/../chroma"
 
 
 def get_chroma_collection(collection_name: str) -> Chroma:
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
 
     vector_store_from_client = Chroma(
         client=client,

@@ -11,7 +11,6 @@ export const getBaseQuery =
 
 export const baseQuery = (endpoint: string) =>
   fetchBaseQuery({
-    timeout: 25000,
     baseUrl: endpoint,
     prepareHeaders: async (headers) => {
       const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);

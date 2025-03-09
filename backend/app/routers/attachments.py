@@ -207,7 +207,7 @@ def get_document_summary(document_id: uuid.UUID, session: SessionDep) -> Documen
     if not document_db:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    summary = generate_document_summary(document_db)
+    summary = generate_document_summary(document_db.content)
     document_db.sqlmodel_update({"summary": summary})
     session.add(document_db)
     session.commit()

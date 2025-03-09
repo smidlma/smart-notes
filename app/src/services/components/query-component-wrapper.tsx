@@ -5,7 +5,7 @@ import { useQueryStatuses } from '../hooks/use-query-statuses';
 import { ActivityIndicator, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { H1 } from '@/components/ui/typography';
+import { H3 } from '@/components/ui/typography';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { MotiView } from 'moti';
 
@@ -53,10 +53,13 @@ export const QueryComponentWrapper = ({
   if (someQueryError) {
     return (
       errorComponent ?? (
-        <View className="flex-1 justify-center items-center">
-          <H1>{errorMessage}</H1>
+        <View
+          className="flex-1 justify-center items-center gap-4 text-center"
+          style={{ paddingBottom: height }}
+        >
+          <H3>{errorMessage ?? 'Unable to process request'}</H3>
           <Button onPress={onRetry}>
-            <Text>{actionText}</Text>
+            <Text>{actionText ?? 'Retry'}</Text>
           </Button>
         </View>
       )
