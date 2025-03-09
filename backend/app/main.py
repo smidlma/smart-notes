@@ -72,9 +72,11 @@ def reset_and_recreate_embeddings(session: SessionDep):
 @app.on_event("startup")
 def on_startup():
     # Create storage directories if they don't exist
+    os.makedirs(f"{os.environ['VIRTUAL_ENV']}/../storage", exist_ok=True)
     os.makedirs(DOCUMENT_STORAGE_PATH, exist_ok=True)
     os.makedirs(VOICE_STORAGE_PATH, exist_ok=True)
     os.makedirs(IMAGE_STORAGE_PATH, exist_ok=True)
+    app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 
     # Init DB
     create_db_and_tables()
@@ -89,10 +91,6 @@ def on_startup():
             reset_and_recreate_embeddings(session)
             logger.info("Embeddings recreated")
 
-
-os.makedirs(f"{os.environ['VIRTUAL_ENV']}/../storage", exist_ok=True)
-
-app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 
 router.include_router(token.router)
 router.include_router(users.router)
