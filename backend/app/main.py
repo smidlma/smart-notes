@@ -80,6 +80,7 @@ def on_startup():
     app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 
     # Init DB
+    logger.info("Initializing DB")
     create_db_and_tables()
 
     hostname = socket.gethostname()
