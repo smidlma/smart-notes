@@ -12,18 +12,39 @@ import { fToNow } from '@/utils/format-time';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { NAV_THEME } from '@/lib/constants';
 import { BlurView } from 'expo-blur';
+import { useCallback, useLayoutEffect } from 'react';
+import { useNavigation } from 'expo-router';
+import { MotiPressable } from '@/components/moti-pressable/moti-pressable';
+import { Share } from '@/lib/icons';
+import { sharePdfFile } from '@/utils/share';
 
 type Props = { noteId: string };
 
 export const SummaryView = ({ noteId }: Props) => {
   const { t } = useLocales();
   const { colorScheme } = useColorScheme();
+  const navigation = useNavigation();
 
   const { data: recentSummary, status: summaryStatus } = useGetSummaryApiNotesSummaryNoteIdGetQuery(
     {
       noteId,
     }
   );
+
+  const handleSharePdf = useCallback(async () => {
+    await sharePdfFile(recentSummary?.summary_text ?? '', 'Summary');
+  }, [recentSummary]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        recentSummary?.summary_text && (
+          <MotiPressable onPress={handleSharePdf}>
+            <Share />
+          </MotiPressable>
+        ),
+    });
+  }, [handleSharePdf, navigation, recentSummary?.summary_text]);
 
   const [generateNewSummary, { status: generationStatus }] =
     useGenerateNewSummaryApiNotesSummaryNoteIdPostMutation();

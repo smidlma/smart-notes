@@ -3,8 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "dev": "expo start",
-    "dev:build": "expo run:ios --device --no-build-cache",
+    "dev": "APP_VARIANT=development expo start",
+    "dev:build": "APP_VARIANT=development expo run:ios --device --no-build-cache",
     "lint:fix": "eslint --fix --ext .js,.ts,.tsx .",
     "lint": "expo lint",
     "editor:dev": "vite --config ./editor-web/vite.config.ts -w build",
@@ -50,6 +50,7 @@
     "@rn-primitives/tabs": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
     "@ronradtke/react-native-markdown-display": "^8.0.0",
+    "@sentry/react-native": "~6.3.0",
     "@tiptap/extension-character-count": "^2.9.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

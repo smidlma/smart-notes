@@ -19,9 +19,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.smidlma.smartnotes-v1",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ],
+        "UIBackgroundModes": ["audio"],
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
@@ -38,10 +36,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ]
+      "permissions": ["android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS"]
     },
     "web": {
       "bundler": "metro",
@@ -95,7 +90,16 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          // "note": "Use SENTRY_AUTH_TOKEN env to authenticate with Sentry.",
+          "project": "react-native",
+          "organization": "developer-m5"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
