@@ -32,7 +32,7 @@ export const SummaryView = ({ noteId }: Props) => {
   );
 
   const handleSharePdf = useCallback(async () => {
-    await sharePdfFile(recentSummary?.summary_text ?? '', 'Summary');
+    await sharePdfFile(recentSummary?.summary_text ?? '', 'Summary', 'markdown');
   }, [recentSummary]);
 
   useLayoutEffect(() => {
