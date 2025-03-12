@@ -11,7 +11,7 @@ from app.core.models import TokenData, UserSchema
 from app.repositories.users import find_user_by_email
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30
 global_security = APIKeyHeader(
     name="Authorization", description="JWT token", scheme_name="Bearer"
 )
