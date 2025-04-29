@@ -2,6 +2,8 @@
 
 Smart Notes is an AI-powered note-taking application that helps users create, organize, and search their notes more effectively. The application provides advanced features such as voice recording transcription, PDF attachment support, and semantic search capabilities.
 
+[View The MasterThesis-4.pdf](MasterThesis-4.pdf)
+
 ## Project Structure
 
 The project consists of two main components:
@@ -49,4 +51,5 @@ The project consists of two main components:
 - `app/src/redux/`: State management
 - `app/src/services/`: API service clients
 - `app/src/hooks/`: Custom React hooks
+
 
