@@ -10,3 +10,5 @@ storage/image/**
 chromadb
 chroma
 logs
+
+credentials

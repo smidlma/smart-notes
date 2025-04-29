@@ -6,7 +6,6 @@ import {
   MediaMessage,
   MediaNodeProps,
   MediaType,
-  VoiceNodeProps,
 } from '../../../../editor-web/extensions/voice-node/types';
 import { openPdfFile } from '@/utils/pdf';
 
@@ -15,8 +14,6 @@ interface MediaEditorState {}
 
 interface MediaEditorInstance {
   addMediaNode: (props: MediaNodeProps) => void;
-  // Keep the old method for backward compatibility
-  setVoiceNode: (props: VoiceNodeProps) => void;
 }
 
 declare module '@10play/tentap-editor' {
@@ -58,14 +55,6 @@ export const MediaBridge = new BridgeExtension<MediaEditorState, MediaEditorInst
         addMediaNode: (props: MediaNodeProps) => {
           sendBridgeMessage({
             type: MediaEditorActionType.SetMedia,
-            payload: props,
-          });
-        },
-
-        // Keep the old method for backward compatibility
-        setVoiceNode: (props: VoiceNodeProps) => {
-          sendBridgeMessage({
-            type: MediaEditorActionType.SetVoice,
             payload: props,
           });
         },

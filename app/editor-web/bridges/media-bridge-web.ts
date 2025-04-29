@@ -4,7 +4,6 @@ import {
   MediaEditorActionType,
   MediaMessage,
   MediaNodeProps,
-  VoiceNodeProps,
 } from '../extensions/voice-node/types';
 
 // Define the editor state and instance interfaces
@@ -12,8 +11,6 @@ interface MediaEditorState {}
 
 interface MediaEditorInstance {
   addMediaNode: (props: MediaNodeProps) => void;
-  // Keep the old method for backward compatibility
-  setVoiceNode: (props: VoiceNodeProps) => void;
 }
 
 declare module '@10play/tentap-editor' {
@@ -58,14 +55,6 @@ export const MediaBridgeWeb = new BridgeExtension<
       addMediaNode: (props: MediaNodeProps) => {
         sendBridgeMessage({
           type: MediaEditorActionType.SetMedia,
-          payload: props,
-        });
-      },
-
-      // Keep the old method for backward compatibility
-      setVoiceNode: (props: VoiceNodeProps) => {
-        sendBridgeMessage({
-          type: MediaEditorActionType.SetVoice,
           payload: props,
         });
       },

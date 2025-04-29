@@ -14,9 +14,6 @@ const DefaultMediaAttributes: { [K in keyof MediaNodeProps]: { default: any } } 
   title: {
     default: '',
   },
-  description: {
-    default: '',
-  },
   createdAt: {
     default: '',
   },

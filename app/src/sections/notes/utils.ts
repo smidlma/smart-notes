@@ -55,13 +55,19 @@ type Section = {
   notes: NoteSchema[];
 };
 
+const sortNotesByDate = (notes: NoteSchema[]) => {
+  return notes.sort(
+    (a, b) => new Date(b?.updated_at ?? '').getTime() - new Date(a?.updated_at ?? '').getTime()
+  );
+};
+
 export const getSectionsByDate = (notes?: NoteSchema[]): (NoteSchema | Section)[] => {
   if (!notes) return [];
 
-  const todayNotes = getTodayNotes(notes);
-  const last7DaysNotes = getLast7DaysNotes(notes);
-  const last30DaysNotes = getLast30DaysNotes(notes);
-  const olderNotes = getOlderNotes(notes);
+  const todayNotes = sortNotesByDate(getTodayNotes(notes));
+  const last7DaysNotes = sortNotesByDate(getLast7DaysNotes(notes));
+  const last30DaysNotes = sortNotesByDate(getLast30DaysNotes(notes));
+  const olderNotes = sortNotesByDate(getOlderNotes(notes));
 
   return [
     ...(todayNotes.length ? [{ section: i18next.t('today'), notes: todayNotes }] : []),

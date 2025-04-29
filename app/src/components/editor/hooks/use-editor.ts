@@ -11,7 +11,6 @@ import {
 } from '@10play/tentap-editor';
 import { useEditorConfig } from './use-editor-config';
 import { editorHtml } from '../../../../editor-web/build/editorHtml';
-import { VoiceBridge } from '../bridges/voice-bridge';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useCallback, useEffect } from 'react';
@@ -43,7 +42,6 @@ export const useEditor = ({ noteId }: Props) => {
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(editorCSS).extendExtension({ content: 'heading block+' }),
-      VoiceBridge,
       MediaBridge,
       PlaceholderBridge.configureExtension({
         showOnlyCurrent: false,

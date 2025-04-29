@@ -31,18 +31,18 @@ router = APIRouter(prefix="/search", tags=["search"])
 async def search_notes(
     query: str, user: CurrentUserDep, session: SessionDep
 ) -> GlobalSearchResponse:
-    async def search_collection(collection_name):
+    async def search_collection(collection_name, k=4):
         """Helper function to asynchronously fetch search results from a collection"""
         vector_store = get_chroma_collection(collection_name=collection_name)
         return vector_store.similarity_search_with_relevance_scores(
-            query=query, filter={"user_id": str(user.id)}
+            query=query, filter={"user_id": str(user.id)}, k=k
         )
 
     # Run all three searches in parallel
     results_notes, results_voice, results_documents = await asyncio.gather(
-        search_collection(NOTES_COLLECTION_NAME),
-        search_collection(VOICE_COLLECTION_NAME),
-        search_collection(DOCUMENT_COLLECTION_NAME),
+        search_collection(NOTES_COLLECTION_NAME, k=4),
+        search_collection(VOICE_COLLECTION_NAME, k=4),
+        search_collection(DOCUMENT_COLLECTION_NAME, k=4),
     )
 
     # Process results and map them to response format
@@ -55,6 +55,8 @@ async def search_notes(
     # Remove None results (if any failed mapping)
     search_results = list(filter(lambda x: x is not None, search_results))
 
+    # logging.info(f"Search results: {search_results}")
+
     # Apply dynamic threshold filtering
     if search_results:
         avg_score = sum(x.score for x in search_results) / len(search_results)
@@ -64,7 +66,7 @@ async def search_notes(
     search_results = sorted(search_results, key=lambda x: x.score, reverse=True)
 
     # Logging for debugging purposes
-    logging.info(f"Dynamic threshold: {avg_score if search_results else 'No results'}")
+    # logging.info(f"Dynamic threshold: {avg_score if search_results else 'No results'}")
     logging.info(
         f"Search results: {[
             {'title': x.title, 'score': x.score, 'type': x.type} for x in search_results

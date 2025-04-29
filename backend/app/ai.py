@@ -91,6 +91,8 @@ If a particular source (Notes, Audio Transcription, or Documents) is absent, dis
 The summary should be well-organized, using headings and bullet points where appropriate, to facilitate quick understanding.  Focus on key themes, arguments, and data points.  Do not include conversational remarks or commentary.
     """
 
+    logging.info(f"Audio context: {audio_context}")
+
     return ask_ai(
         prompt_string,
         {
@@ -249,28 +251,39 @@ def process_audio_file(
         session.refresh(db_voice)
 
 
-def transcript_to_chunks(words: list[dict], time_window: int = 5000):
+def transcript_to_chunks(
+    words: list[dict], time_window: int = 5000, overlap_percentage: float = 0.25
+):
+    """
+    Split a transcript into time-based chunks with specified overlap between chunks.
+
+    Args:
+        words: List of word dictionaries, each containing at least 'word' and 'start' keys
+        time_window: Size of each time window in milliseconds
+        overlap_percentage: Amount of overlap between chunks (0.0-1.0)
+
+    Returns:
+        List of chunk dictionaries with 'content', 'start', and 'end' keys
+    """
+    if not words:
+        return []
+
     chunk_number = 1
     current_chunk = []
     chunks = []
+    overlap_words = []
+    overlap_time = int(time_window * overlap_percentage)
+
     for idx, word in enumerate(words):
+        # Add word to current chunk if it's within the current time window
         if word["start"] <= time_window * chunk_number:
             current_chunk.append(word["word"])
-        else:
-            if idx != len(words) - 1:
-                # Interlace with previous word
-                current_chunk.append(words[idx - 1]["word"])
-                chunks.append(
-                    {
-                        "content": " ".join(current_chunk),
-                        "start": time_window * (chunk_number - 1),
-                        "end": time_window * chunk_number,
-                    }
-                )
-                chunk_number += 1
-            current_chunk = [word["word"]]
 
-        if idx == len(words) - 1:
+            # Track words that will be part of the overlap for the next chunk
+            if word["start"] >= (time_window * chunk_number - overlap_time):
+                overlap_words.append(word["word"])
+        else:
+            # We've exceeded the current time window
             chunks.append(
                 {
                     "content": " ".join(current_chunk),
@@ -278,6 +291,25 @@ def transcript_to_chunks(words: list[dict], time_window: int = 5000):
                     "end": time_window * chunk_number,
                 }
             )
+
+            # Start a new chunk with the overlap words
+            chunk_number += 1
+            current_chunk = overlap_words + [word["word"]]
+            overlap_words = []
+
+            # If this word is near the end of the new window, track it for the next overlap
+            if word["start"] >= (time_window * chunk_number - overlap_time):
+                overlap_words.append(word["word"])
+
+    # Add the final chunk if there are any words left
+    if current_chunk:
+        chunks.append(
+            {
+                "content": " ".join(current_chunk),
+                "start": time_window * (chunk_number - 1),
+                "end": time_window * chunk_number,
+            }
+        )
 
     return chunks
 
@@ -404,7 +436,6 @@ def process_pdf_file(
 
     except Exception as e:
         logging.error(f"Failed to process PDF file: {e}")
-        db_document.sqlmodel_update({"summary": f"Processing failed: {str(e)}"})
         session.add(db_document)
         session.commit()
 
